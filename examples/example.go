@@ -1,12 +1,10 @@
 package main
 
-import (
-	"github.com/versus-flow/go-flow-tooling/tooling"
-)
+import "github.com/bjartek/go-with-the-flow/gwtf"
 
 func main() {
 
-	gwtf := tooling.NewGoWithTheFlowEmulator()
+	gwtf := gwtf.NewGoWithTheFlowEmulator()
 
 	gwtf.DeployContract("nft")
 	gwtf.DeployContract("ft")
