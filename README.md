@@ -19,3 +19,7 @@ Create a ~/.flow-dev.json file that has fully qualified accounts for all your de
 1. `cd examples/`
 2. make emulator in terminal 1
 3. make in terminal 2
+
+## Credits
+
+This project is a rewrite of https://github.com/versus-flow/go-flow-tooling 
