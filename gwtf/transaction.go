@@ -41,6 +41,15 @@ func (t FlowTransactionBuilder) StringArgument(value string) FlowTransactionBuil
 	return t
 }
 
+//UFix64Argument add an account as an argument
+func (t FlowTransactionBuilder) UFix64Argument(key string) FlowTransactionBuilder {
+	amount, err := cadence.NewUFix64(key)
+	if err != nil {
+		panic(err)
+	}
+	return t.Argument(amount)
+}
+
 //Argument add an argument to the transaction
 func (t FlowTransactionBuilder) Argument(value cadence.Value) FlowTransactionBuilder {
 	t.Arguments = append(t.Arguments, value)

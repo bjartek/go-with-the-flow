@@ -1,6 +1,10 @@
 package main
 
-import "github.com/bjartek/go-with-the-flow/gwtf"
+import (
+	"log"
+
+	"github.com/bjartek/go-with-the-flow/gwtf"
+)
 
 func main() {
 
@@ -14,13 +18,11 @@ func main() {
 
 	gwtf.TransactionFromFile("argumentsWithAccount").SignProposeAndPayAs("ft").AccountArgument("nft").Run()
 	gwtf.TransactionFromFile("signWithMultipleAccounts").SignProposeAndPayAs("ft").PayloadSigner("nft").Run()
-	/*
-		// Run Script
-		gwtf.RunScriptReturns("test", gwtf.FindAddress("nft"))
 
-		//Run script that returns
-		result := gwtf.RunScriptReturns("test", gwtf.FindAddress("nft"))
-		log.Printf("Script returned %s", result)
-	*/
+	gwtf.ScriptFromFile("test").AccountArgument("nft").Run()
+
+	//Run script that returns
+	result := gwtf.ScriptFromFile("test").AccountArgument("nft").RunReturns()
+	log.Printf("Script returned %s", result)
 
 }
