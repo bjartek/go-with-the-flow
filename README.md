@@ -1,4 +1,4 @@
-# ~Go with the Flow~
+# Go with the Flow
 
 Set of go scripts to make it easer to run Story constisting of creating accounts, deploying contracts, executing transactions and running scripts on the Flow Blockchain.
 
