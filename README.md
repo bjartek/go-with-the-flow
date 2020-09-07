@@ -1,6 +1,6 @@
 # Go with the Flow
 
-Set of go scripts to make it easer to run Story constisting of creating accounts, deploying contracts, executing transactions and running scripts on the Flow Blockchain.
+Set of go scripts to make it easer to run a Story consisting of creating accounts, deploying contracts, executing transactions and running scripts on the Flow Blockchain.
 
 Feel free to ask questions to @bjartek or @0xAlchemist in the Flow Discord.
 
