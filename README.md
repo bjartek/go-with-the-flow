@@ -5,7 +5,7 @@ Set of go scripts to make it easer to run a Story consisting of creating account
 Feel free to ask questions to @bjartek or @0xAlchemist in the Flow Discord.
 
 ## How to configure the flow.json file
-The flow json file for working on devnet should look something like the file you have in the example folder. 
+The flow json file for working on emulator should look something like the file you have in the example folder. 
 
 Right now the examples are only creating two accounts/contracts but if you need more feel free to rename the 3-10 keys to suit your needs. Note that the emulator will always create the accounts in that order given that service account. 
 
