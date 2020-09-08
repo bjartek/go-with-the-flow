@@ -2,9 +2,10 @@ package gwtf
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/client"
@@ -84,7 +85,13 @@ func (f *GoWithTheFlow) performTransaction(
 
 	//TODO: Make this a lot better marshal as json or something
 	for _, event := range result.Events {
-		spew.Dump(event)
+		ev, err := ParseEvent(event)
+
+		prettyJSON, err := json.MarshalIndent(&ev.Fields, "", "    ")
+		if err != nil {
+			return err
+		}
+		fmt.Printf("Event emitted: %s %s\n", ev.Name, string(prettyJSON))
 	}
 
 	return nil
