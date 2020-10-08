@@ -45,8 +45,8 @@ func NewGoWithTheFlowEmulator() *GoWithTheFlow {
 	return gwtf
 }
 
-// NewFlowConfigDevNet setup devnot like in https://www.notion.so/Accessing-Flow-Devnet-ad35623797de48c08d8b88102ea38131
-func NewFlowConfigDevNet() *GoWithTheFlow {
+// NewGoWithTheFlowDevNet setup devnot like in https://www.notion.so/Accessing-Flow-Devnet-ad35623797de48c08d8b88102ea38131
+func NewGoWithTheFlowDevNet() *GoWithTheFlow {
 	flowConfigFile, err := homedir.Expand("~/.flow-dev.json")
 	if err != nil {
 		log.Fatalf("%v error %v", emoji.PileOfPoo, err)

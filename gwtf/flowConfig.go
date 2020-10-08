@@ -36,7 +36,7 @@ func NewRawFlowConfig(path string) (*RawFlowConfig, error) {
 	var flowConfig RawFlowConfig
 	err = d.Decode(&flowConfig)
 	if err != nil {
-		return nil, errors.Wrap(err, "Could not decode json info RawFlowCOnfig")
+		return nil, errors.Wrap(err, "Could not decode json info RawFlowConfig")
 	}
 
 	return &flowConfig, nil

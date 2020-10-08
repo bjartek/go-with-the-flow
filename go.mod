@@ -3,6 +3,7 @@ module github.com/bjartek/go-with-the-flow
 go 1.14
 
 require (
+	github.com/bwmarrin/discordgo v0.22.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/enescakir/emoji v1.0.0
 	github.com/mitchellh/go-homedir v1.1.0
