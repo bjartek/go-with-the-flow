@@ -64,7 +64,31 @@ func ParseEvent(ev flow.Event) (*FormatedEvent, error) {
 	spew.Dump(obj)
 	fields := map[string]string{}
 	for _, field := range obj.Value.Fields {
+		//		val := field.Value.Value
+		typ := field.Value.Type
 		val := field.Value.Value
+		switch typ {
+
+		case "Dictionary":
+			f := []string{}
+			for _, valField := range val.([]interface{}) {
+				kvMap := valField.(map[string]interface{})
+				key := kvMap["key"].(map[string]interface{})
+				value := kvMap["value"].(map[string]interface{})
+				f = append(f, fmt.Sprintf("%s:%s", key["value"], value["value"]))
+			}
+			fields[field.Name] = strings.Join(f, ",")
+		case "Array":
+			f := []string{}
+			for _, valField := range val.([]interface{}) {
+				v := valField.(map[string]interface{})
+				f = append(f, v["value"].(string))
+			}
+			fields[field.Name] = strings.Join(f, ",")
+		default:
+			fields[field.Name] = val.(string)
+
+		}
 		switch val.(type) {
 		case string:
 			fields[field.Name] = val.(string)
@@ -72,7 +96,6 @@ func ParseEvent(ev flow.Event) (*FormatedEvent, error) {
 			f := []string{}
 			for _, valField := range val.([]interface{}) {
 				v := valField.(map[string]interface{})
-				//interface {} is map[string]interface {}, not string on the line below
 				f = append(f, v["value"].(string))
 			}
 			fields[field.Name] = strings.Join(f, ",")
