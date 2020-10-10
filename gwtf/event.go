@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	jsoncdc "github.com/onflow/cadence/encoding/json"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/client"
@@ -60,6 +61,7 @@ func ParseEvent(ev flow.Event) (*FormatedEvent, error) {
 		return nil, err
 	}
 
+	spew.Dump(obj)
 	fields := map[string]string{}
 	for _, field := range obj.Value.Fields {
 		val := field.Value.Value
@@ -70,6 +72,7 @@ func ParseEvent(ev flow.Event) (*FormatedEvent, error) {
 			f := []string{}
 			for _, valField := range val.([]interface{}) {
 				v := valField.(map[string]interface{})
+				//interface {} is map[string]interface {}, not string on the line below
 				f = append(f, v["value"].(string))
 			}
 			fields[field.Name] = strings.Join(f, ",")
