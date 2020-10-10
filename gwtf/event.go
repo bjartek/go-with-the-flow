@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	jsoncdc "github.com/onflow/cadence/encoding/json"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/client"
@@ -61,13 +60,13 @@ func ParseEvent(ev flow.Event) (*FormatedEvent, error) {
 		return nil, err
 	}
 
-	spew.Dump(obj)
 	fields := map[string]string{}
 	for _, field := range obj.Value.Fields {
 		typ := field.Value.Type
 		val := field.Value.Value
 		switch typ {
 
+		//I guess these can be nested aswell...
 		case "Dictionary":
 			f := []string{}
 			for _, valField := range val.([]interface{}) {
