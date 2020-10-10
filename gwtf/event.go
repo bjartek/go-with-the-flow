@@ -83,6 +83,9 @@ func ParseEvent(ev flow.Event) (*FormatedEvent, error) {
 				f = append(f, v["value"].(string))
 			}
 			fields[field.Name] = strings.Join(f, ",")
+		case "Optional":
+			v := val.(map[string]interface{})
+			fields[field.Name] = v["value"].(string)
 		default:
 			fields[field.Name] = val.(string)
 		}
