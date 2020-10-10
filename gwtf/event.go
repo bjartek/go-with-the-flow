@@ -64,7 +64,6 @@ func ParseEvent(ev flow.Event) (*FormatedEvent, error) {
 	spew.Dump(obj)
 	fields := map[string]string{}
 	for _, field := range obj.Value.Fields {
-		//		val := field.Value.Value
 		typ := field.Value.Type
 		val := field.Value.Value
 		switch typ {
@@ -87,20 +86,6 @@ func ParseEvent(ev flow.Event) (*FormatedEvent, error) {
 			fields[field.Name] = strings.Join(f, ",")
 		default:
 			fields[field.Name] = val.(string)
-
-		}
-		switch val.(type) {
-		case string:
-			fields[field.Name] = val.(string)
-		case []interface{}:
-			f := []string{}
-			for _, valField := range val.([]interface{}) {
-				v := valField.(map[string]interface{})
-				f = append(f, v["value"].(string))
-			}
-			fields[field.Name] = strings.Join(f, ",")
-		default:
-			fields[field.Name] = fmt.Sprintf("%s", val)
 		}
 	}
 
