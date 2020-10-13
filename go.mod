@@ -1,4 +1,4 @@
-module github.com/bjartek/go-with-the-flow
+module github.com/bjartek/go-with-the-flow/v2
 
 go 1.14
 
