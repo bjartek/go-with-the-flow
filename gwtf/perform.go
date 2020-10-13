@@ -38,7 +38,7 @@ func (f *GoWithTheFlow) performTransaction(
 	}
 	tx.SetReferenceBlockID(blockHeader.ID)
 
-	tx.SetProposalKey(mainSigner.Address, mainSigner.Key.ID, mainSigner.Key.SequenceNumber)
+	tx.SetProposalKey(mainSigner.Address, mainSigner.Key.Index, mainSigner.Key.SequenceNumber)
 	tx.SetPayer(mainSigner.Address)
 	tx.SetGasLimit(f.Gas)
 	if len(tx.Authorizers) == 0 {
@@ -60,11 +60,11 @@ func (f *GoWithTheFlow) performTransaction(
 			if err != nil {
 				return err
 			}
-			tx.SignPayload(signer.Address, signer.Key.ID, signer.Signer)
+			tx.SignPayload(signer.Address, signer.Key.Index, signer.Signer)
 		}
 	}
 
-	err = tx.SignEnvelope(mainSigner.Address, mainSigner.Key.ID, mainSigner.Signer)
+	err = tx.SignEnvelope(mainSigner.Address, mainSigner.Key.Index, mainSigner.Signer)
 	if err != nil {
 		return err
 	}
