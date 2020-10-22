@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -79,6 +80,7 @@ func PrintEvents(events []flow.Event) {
 
 //ParseEvent parses a flow event into a more terse representation
 func ParseEvent(event flow.Event, blockHeight uint64, time time.Time) *FormatedEvent {
+	var re = regexp.MustCompile(`{Key:(.*) Value:(.*)}`)
 	var fieldNames []string
 	for _, eventTypeFields := range event.Value.EventType.Fields {
 		fieldNames = append(fieldNames, eventTypeFields.Identifier)
@@ -92,7 +94,8 @@ func ParseEvent(event flow.Event, blockHeight uint64, time time.Time) *FormatedE
 		if strings.Contains(value, "{Value:") {
 			fieldValue = between(value, "{Value:", "}")
 		} else if strings.Contains(value, "Pairs") {
-			fieldValue = between(value, "Pairs:[", "]}")
+			v := between(value, "Pairs:[", "]}")
+			fieldValue = re.ReplaceAllString(v, `$1=$2\n`)
 		} else if strings.Contains(value, "Values") {
 			fieldValue = between(value, "Values:[", "]}")
 		} else {
