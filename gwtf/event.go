@@ -89,7 +89,11 @@ func ParseEvent(event flow.Event, blockHeight uint64, time time.Time) *FormatedE
 		name := fieldNames[id]
 		value := fmt.Sprintf("%+v", field)
 		var fieldValue string
-		if strings.Contains(value, "Values") {
+		if strings.Contains(value, "{Value:") {
+			fieldValue = between(value, "{Value:", "}")
+		} else if strings.Contains(value, "Pairs") {
+			fieldValue = between(value, "Pairs:[", "]}")
+		} else if strings.Contains(value, "Values") {
 			fieldValue = between(value, "Values:[", "]}")
 		} else {
 			fieldValue = value
