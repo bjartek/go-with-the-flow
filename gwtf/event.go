@@ -98,7 +98,7 @@ func ParseEvent(event flow.Event, blockHeight uint64, time time.Time) *FormatedE
 				if s != "" {
 					key := between(s, "{Key:", " Value:")
 					value := between(s, "Value:", "}")
-					fieldValue = fmt.Sprintf("%s%s:%s\n", fieldValue, key, value)
+					fieldValue = fmt.Sprintf("%s%s:%s ", fieldValue, key, value)
 				}
 			}
 		} else if strings.Contains(value, "Values") {
