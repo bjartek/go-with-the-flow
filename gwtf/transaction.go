@@ -64,7 +64,7 @@ func (t FlowTransactionBuilder) PayloadSigner(value string) FlowTransactionBuild
 }
 
 //Run run the transaction
-func (t FlowTransactionBuilder) Run() {
+func (t FlowTransactionBuilder) Run() []flow.Event {
 	if t.MainSigner == nil {
 		log.Fatalf("%v You need to set the main signer", emoji.PileOfPoo)
 	}
@@ -75,11 +75,12 @@ func (t FlowTransactionBuilder) Run() {
 	}
 	tx := flow.NewTransaction().SetScript(code)
 
-	err = t.GoWithTheFlow.performTransaction(tx, t.MainSigner, t.PayloadSigners, t.Arguments)
+	events, err := t.GoWithTheFlow.performTransaction(tx, t.MainSigner, t.PayloadSigners, t.Arguments)
 	if err != nil {
 		log.Fatalf("%v error sending transaction %s %+v", emoji.PileOfPoo, t.FileName, err)
 	}
 	log.Printf("%v Transaction %s successfully applied\n", emoji.OkHand, t.FileName)
+	return events
 }
 
 //FlowTransactionBuilder used to create a builder pattern for a transaction

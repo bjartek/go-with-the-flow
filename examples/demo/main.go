@@ -8,21 +8,22 @@ import (
 
 func main() {
 
-	gwtf := gwtf.NewGoWithTheFlowEmulator()
+	g := gwtf.NewGoWithTheFlowEmulator()
 
-	gwtf.DeployContract("nft")
-	gwtf.DeployContract("ft")
-	gwtf.TransactionFromFile("create_nft_collection").SignProposeAndPayAs("ft").Run()
+	gwtf.PrintEvents(g.DeployContract("nft"))
 
-	gwtf.TransactionFromFile("arguments").SignProposeAndPayAs("ft").StringArgument("argument1").Run()
+	g.DeployContract("ft")
+	g.TransactionFromFile("create_nft_collection").SignProposeAndPayAs("ft").Run()
 
-	gwtf.TransactionFromFile("argumentsWithAccount").SignProposeAndPayAs("ft").AccountArgument("nft").Run()
-	gwtf.TransactionFromFile("signWithMultipleAccounts").SignProposeAndPayAs("ft").PayloadSigner("nft").Run()
+	g.TransactionFromFile("arguments").SignProposeAndPayAs("ft").StringArgument("argument1").Run()
 
-	gwtf.ScriptFromFile("test").AccountArgument("nft").Run()
+	g.TransactionFromFile("argumentsWithAccount").SignProposeAndPayAs("ft").AccountArgument("nft").Run()
+	g.TransactionFromFile("signWithMultipleAccounts").SignProposeAndPayAs("ft").PayloadSigner("nft").Run()
+
+	g.ScriptFromFile("test").AccountArgument("nft").Run()
 
 	//Run script that returns
-	result := gwtf.ScriptFromFile("test").AccountArgument("nft").RunReturns()
+	result := g.ScriptFromFile("test").AccountArgument("nft").RunReturns()
 	log.Printf("Script returned %s", result)
 
 }

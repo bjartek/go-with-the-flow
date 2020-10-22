@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	jsoncdc "github.com/onflow/cadence/encoding/json"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/client"
 	"google.golang.org/grpc"
@@ -35,66 +34,74 @@ func (f *GoWithTheFlow) FetchEvents(query client.EventRangeQuery) ([]*FormatedEv
 			time = header.Timestamp
 		}
 		for _, event := range blockEvent.Events {
-			ev, err := ParseEvent(event)
-			if err != nil {
-				return nil, err
-			}
-			ev.BlockHeight = blockEvent.Height
-			ev.Time = time
+			ev := ParseEvent(event, blockEvent.Height, time)
 			formatedEvents = append(formatedEvents, ev)
 		}
 	}
 	return formatedEvents, nil
 }
 
-//Not really happy with this code, would love something simpler
-//ParseEvent parses a flow.Event into a more condensed form without type info for viewing
-func ParseEvent(ev flow.Event) (*FormatedEvent, error) {
-	encodedValue, err := jsoncdc.Encode(ev.Value)
-	if err != nil {
-		return nil, err
+func between(value string, a string, b string) string {
+	// Get substring between two strings.
+	posFirst := strings.Index(value, a)
+	if posFirst == -1 {
+		return ""
 	}
-
-	var obj rawEvent
-	if err := json.Unmarshal(encodedValue, &obj); err != nil {
-		return nil, err
+	posLast := strings.Index(value, b)
+	if posLast == -1 {
+		return ""
 	}
+	posFirstAdjusted := posFirst + len(a)
+	if posFirstAdjusted >= posLast {
+		return ""
+	}
+	return value[posFirstAdjusted:posLast]
+}
 
-	fields := map[string]string{}
-	for _, field := range obj.Value.Fields {
-		typ := field.Value.Type
-		val := field.Value.Value
-		switch typ {
-
-		//I guess these can be nested aswell...
-		case "Dictionary":
-			f := []string{}
-			for _, valField := range val.([]interface{}) {
-				kvMap := valField.(map[string]interface{})
-				key := kvMap["key"].(map[string]interface{})
-				value := kvMap["value"].(map[string]interface{})
-				f = append(f, fmt.Sprintf("%s:%s", key["value"], value["value"]))
-			}
-			fields[field.Name] = strings.Join(f, ",")
-		case "Array":
-			f := []string{}
-			for _, valField := range val.([]interface{}) {
-				v := valField.(map[string]interface{})
-				f = append(f, v["value"].(string))
-			}
-			fields[field.Name] = strings.Join(f, ",")
-		case "Optional":
-			v := val.(map[string]interface{})
-			fields[field.Name] = v["value"].(string)
-		default:
-			fields[field.Name] = val.(string)
+//PrintEvents prints th events
+func PrintEvents(events []flow.Event) {
+	if len(events) > 0 {
+		fmt.Println("EVENTS")
+		fmt.Println("======")
+	}
+	for _, event := range events {
+		ev := ParseEvent(event, uint64(0), time.Now())
+		prettyJSON, err := json.MarshalIndent(ev, "", "    ")
+		if err != nil {
+			panic(err)
 		}
+		fmt.Printf("%s\n", string(prettyJSON))
 	}
+	if len(events) > 0 {
+		fmt.Println("======")
+	}
+}
 
+//ParseEvent parses a flow event into a more terse representation
+func ParseEvent(event flow.Event, blockHeight uint64, time time.Time) *FormatedEvent {
+	var fieldNames []string
+	for _, eventTypeFields := range event.Value.EventType.Fields {
+		fieldNames = append(fieldNames, eventTypeFields.Identifier)
+	}
+	finalFields := map[string]string{}
+	for id, field := range event.Value.Fields {
+
+		name := fieldNames[id]
+		value := fmt.Sprintf("%+v", field)
+		var fieldValue string
+		if strings.Contains(value, "Values") {
+			fieldValue = between(value, "Values:[", "]}")
+		} else {
+			fieldValue = value
+		}
+		finalFields[name] = fieldValue
+	}
 	return &FormatedEvent{
-		Name:   obj.Value.ID,
-		Fields: fields,
-	}, nil
+		Name:        event.Value.EventType.Identifier,
+		Fields:      finalFields,
+		BlockHeight: blockHeight,
+		Time:        time,
+	}
 }
 
 //FormatedEvent event in a more condensed formated form
@@ -103,20 +110,4 @@ type FormatedEvent struct {
 	BlockHeight uint64            `json:"blockHeight,omitempty"`
 	Time        time.Time         `json:"time,omitempty"`
 	Fields      map[string]string `json:"fields"`
-}
-
-type rawEvent struct {
-	Type  string `json:"type"`
-	Value struct {
-		ID     string `json:"id"`
-		Fields []struct {
-			Name  string    `json:"name"`
-			Value typeValue `json:"value"`
-		} `json:"fields"`
-	} `json:"value"`
-}
-
-type typeValue struct {
-	Type  string      `json:"type"`
-	Value interface{} `json:"value"`
 }

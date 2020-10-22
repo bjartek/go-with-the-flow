@@ -2,8 +2,6 @@ package gwtf
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/onflow/cadence"
@@ -12,29 +10,31 @@ import (
 	"google.golang.org/grpc"
 )
 
+var emptyEvents []flow.Event
+
 func (f *GoWithTheFlow) performTransaction(
 	tx *flow.Transaction,
 	mainSigner *GoWithTheFlowAccount,
 	signers []*GoWithTheFlowAccount,
-	arguments []cadence.Value) error {
+	arguments []cadence.Value) ([]flow.Event, error) {
 
 	ctx := context.Background()
 
 	c, err := client.New(f.Address, grpc.WithInsecure())
 	if err != nil {
-		return err
+		return emptyEvents, err
 	}
 
 	//Always need to fetch this signer anew since the sequenceNumber will change
 	mainSigner, err = mainSigner.EnrichWithAccountSignerAndKey(c)
 	if err != nil {
-		return err
+		return emptyEvents, err
 	}
 
 	// everything from here and almost down is EXACTLY the same as transaction
 	blockHeader, err := c.GetLatestBlockHeader(ctx, true)
 	if err != nil {
-		return err
+		return emptyEvents, err
 	}
 	tx.SetReferenceBlockID(blockHeader.ID)
 
@@ -58,7 +58,7 @@ func (f *GoWithTheFlow) performTransaction(
 		if signer.Account == nil {
 			signer, err := signer.EnrichWithAccountSignerAndKey(c)
 			if err != nil {
-				return err
+				return emptyEvents, err
 			}
 			tx.SignPayload(signer.Address, signer.Key.Index, signer.Signer)
 		}
@@ -66,35 +66,24 @@ func (f *GoWithTheFlow) performTransaction(
 
 	err = tx.SignEnvelope(mainSigner.Address, mainSigner.Key.Index, mainSigner.Signer)
 	if err != nil {
-		return err
+		return emptyEvents, err
 	}
 
 	err = c.SendTransaction(ctx, *tx)
 	if err != nil {
-		return err
+		return emptyEvents, err
 	}
 
 	result, err := waitForSeal(ctx, c, tx.ID())
 	if err != nil {
-		return err
+		return emptyEvents, err
 	}
 
 	if result.Error != nil {
-		return result.Error
+		return emptyEvents, result.Error
 	}
 
-	//TODO: Make this a lot better marshal as json or something
-	for _, event := range result.Events {
-		ev, err := ParseEvent(event)
-
-		prettyJSON, err := json.MarshalIndent(&ev.Fields, "", "    ")
-		if err != nil {
-			return err
-		}
-		fmt.Printf("Event emitted: %s %s\n", ev.Name, string(prettyJSON))
-	}
-
-	return nil
+	return result.Events, nil
 }
 
 // WaitForSeal wait fot the process to seal
