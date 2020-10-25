@@ -15,10 +15,18 @@ import (
 	"github.com/pkg/errors"
 )
 
+// DiscordWebhook stores information about a webhook
+type DiscordWebhook struct {
+	ID    string `json:"id"`
+	Token string `json:"token"`
+	Wait  bool   `json:"wait"`
+}
+
 // GoWithTheFlow Entire configuration to work with Go With the Flow
 type GoWithTheFlow struct {
 	Service  GoWithTheFlowAccount
 	Accounts map[string]GoWithTheFlowAccount
+	WebHooks map[string]DiscordWebhook
 	Address  string
 	Gas      uint64
 }
@@ -45,7 +53,7 @@ func NewGoWithTheFlowEmulator() *GoWithTheFlow {
 	return gwtf
 }
 
-// NewGoWithTheFlowDevNet setup devnot like in https://www.notion.so/Accessing-Flow-Devnet-ad35623797de48c08d8b88102ea38131
+// NewGoWithTheFlowDevNet setup dev like in https://www.notion.so/Accessing-Flow-Devnet-ad35623797de48c08d8b88102ea38131
 func NewGoWithTheFlowDevNet() *GoWithTheFlow {
 	flowConfigFile, err := homedir.Expand("~/.flow-dev.json")
 	if err != nil {
@@ -123,6 +131,7 @@ func NewGoWithTheFlowError(fileName string) (*GoWithTheFlow, error) {
 		Gas:      gas,
 		Service:  serviceAccount,
 		Accounts: accounts,
+		WebHooks: config.Webhooks,
 	}, nil
 
 }

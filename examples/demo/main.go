@@ -10,15 +10,19 @@ func main() {
 
 	g := gwtf.NewGoWithTheFlowEmulator()
 
-	gwtf.PrintEvents(g.DeployContract("nft"))
+	var ignoreFields = map[string][]string{
+		"flow.AccountCodeUpdated": []string{"codeHash"},
+		"flow.AccountKeyAdded":    []string{"publicKey"},
+	}
+	gwtf.PrintEvents(g.DeployContract("nft"), ignoreFields)
 
 	g.DeployContract("ft")
-	g.TransactionFromFile("create_nft_collection").SignProposeAndPayAs("ft").Run()
+	g.TransactionFromFile("create_nft_collection").SignProposeAndPayAs("ft").RunPrintEvents(ignoreFields)
 
-	g.TransactionFromFile("arguments").SignProposeAndPayAs("ft").StringArgument("argument1").Run()
+	g.TransactionFromFile("arguments").SignProposeAndPayAs("ft").StringArgument("argument1").RunPrintEvents(ignoreFields)
 
-	g.TransactionFromFile("argumentsWithAccount").SignProposeAndPayAs("ft").AccountArgument("nft").Run()
-	g.TransactionFromFile("signWithMultipleAccounts").SignProposeAndPayAs("ft").PayloadSigner("nft").Run()
+	g.TransactionFromFile("argumentsWithAccount").SignProposeAndPayAs("ft").AccountArgument("nft").RunPrintEvents(ignoreFields)
+	g.TransactionFromFile("signWithMultipleAccounts").SignProposeAndPayAs("ft").PayloadSigner("nft").RunPrintEvents(ignoreFields)
 
 	g.ScriptFromFile("test").AccountArgument("nft").Run()
 

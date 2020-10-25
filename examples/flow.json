@@ -20,6 +20,13 @@
         "8":"192440c99cb17282",
 		"9": "fd43f9148d4b725d",
 		"10" : "eb179c27144f783c"
+	}, 
+	"webHooks": {
+		"gwtf" : {
+			"id": "<id of webhook>",
+			"token": "<token of webhook>",
+			"wait" : true
+		}
 	}
 }
  

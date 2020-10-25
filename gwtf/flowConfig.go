@@ -13,6 +13,7 @@ type RawFlowConfig struct {
 	GasLimit         uint64
 	Accounts         map[string]RawAccount
 	EmulatorAccounts map[string]string
+	Webhooks         map[string]DiscordWebhook
 }
 
 // RawAccount flow accounts struct for marshalling into primitive types
