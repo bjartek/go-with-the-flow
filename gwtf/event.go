@@ -4,11 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"sort"
 	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/onflow/cadence/runtime/sema"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/client"
 	"github.com/pkg/errors"
@@ -239,7 +241,13 @@ func ParseEvent(event flow.Event, blockHeight uint64, time time.Time, ignoreFiel
 		if skip {
 			continue
 		}
+		typ := reflect.TypeOf(field)
 		value := fmt.Sprintf("%+v", field)
+		if typ.Name() == "UFix64" {
+			value = encodeUFix64(field.ToGoValue().(uint64))
+		} else if typ.Name() == "Fix64" {
+			value = encodeFix64(field.ToGoValue().(int64))
+		}
 		var fieldValue string
 		if strings.Contains(value, "{Value:") {
 			fieldValue = between(value, "{Value:", "}")
@@ -274,4 +282,40 @@ type FormatedEvent struct {
 	BlockHeight uint64            `json:"blockHeight,omitempty"`
 	Time        time.Time         `json:"time,omitempty"`
 	Fields      map[string]string `json:"fields"`
+}
+
+//just copied this from here https://github.com/onflow/cadence/blob/master/encoding/json/encode.go
+func encodeUFix64(v uint64) string {
+	integer := v / sema.Fix64Factor
+	fraction := v % sema.Fix64Factor
+
+	return fmt.Sprintf(
+		"%d.%08d",
+		integer,
+		fraction,
+	)
+}
+
+func encodeFix64(v int64) string {
+	integer := v / sema.Fix64Factor
+	fraction := v % sema.Fix64Factor
+
+	negative := fraction < 0
+
+	var builder strings.Builder
+
+	if negative {
+		fraction = -fraction
+		if integer == 0 {
+			builder.WriteRune('-')
+		}
+	}
+
+	builder.WriteString(fmt.Sprintf(
+		"%d.%08d",
+		integer,
+		fraction,
+	))
+
+	return builder.String()
 }
