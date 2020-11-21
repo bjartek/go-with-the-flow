@@ -23,16 +23,16 @@ func (f *GoWithTheFlow) CreateAccount(accountName string) []flow.Event {
 	return events
 }
 
-// DeployContract will deploy a contract with the given name to an account with the same name from wallet.json
-func (f *GoWithTheFlow) DeployContract(contractName string) []flow.Event {
+// AddContract will deploy a contract with the given name to an account with the same name from wallet.json
+func (f *GoWithTheFlow) AddContract(accountName string, contractName string) []flow.Event {
 	contractPath := fmt.Sprintf("./contracts/%s.cdc", contractName)
 	//log.Printf("Deploying contract: %s at %s", contractName, contractPath)
 	code, err := ioutil.ReadFile(contractPath)
 	if err != nil {
 		log.Fatalf("%v Could not read contract file from path=%s", emoji.PileOfPoo, contractPath)
 	}
-	user := f.Accounts[contractName]
-	tx := templates.CreateAccount([]*flow.AccountKey{user.NewAccountKey()}, code, f.Service.Address)
+	user := f.Accounts[accountName]
+	tx := templates.AddAccountContract(user.Address, contractName, code)
 	events, err := f.performTransaction(tx, &f.Service, []*GoWithTheFlowAccount{}, []cadence.Value{})
 	if err != nil {
 		log.Fatalf("%v error creating account %s %+v", emoji.PileOfPoo, contractName, err)
