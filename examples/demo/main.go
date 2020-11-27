@@ -20,7 +20,7 @@ func main() {
 
 	g.TransactionFromFile("create_nft_collection").SignProposeAndPayAs("first").RunPrintEvents(ignoreFields)
 
-	g.TransactionFromFile("arguments").SignProposeAndPayAs("first").StringArgument("argument1").RunPrintEvents(ignoreFields)
+	g.TransactionFromFile("arguments").SignProposeAndPayAs("first").StringArgument("argument1").RunPrintEventsFull()
 
 	g.TransactionFromFile("argumentsWithAccount").SignProposeAndPayAs("first").AccountArgument("second").RunPrintEvents(ignoreFields)
 	g.TransactionFromFile("signWithMultipleAccounts").SignProposeAndPayAs("first").PayloadSigner("second").RunPrintEvents(ignoreFields)

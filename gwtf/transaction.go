@@ -63,6 +63,11 @@ func (t FlowTransactionBuilder) PayloadSigner(value string) FlowTransactionBuild
 	return t
 }
 
+//RunPrintEventsFull will run a transaction and print all events
+func (t FlowTransactionBuilder) RunPrintEventsFull() {
+	PrintEvents(t.Run(), map[string][]string{})
+}
+
 //RunPrintEvents will run a transaction and print all events
 func (t FlowTransactionBuilder) RunPrintEvents(ignoreFields map[string][]string) {
 	PrintEvents(t.Run(), ignoreFields)
