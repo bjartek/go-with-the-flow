@@ -14,21 +14,21 @@ func main() {
 		"flow.AccountCodeUpdated": []string{"codeHash"},
 		"flow.AccountKeyAdded":    []string{"publicKey"},
 	}
-	g.CreateAccount("accounts")
-	gwtf.PrintEvents(g.AddContract("accounts", "nft"), ignoreFields)
-	gwtf.PrintEvents(g.AddContract("accounts", "ft"), ignoreFields)
+	g.InitializeContracts()
+	g.CreateAccount("first")
+	g.CreateAccount("second")
 
-	g.TransactionFromFile("create_nft_collection").SignProposeAndPayAs("ft").RunPrintEvents(ignoreFields)
+	g.TransactionFromFile("create_nft_collection").SignProposeAndPayAs("first").RunPrintEvents(ignoreFields)
 
-	g.TransactionFromFile("arguments").SignProposeAndPayAs("ft").StringArgument("argument1").RunPrintEvents(ignoreFields)
+	g.TransactionFromFile("arguments").SignProposeAndPayAs("first").StringArgument("argument1").RunPrintEvents(ignoreFields)
 
-	g.TransactionFromFile("argumentsWithAccount").SignProposeAndPayAs("ft").AccountArgument("nft").RunPrintEvents(ignoreFields)
-	g.TransactionFromFile("signWithMultipleAccounts").SignProposeAndPayAs("ft").PayloadSigner("nft").RunPrintEvents(ignoreFields)
+	g.TransactionFromFile("argumentsWithAccount").SignProposeAndPayAs("first").AccountArgument("second").RunPrintEvents(ignoreFields)
+	g.TransactionFromFile("signWithMultipleAccounts").SignProposeAndPayAs("first").PayloadSigner("second").RunPrintEvents(ignoreFields)
 
-	g.ScriptFromFile("test").AccountArgument("nft").Run()
+	g.ScriptFromFile("test").AccountArgument("second").Run()
 
 	//Run script that returns
-	result := g.ScriptFromFile("test").AccountArgument("nft").RunReturns()
+	result := g.ScriptFromFile("test").AccountArgument("second").RunReturns()
 	log.Printf("Script returned %s", result)
 
 }
