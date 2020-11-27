@@ -13,8 +13,11 @@ import (
 )
 
 //CreateAccount with no contracts
-func (f *GoWithTheFlow) CreateAccount(accountName string) []flow.Event {
-	return f.CreateAccountWithContracts(accountName)
+func (f *GoWithTheFlow) CreateAccount(accountName ...string) *GoWithTheFlow {
+	for _, account := range accountName {
+		f.CreateAccountWithContracts(account)
+	}
+	return f
 }
 
 //InitializeContracts installs all contracts to the account with name accounts
