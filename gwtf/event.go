@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"reflect"
 	"sort"
 	"strings"
 	"time"
@@ -241,32 +240,8 @@ func ParseEvent(event flow.Event, blockHeight uint64, time time.Time, ignoreFiel
 		if skip {
 			continue
 		}
-		typ := reflect.TypeOf(field)
-		value := fmt.Sprintf("%+v", field)
-		if typ.Name() == "UFix64" {
-			value = encodeUFix64(field.ToGoValue().(uint64))
-		} else if typ.Name() == "Fix64" {
-			value = encodeFix64(field.ToGoValue().(int64))
-		}
-		var fieldValue string
-		if strings.Contains(value, "{Value:") {
-			fieldValue = between(value, "{Value:", "}")
-		} else if strings.Contains(value, "Pairs") {
-			v := between(value, "Pairs:[", "]}")
-			parts := strings.SplitAfter(v, "}")
-			for _, s := range parts {
-				if s != "" {
-					key := between(s, "{Key:", " Value:")
-					value := between(s, "Value:", "}")
-					fieldValue = fmt.Sprintf("%s%s:%s ", fieldValue, key, value)
-				}
-			}
-		} else if strings.Contains(value, "Values") {
-			fieldValue = between(value, "Values:[", "]}")
-		} else {
-			fieldValue = value
-		}
-		finalFields[name] = fieldValue
+
+		finalFields[name] = fmt.Sprintf("%v", field)
 	}
 	return &FormatedEvent{
 		Name:        event.Value.EventType.TypeID,

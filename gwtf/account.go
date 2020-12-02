@@ -12,8 +12,23 @@ import (
 	"github.com/onflow/flow-go-sdk/templates"
 )
 
-//CreateAccount with no contracts
+//CreateAccountPrintEvents create accounts and print events
+func (f *GoWithTheFlow) CreateAccountPrintEvents(accountName ...string) *GoWithTheFlow {
+
+	var ignoreFields = map[string][]string{
+		"flow.AccountCodeUpdated": []string{"codeHash"},
+		"flow.AccountKeyAdded":    []string{"publicKey"},
+	}
+
+	for _, account := range accountName {
+		PrintEvents(f.CreateAccountWithContracts(account), ignoreFields)
+	}
+	return f
+}
+
+//CreateAccount creates the accounts with the given names
 func (f *GoWithTheFlow) CreateAccount(accountName ...string) *GoWithTheFlow {
+
 	for _, account := range accountName {
 		f.CreateAccountWithContracts(account)
 	}
@@ -23,6 +38,12 @@ func (f *GoWithTheFlow) CreateAccount(accountName ...string) *GoWithTheFlow {
 //InitializeContracts installs all contracts to the account with name accounts
 func (f *GoWithTheFlow) InitializeContracts() *GoWithTheFlow {
 	f.CreateAccountWithAllContracts("accounts")
+	return f
+}
+
+//InitializeContractsPrintEvents installs all contracts to the account with name accounts
+func (f *GoWithTheFlow) InitializeContractsPrintEvents() *GoWithTheFlow {
+	PrintEvents(f.CreateAccountWithAllContracts("accounts"), map[string][]string{})
 	return f
 }
 
@@ -84,6 +105,28 @@ func (f *GoWithTheFlow) AddContract(accountName string, contractName string) []f
 	events, err := f.performTransaction(tx, &user, []*GoWithTheFlowAccount{}, []cadence.Value{})
 	if err != nil {
 		log.Fatalf("%v adding contract %s %+v", emoji.PileOfPoo, contractName, err)
+	}
+	log.Printf("%v Contract: %s successfully deployed\n", emoji.Scroll, contractName)
+	return events
+}
+
+// UpdateContract will deploy a contract with the given name to an account with the same name from wallet.json
+func (f *GoWithTheFlow) UpdateContract(accountName string, contractName string) []flow.Event {
+	contractPath := fmt.Sprintf("./contracts/%s.cdc", contractName)
+	log.Printf("Updating contract: %s at %s", contractName, contractPath)
+	code, err := ioutil.ReadFile(contractPath)
+	if err != nil {
+		log.Fatalf("%v Could not read contract file from path=%s", emoji.PileOfPoo, contractPath)
+	}
+	user := f.Accounts[accountName]
+	contract := templates.Contract{
+		Name:   contractName,
+		Source: string(code),
+	}
+	tx := templates.UpdateAccountContract(user.Address, contract)
+	events, err := f.performTransaction(tx, &user, []*GoWithTheFlowAccount{}, []cadence.Value{})
+	if err != nil {
+		log.Fatalf("%v updateing contract %s %+v", emoji.PileOfPoo, contractName, err)
 	}
 	log.Printf("%v Contract: %s successfully deployed\n", emoji.Scroll, contractName)
 	return events

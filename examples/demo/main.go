@@ -10,15 +10,16 @@ func main() {
 
 	g := gwtf.
 		NewGoWithTheFlowEmulator().
-		InitializeContracts().
-		CreateAccount("first", "second")
+		InitializeContractsPrintEvents().
+		CreateAccountPrintEvents("first", "second")
 
 	var ignoreFields = map[string][]string{
 		"flow.AccountCodeUpdated": []string{"codeHash"},
 		"flow.AccountKeyAdded":    []string{"publicKey"},
 	}
 
-	g.TransactionFromFile("create_nft_collection").SignProposeAndPayAs("first").RunPrintEvents(ignoreFields)
+	gwtf.PrintEvents(g.UpdateContract("accounts", "NonFungibleToken"), ignoreFields)
+	g.TransactionFromFile("create_nft_collection").SignProposeAndPayAs("first").RunPrintEventsFull()
 
 	g.TransactionFromFile("arguments").SignProposeAndPayAs("first").StringArgument("argument1").RunPrintEventsFull()
 

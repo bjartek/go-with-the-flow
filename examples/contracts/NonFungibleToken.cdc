@@ -9,7 +9,7 @@
 
 pub contract NonFungibleToken {
 
-    pub event TestEvent(ufix:UFix64, uint: UInt64)
+    pub event TestEvent(ufix:UFix64, uint: UInt64, test: String)
   // Declare the NFT resource type
   pub resource NFT {
       // The unique ID that differentiates each NFT
@@ -136,7 +136,6 @@ pub contract NonFungibleToken {
     // store a minter resource in account storage
     self.account.save<@NFTMinter>(<-create NFTMinter(), to: /storage/NFTMinter)
 
-    emit TestEvent(ufix: 64.01, uint: 64)
-    emit TestEvent(ufix: 64.10, uint: 64)
+    emit TestEvent(ufix: 64.10, uint: 64, test: "foobar" )
   }
 }
