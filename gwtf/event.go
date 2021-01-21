@@ -208,7 +208,7 @@ func PrintEvents(events []flow.Event, ignoreFields map[string][]string) {
 	}
 	for _, event := range events {
 
-		eventType := event.Value.EventType.TypeID
+		eventType := string(event.Value.EventType.Location.ID())
 		ignoreFieldsForType := ignoreFields[eventType]
 		ev := ParseEvent(event, uint64(0), time.Now(), ignoreFieldsForType)
 		prettyJSON, err := json.MarshalIndent(ev, "", "    ")
@@ -244,7 +244,7 @@ func ParseEvent(event flow.Event, blockHeight uint64, time time.Time, ignoreFiel
 		finalFields[name] = fmt.Sprintf("%v", field)
 	}
 	return &FormatedEvent{
-		Name:        event.Value.EventType.TypeID,
+		Name:        string(event.Value.EventType.Location.ID()),
 		Fields:      finalFields,
 		BlockHeight: blockHeight,
 		Time:        time,
