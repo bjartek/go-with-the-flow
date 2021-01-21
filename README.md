@@ -1,7 +1,5 @@
 # Go with the Flow
 
-Right now this tool required version v0.11.2 of flow-cli. Get using
-```sh -ci  "$(curl -fsSL https://storage.googleapis.com/flow-cli/install.sh)" -- v0.11.2```
 
 Set of go scripts to make it easer to run a Story consisting of creating accounts, deploying contracts, executing transactions and running scripts on the Flow Blockchain.
 
