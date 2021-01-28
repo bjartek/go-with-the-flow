@@ -8,6 +8,7 @@ import (
 
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
+	jsoncdc "github.com/onflow/cadence/encoding/json"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/templates"
 )
@@ -109,6 +110,47 @@ func (f *GoWithTheFlow) AddContract(accountName string, contractName string) []f
 	log.Printf("%v Contract: %s successfully deployed\n", emoji.Scroll, contractName)
 	return events
 }
+
+// AddContractWithSignerAsInitArg will deploy a contract with the given name to an account with the same name from wallet.json
+func (f *GoWithTheFlow) AddContractWithSignerAsInitArg(accountName string, contractName string) []flow.Event {
+	contractPath := fmt.Sprintf("./contracts/%s.cdc", contractName)
+	log.Printf("Deploying contract: %s at %s", contractName, contractPath)
+	code, err := ioutil.ReadFile(contractPath)
+	if err != nil {
+		log.Fatalf("%v Could not read contract file from path=%s", emoji.PileOfPoo, contractPath)
+	}
+	user := f.Accounts[accountName]
+	contract := templates.Contract{
+		Name:   contractName,
+		Source: string(code),
+	}
+	tx := AddAccountContractWitwhAuthInit(user.Address, contract)
+	events, err := f.performTransaction(tx, &user, []*GoWithTheFlowAccount{}, []cadence.Value{})
+	if err != nil {
+		log.Fatalf("%v adding contract %s %+v", emoji.PileOfPoo, contractName, err)
+	}
+	log.Printf("%v Contract: %s successfully deployed\n", emoji.Scroll, contractName)
+	return events
+}
+
+// AddAccountContractWitwhAuthInit generates a transaction that deploys a contract to an account.
+func AddAccountContractWitwhAuthInit(address flow.Address, contract templates.Contract) *flow.Transaction {
+	cadenceName := cadence.NewString(contract.Name)
+	cadenceCode := cadence.NewString(contract.SourceHex())
+
+	return flow.NewTransaction().
+		SetScript([]byte(addAccountContractTemplate)).
+		AddRawArgument(jsoncdc.MustEncode(cadenceName)).
+		AddRawArgument(jsoncdc.MustEncode(cadenceCode)).
+		AddAuthorizer(address)
+}
+
+const addAccountContractTemplate = `
+transaction(name: String, code: String) {
+	prepare(signer: AuthAccount) {
+		signer.contracts.add(name: name, code: code.decodeHex(), signer)
+	}
+}`
 
 // UpdateContract will deploy a contract with the given name to an account with the same name from wallet.json
 func (f *GoWithTheFlow) UpdateContract(accountName string, contractName string) []flow.Event {
