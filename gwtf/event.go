@@ -244,7 +244,7 @@ func ParseEvent(event flow.Event, blockHeight uint64, time time.Time, ignoreFiel
 		finalFields[name] = fmt.Sprintf("%v", field)
 	}
 	return &FormatedEvent{
-		Name:        string(event.Value.EventType.Location.ID()),
+		Name:        event.Type,
 		Fields:      finalFields,
 		BlockHeight: blockHeight,
 		Time:        time,
