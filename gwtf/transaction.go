@@ -21,6 +21,13 @@ func (f *GoWithTheFlow) TransactionFromFile(filename string) FlowTransactionBuil
 	}
 }
 
+//SignProposeAndPayAsService set the payer, proposer and envelope signer
+func (t FlowTransactionBuilder) SignProposeAndPayAsService() FlowTransactionBuilder {
+	mainSigner := t.GoWithTheFlow.Service
+	t.MainSigner = &mainSigner
+	return t
+}
+
 //SignProposeAndPayAs set the payer, proposer and envelope signer
 func (t FlowTransactionBuilder) SignProposeAndPayAs(signer string) FlowTransactionBuilder {
 	mainSigner := t.GoWithTheFlow.Accounts[signer]

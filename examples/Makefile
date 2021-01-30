@@ -4,6 +4,9 @@ all: demo
 demo:
 	go run ./demo/main.go
 
+.PHONY: mint
+mint:
+	go run ./mint/main.go
 
 .PHONY: event
 event:
