@@ -17,8 +17,8 @@ import (
 func (f *GoWithTheFlow) CreateAccountPrintEvents(accountName ...string) *GoWithTheFlow {
 
 	var ignoreFields = map[string][]string{
-		"flow.AccountCodeUpdated": []string{"codeHash"},
-		"flow.AccountKeyAdded":    []string{"publicKey"},
+		"flow.AccountCodeUpdated": {"codeHash"},
+		"flow.AccountKeyAdded":    {"publicKey"},
 	}
 
 	for _, account := range accountName {

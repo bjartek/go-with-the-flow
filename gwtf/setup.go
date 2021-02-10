@@ -46,11 +46,7 @@ type GoWithTheFlowAccount struct {
 
 //NewGoWithTheFlowEmulator create a new client
 func NewGoWithTheFlowEmulator() *GoWithTheFlow {
-	gwtf, err := NewGoWithTheFlowError("./flow.json")
-	if err != nil {
-		log.Fatalf("%v error %+v", emoji.PileOfPoo, err)
-	}
-	return gwtf
+	return NewGoWithTheFlow("./flow.json")
 }
 
 // NewGoWithTheFlowDevNet setup dev like in https://www.notion.so/Accessing-Flow-Devnet-ad35623797de48c08d8b88102ea38131

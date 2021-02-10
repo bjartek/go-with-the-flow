@@ -14,8 +14,8 @@ func main() {
 		CreateAccountPrintEvents("first", "second")
 
 	var ignoreFields = map[string][]string{
-		"flow.AccountCodeUpdated": []string{"codeHash"},
-		"flow.AccountKeyAdded":    []string{"publicKey"},
+		"flow.AccountCodeUpdated": {"codeHash"},
+		"flow.AccountKeyAdded":    {"publicKey"},
 	}
 
 	gwtf.PrintEvents(g.UpdateContract("accounts", "NonFungibleToken"), ignoreFields)
