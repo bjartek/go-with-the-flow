@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"sort"
 	"strconv"
@@ -190,6 +191,7 @@ func (e EventHookBuilder) Run() (*discordgo.Message, error) {
 		return nil, errors.New("FromIndex is negative")
 	}
 
+	log.Printf("Fetching events from %d to %d", fromIndex, endIndex)
 	formatedEvents := []*FormatedEvent{}
 	for contract, ignoreFields := range e.EventsAndIgnoreFields {
 		events, err := fetchEvents(ctx, c,
@@ -208,17 +210,17 @@ func (e EventHookBuilder) Run() (*discordgo.Message, error) {
 		return formatedEvents[i].BlockHeight < formatedEvents[j].BlockHeight
 	})
 
-	if len(formatedEvents) == 0 {
-		return nil, nil
-	}
-
 	if e.ProgressFile != "" {
 		err := writeProgressToFile(e.ProgressFile, endIndex)
 		if err != nil {
 			return nil, errors.Wrap(err, "Could not write progress to file")
 		}
-
 	}
+
+	if len(formatedEvents) == 0 {
+		return nil, nil
+	}
+
 	return eventHook.SendEventsToWebhook(formatedEvents)
 
 }
