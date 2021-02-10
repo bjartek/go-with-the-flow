@@ -4,7 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -24,6 +27,7 @@ type EventHookBuilder struct {
 	FromIndex             int64
 	EndAtCurrentHeight    bool
 	EndIndex              uint64
+	ProgressFile          string
 }
 
 // SendEventsTo starts a event hook builder
@@ -34,6 +38,7 @@ func (f *GoWithTheFlow) SendEventsTo(eventHookName string) EventHookBuilder {
 		EventsAndIgnoreFields: map[string][]string{},
 		EndAtCurrentHeight:    true,
 		FromIndex:             -10,
+		ProgressFile:          "",
 	}
 }
 
@@ -89,8 +94,69 @@ func (e EventHookBuilder) UntilCurrent() EventHookBuilder {
 	return e
 }
 
+//TrackProgressIn Specify a file to store progress in
+func (e EventHookBuilder) TrackProgressIn(fileName string) EventHookBuilder {
+	e.ProgressFile = fileName
+	e.EndIndex = 0
+	e.FromIndex = 0
+	e.EndAtCurrentHeight = true
+	return e
+}
+
+func exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return true, err
+}
+
+func writeProgressToFile(fileName string, blockHeight uint64) error {
+	err := ioutil.WriteFile(fileName, []byte(fmt.Sprintf("%d", blockHeight)), 0644)
+	if err != nil {
+		return errors.Wrap(err, "Could not create initial progress file")
+	}
+	return nil
+}
+
+func readProgressFromFile(fileName string) (int64, error) {
+	dat, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		return 0, errors.Wrap(err, "ProgressFile is not valid")
+	}
+
+	return strconv.ParseInt(string(dat), 10, 64)
+}
+
 // Run the eventHook flow
 func (e EventHookBuilder) Run() (*discordgo.Message, error) {
+
+	//if we have a progress file read the value from it and set it as oldHeight
+	if e.ProgressFile != "" {
+		//TODO if file does not exist that is OK
+
+		present, err := exists(e.ProgressFile)
+		if err != nil {
+			return nil, err
+		}
+		if !present {
+			err := writeProgressToFile(e.ProgressFile, 0)
+			if err != nil {
+				return nil, errors.Wrap(err, "Could not create initial progress file")
+			}
+			e.FromIndex = 0
+		} else {
+			oldHeight, err := readProgressFromFile(e.ProgressFile)
+			if err != nil {
+				return nil, errors.Wrap(err, "Could not parse progress file as block height")
+			}
+			e.FromIndex = oldHeight
+		}
+	}
+
 	eventHook, ok := e.GoWithTheFlow.WebHooks[e.WebhookName]
 	if !ok {
 		return nil, errors.New("Could not find webhook with name " + e.WebhookName)
@@ -113,7 +179,7 @@ func (e EventHookBuilder) Run() (*discordgo.Message, error) {
 
 	fromIndex := e.FromIndex
 	//if we have a negative fromIndex is is relative to endIndex
-	if e.FromIndex < 0 {
+	if e.FromIndex <= 0 {
 		fromIndex = int64(endIndex) + e.FromIndex
 	}
 
@@ -141,6 +207,14 @@ func (e EventHookBuilder) Run() (*discordgo.Message, error) {
 
 	if len(formatedEvents) == 0 {
 		return nil, nil
+	}
+
+	if e.ProgressFile != "" {
+		err := writeProgressToFile(e.ProgressFile, endIndex)
+		if err != nil {
+			return nil, errors.Wrap(err, "Could not write progress to file")
+		}
+
 	}
 	return eventHook.SendEventsToWebhook(formatedEvents)
 

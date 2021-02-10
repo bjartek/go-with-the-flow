@@ -60,7 +60,12 @@ func NewGoWithTheFlowDevNet() *GoWithTheFlow {
 		log.Fatalf("%v error %v", emoji.PileOfPoo, err)
 	}
 
-	gwtf, err := NewGoWithTheFlowError(flowConfigFile)
+	return NewGoWithTheFlow(flowConfigFile)
+}
+
+// NewGoWithTheFlow with custom file panic on error
+func NewGoWithTheFlow(filename string) *GoWithTheFlow {
+	gwtf, err := NewGoWithTheFlowError(filename)
 	if err != nil {
 		log.Fatalf("%v error %+v", emoji.PileOfPoo, err)
 	}

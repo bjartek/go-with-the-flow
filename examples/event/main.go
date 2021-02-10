@@ -9,12 +9,20 @@ func main() {
 
 	g := gwtf.NewGoWithTheFlowEmulator()
 
-	event, err := g.SendEventsTo("gwtf").
-		From(0).
-		Until(6).
+	eventBuilder := g.SendEventsTo("gwtf").
+		TrackProgressIn("/tmp/gwtf_events").
 		EventIgnoringFields("flow.AccountCodeUpdated", []string{"codeHash"}).
-		EventIgnoringFields("flow.AccountKeyAdded", []string{"publicKey"}).
-		Run()
+		EventIgnoringFields("flow.AccountKeyAdded", []string{"publicKey"})
+
+	err, event := eventBuilder.Run()
+	if err != nil {
+		panic(err)
+	}
+	spew.Dump(event)
+
+	g.CreateAccountPrintEvents("first")
+
+	err, event = eventBuilder.Run()
 	if err != nil {
 		panic(err)
 	}
