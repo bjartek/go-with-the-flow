@@ -1,9 +1,11 @@
 package gwtf
 
 import (
+	"encoding/hex"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"strings"
 
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
@@ -33,6 +35,18 @@ func (t FlowTransactionBuilder) SignProposeAndPayAs(signer string) FlowTransacti
 	mainSigner := t.GoWithTheFlow.Accounts[signer]
 	t.MainSigner = &mainSigner
 	return t
+}
+
+//RawAccountArgument add an account from a string as an argument
+func (t FlowTransactionBuilder) RawAccountArgument(key string) FlowTransactionBuilder {
+
+	trimmedString := strings.TrimPrefix(key, "0x")
+	accountHex, err := hex.DecodeString(trimmedString)
+	if err != nil {
+		panic(err)
+	}
+	accountArg := cadence.BytesToAddress(accountHex)
+	return t.Argument(accountArg)
 }
 
 //AccountArgument add an account as an argument
