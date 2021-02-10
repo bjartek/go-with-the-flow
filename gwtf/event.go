@@ -128,7 +128,10 @@ func readProgressFromFile(fileName string) (int64, error) {
 		return 0, errors.Wrap(err, "ProgressFile is not valid")
 	}
 
-	return strconv.ParseInt(string(dat), 10, 64)
+	stringValue := strings.TrimSpace(string(dat))
+
+	return strconv.ParseInt(stringValue, 10, 64)
+
 }
 
 // Run the eventHook flow
