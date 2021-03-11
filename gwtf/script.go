@@ -65,7 +65,7 @@ func (t FlowScriptBuilder) Run() {
 func (t FlowScriptBuilder) RunReturns() cadence.Value {
 
 	f := t.GoWithTheFlow
-	c, err := client.New(f.Address, grpc.WithInsecure())
+	c, err := client.New(f.Address, grpc.WithInsecure(), grpc.WithMaxMsgSize(maxGRPCMessageSize))
 	if err != nil {
 		log.Fatalf("%v Error creating flow client", emoji.PileOfPoo)
 	}

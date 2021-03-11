@@ -135,6 +135,8 @@ func readProgressFromFile(fileName string) (int64, error) {
 
 }
 
+const maxGRPCMessageSize = 1024 * 1024 * 16
+
 // Run the eventHook flow
 func (e EventHookBuilder) Run() (*discordgo.Message, error) {
 
@@ -167,7 +169,7 @@ func (e EventHookBuilder) Run() (*discordgo.Message, error) {
 	}
 
 	ctx := context.Background()
-	c, err := client.New(e.GoWithTheFlow.Address, grpc.WithInsecure())
+	c, err := client.New(e.GoWithTheFlow.Address, grpc.WithInsecure(), grpc.WithMaxMsgSize(maxGRPCMessageSize))
 	if err != nil {
 		return nil, err
 	}
@@ -211,7 +213,7 @@ func (e EventHookBuilder) Run() (*discordgo.Message, error) {
 	})
 
 	if e.ProgressFile != "" {
-		err := writeProgressToFile(e.ProgressFile, endIndex)
+		err := writeProgressToFile(e.ProgressFile, endIndex+1)
 		if err != nil {
 			return nil, errors.Wrap(err, "Could not write progress to file")
 		}

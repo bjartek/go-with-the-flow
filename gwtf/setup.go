@@ -92,22 +92,22 @@ func NewGoWithTheFlowError(fileName string) (*GoWithTheFlow, error) {
 		gas = config.GasLimit
 	}
 
+	
 	rawAccounts := config.Accounts
 	for account, key := range config.EmulatorAccounts {
 		rawAccounts[account] = RawAccount{
-			Address:    key,
-			PrivateKey: "a9a81cdf716f763ac53f59a421e19039dd542ff3a294bde647989841618ea4db",
-			SigAlgo:    "ECDSA_P256",
-			HashAlgo:   "SHA3_256",
+			Address: key,
+			Keys:    "a9a81cdf716f763ac53f59a421e19039dd542ff3a294bde647989841618ea4db",
 		}
 	}
 
 	var accounts = map[string]GoWithTheFlowAccount{}
 	var serviceAccount GoWithTheFlowAccount
 	for name, rawAccount := range rawAccounts {
-		sigAlgo := crypto.StringToSignatureAlgorithm(rawAccount.SigAlgo)
-		hashAlgo := crypto.StringToHashAlgorithm(rawAccount.HashAlgo)
-		privateKey, err := crypto.DecodePrivateKeyHex(sigAlgo, rawAccount.PrivateKey)
+		//TODO: Only support the default for now
+		sigAlgo := crypto.StringToSignatureAlgorithm("ECDSA_P256")
+		hashAlgo := crypto.StringToHashAlgorithm("SHA3_256")
+		privateKey, err := crypto.DecodePrivateKeyHex(sigAlgo, rawAccount.Keys)
 		if err != nil {
 			return nil, errors.Wrap(err, fmt.Sprintf("Could not decode private key for %s", name))
 		}

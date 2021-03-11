@@ -20,7 +20,7 @@ func (f *GoWithTheFlow) performTransaction(
 
 	ctx := context.Background()
 
-	c, err := client.New(f.Address, grpc.WithInsecure())
+	c, err := client.New(f.Address, grpc.WithInsecure(), grpc.WithMaxMsgSize(maxGRPCMessageSize))
 	if err != nil {
 		return emptyEvents, err
 	}
