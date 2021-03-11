@@ -76,8 +76,8 @@ func NewGoWithTheFlowError(fileName string) (*GoWithTheFlow, error) {
 		return nil, err
 	}
 
-	if _, ok := config.Accounts["service"]; !ok {
-		return nil, errors.New("Could not find service account block in flow.json")
+	if _, ok := config.Accounts["emulator-account"]; !ok {
+		return nil, errors.New("Could not find emulator-account account in flow.json")
 	}
 
 	//loop over all the
@@ -92,12 +92,11 @@ func NewGoWithTheFlowError(fileName string) (*GoWithTheFlow, error) {
 		gas = config.GasLimit
 	}
 
-	
 	rawAccounts := config.Accounts
 	for account, key := range config.EmulatorAccounts {
 		rawAccounts[account] = RawAccount{
 			Address: key,
-			Keys:    "a9a81cdf716f763ac53f59a421e19039dd542ff3a294bde647989841618ea4db",
+			Keys:    "bf9db4706c2fdb9011ee7e170ccac492f05427b96ab41d8bf2d8c58443704b76",
 		}
 	}
 
@@ -120,7 +119,7 @@ func NewGoWithTheFlowError(fileName string) (*GoWithTheFlow, error) {
 			HashAlgo:   hashAlgo,
 			PrivateKey: privateKey,
 		}
-		if name == "service" {
+		if name == "emulator-account" {
 			serviceAccount = gwtfAccount
 		} else {
 			accounts[name] = gwtfAccount

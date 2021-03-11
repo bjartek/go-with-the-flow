@@ -2,7 +2,7 @@
 	"address" : "127.0.0.1:3569",
 	"gasLimit" : 1000, 
 	"accounts": {
-		"service": {
+		"emulator-account": {
 			"address": "f8d6e0586b0a20c7",
 			"keys": "bf9db4706c2fdb9011ee7e170ccac492f05427b96ab41d8bf2d8c58443704b76"
 		}
