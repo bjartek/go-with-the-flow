@@ -56,15 +56,123 @@ func (t FlowTransactionBuilder) AccountArgument(key string) FlowTransactionBuild
 	return t.Argument(address)
 }
 
-//StringArgument add an argument to the transaction
+//StringArgument add a String Argument to the transaction
 func (t FlowTransactionBuilder) StringArgument(value string) FlowTransactionBuilder {
-	t.Arguments = append(t.Arguments, cadence.String(value))
-	return t
+	return t.Argument(cadence.String(value))
 }
 
-//UFix64Argument add an account as an argument
-func (t FlowTransactionBuilder) UFix64Argument(key string) FlowTransactionBuilder {
-	amount, err := cadence.NewUFix64(key)
+//BooleanArgument add a Boolean Argument to the transaction
+func (t FlowTransactionBuilder) BooleanArgument(value bool) FlowTransactionBuilder {
+	return t.Argument(cadence.NewBool(value))
+}
+
+//BytesArgument add a Bytes Argument to the transaction
+func (t FlowTransactionBuilder) BytesArgument(value []byte) FlowTransactionBuilder {
+	return t.Argument(cadence.NewBytes(value))
+}
+
+//IntArgument add an Int Argument to the transaction
+func (t FlowTransactionBuilder) IntArgument(value int) FlowTransactionBuilder {
+	return t.Argument(cadence.NewInt(value))
+}
+
+//Int8Argument add an Int8 Argument to the transaction
+func (t FlowTransactionBuilder) Int8Argument(value int8) FlowTransactionBuilder {
+	return t.Argument(cadence.NewInt8(value))
+}
+
+//Int16Argument add an Int16 Argument to the transaction
+func (t FlowTransactionBuilder) Int16Argument(value int16) FlowTransactionBuilder {
+	return t.Argument(cadence.NewInt16(value))
+}
+
+//Int32Argument add an Int32 Argument to the transaction
+func (t FlowTransactionBuilder) Int32Argument(value int32) FlowTransactionBuilder {
+	return t.Argument(cadence.NewInt32(value))
+}
+
+//Int64Argument add an Int64 Argument to the transaction
+func (t FlowTransactionBuilder) Int64Argument(value int64) FlowTransactionBuilder {
+	return t.Argument(cadence.NewInt64(value))
+}
+
+//Int128Argument add an Int128 Argument to the transaction
+func (t FlowTransactionBuilder) Int128Argument(value int) FlowTransactionBuilder {
+	return t.Argument(cadence.NewInt128(value))
+}
+
+//Int256Argument add an Int256 Argument to the transaction
+func (t FlowTransactionBuilder) Int256Argument(value int) FlowTransactionBuilder {
+	return t.Argument(cadence.NewInt256(value))
+}
+
+//UIntArgument add an UInt Argument to the transaction
+func (t FlowTransactionBuilder) UIntArgument(value uint) FlowTransactionBuilder {
+	return t.Argument(cadence.NewUInt(value))
+}
+
+//UInt8Argument add an UInt8 Argument to the transaction
+func (t FlowTransactionBuilder) UInt8Argument(value uint8) FlowTransactionBuilder {
+	return t.Argument(cadence.NewUInt8(value))
+}
+
+//UInt16Argument add an UInt16 Argument to the transaction
+func (t FlowTransactionBuilder) UInt16Argument(value uint16) FlowTransactionBuilder {
+	return t.Argument(cadence.NewUInt16(value))
+}
+
+//UInt32Argument add an UInt32 Argument to the transaction
+func (t FlowTransactionBuilder) UInt32Argument(value uint32) FlowTransactionBuilder {
+	return t.Argument(cadence.NewUInt32(value))
+}
+
+//UInt64Argument add an UInt64 Argument to the transaction
+func (t FlowTransactionBuilder) UInt64Argument(value uint64) FlowTransactionBuilder {
+	return t.Argument(cadence.NewUInt64(value))
+}
+
+//UInt128Argument add an UInt128 Argument to the transaction
+func (t FlowTransactionBuilder) UInt128Argument(value uint) FlowTransactionBuilder {
+	return t.Argument(cadence.NewUInt128(value))
+}
+
+//UInt256Argument add an UInt256 Argument to the transaction
+func (t FlowTransactionBuilder) UInt256Argument(value uint) FlowTransactionBuilder {
+	return t.Argument(cadence.NewUInt256(value))
+}
+
+//Word8Argument add a Word8 Argument to the transaction
+func (t FlowTransactionBuilder) Word8Argument(value uint8) FlowTransactionBuilder {
+	return t.Argument(cadence.NewWord8(value))
+}
+
+//Word16Argument add a Word16 Argument to the transaction
+func (t FlowTransactionBuilder) Word16Argument(value uint16) FlowTransactionBuilder {
+	return t.Argument(cadence.NewWord16(value))
+}
+
+//Word32Argument add a Word32 Argument to the transaction
+func (t FlowTransactionBuilder) Word32Argument(value uint32) FlowTransactionBuilder {
+	return t.Argument(cadence.NewWord32(value))
+}
+
+//Word64Argument add a Word64 Argument to the transaction
+func (t FlowTransactionBuilder) Word64Argument(value uint64) FlowTransactionBuilder {
+	return t.Argument(cadence.NewWord64(value))
+}
+
+//Fix64Argument add a Fix64 Argument to the transaction
+func (t FlowTransactionBuilder) Fix64Argument(value string) FlowTransactionBuilder {
+	amount, err := cadence.NewFix64(value)
+	if err != nil {
+		panic(err)
+	}
+	return t.Argument(amount)
+}
+
+//UFix64Argument add a UFix64 Argument to the transaction
+func (t FlowTransactionBuilder) UFix64Argument(value string) FlowTransactionBuilder {
+	amount, err := cadence.NewUFix64(value)
 	if err != nil {
 		panic(err)
 	}
