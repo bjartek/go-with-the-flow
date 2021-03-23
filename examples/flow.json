@@ -1,29 +1,85 @@
 {
-	"address" : "127.0.0.1:3569",
-	"gasLimit" : 1000, 
+	"contracts": {
+		"NonFungibleToken": {
+			"source": "./contracts/NonFungibleToken.cdc",
+			"aliases": {
+				"testnet": "0x631e88ae7f1d7c20"
+			}
+		},
+		"FungibleToken": {
+			"source": "./contracts/FungibleToken.cdc",
+			"aliases": {
+				"testnet": "9a0766d93b6608b7",
+				"emulator": "ee82856bf20e2aa6"
+			}
+		},
+		"FlowToken": {
+			"source": "./contracts/FlowToken.cdc",
+			"aliases": {
+				"testnet": "0x7e60df042a9c0868",
+				"emulator": "0x0ae53cb6e3f42a79"
+			}
+		}
+	},
+	"deployments": {
+		"emulator": {
+			"emulator-account": [
+				"NonFungibleToken"
+			]
+		}
+	},
+	"emulators": {
+		"default": {
+			"port": 3569,
+			"serviceAccount": "emulator-account"
+		}
+	},
 	"accounts": {
 		"emulator-account": {
 			"address": "f8d6e0586b0a20c7",
-			"keys": "bf9db4706c2fdb9011ee7e170ccac492f05427b96ab41d8bf2d8c58443704b76"
+			"keys": "bf9db4706c2fdb9011ee7e170ccac492f05427b96ab41d8bf2d8c58443704b76",
+			"chain": "flow-emulator"
+		},
+		"first" : {
+			"address": "01cf0e2f2f715450",
+			"keys": "bf9db4706c2fdb9011ee7e170ccac492f05427b96ab41d8bf2d8c58443704b76",
+			"chain": "flow-emulator"
+		},
+		"second" : {
+			"address": "179b6b1cb6755e31",
+			"keys": "bf9db4706c2fdb9011ee7e170ccac492f05427b96ab41d8bf2d8c58443704b76",
+			"chain": "flow-emulator"
+		},
+		"emulator3" : {
+			"address": "f3fcd2c1a78f5eee",
+			"keys": "bf9db4706c2fdb9011ee7e170ccac492f05427b96ab41d8bf2d8c58443704b76",
+			"chain": "flow-emulator"
+		},
+		"emulator4" : {
+			"address": "e03daebed8ca0615",
+			"keys": "bf9db4706c2fdb9011ee7e170ccac492f05427b96ab41d8bf2d8c58443704b76",
+			"chain": "flow-emulator"
+		},
+		"emulator5" : {
+			"address": "045a1763c93006ca",
+			"keys": "bf9db4706c2fdb9011ee7e170ccac492f05427b96ab41d8bf2d8c58443704b76",
+			"chain": "flow-emulator"
 		}
 	},
-	"emulatorAccounts" : {
-		"accounts" : "01cf0e2f2f715450",
-		"first" : "179b6b1cb6755e31",
-		"second" : "f3fcd2c1a78f5eee",
-		"4" : "e03daebed8ca0615",
-		"5": "045a1763c93006ca",
-    "6": "120e725050340cab",
-    "7": "f669cb8d41ce0c74",
-    "8":"192440c99cb17282",
-		"9": "fd43f9148d4b725d",
-		"10" : "eb179c27144f783c"
+	"networks": {
+		"emulator": {
+			"host": "127.0.0.1:3569",
+			"serviceAccount": "emulator-account",
+			"chain" : "flow-emulator"
+		}
 	},
+	"comment" : "EVERYTHING AFTER THIS IS GWTF SPECIFIC",
 	"webHooks": {
 		"gwtf" : {
 			"id": "<id of webhook>",
 			"token": "<token of webhook>",
 			"wait" : true
 		}
-	}
+	},
+	"gasLimit" : 1000
 }

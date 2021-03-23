@@ -1,7 +1,11 @@
 all: demo
 
+.PHONY: deploy
+deploy: 
+	flow project deploy
+
 .PHONY: demo
-demo:
+demo: deploy
 	go run ./demo/main.go
 
 .PHONY: mint
@@ -19,4 +23,4 @@ script:
 
 .PHONY: emulator
 emulator:
-	flow emulator start -v
+	flow project start-emulator -v
