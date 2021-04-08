@@ -2,7 +2,7 @@ all: demo
 
 .PHONY: deploy
 deploy: 
-	flow project deploy
+	flow project deploy -n emulator
 
 .PHONY: demo
 demo: deploy
