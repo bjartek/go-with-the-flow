@@ -2,8 +2,10 @@ package gwtf
 
 import (
 	"context"
+	"log"
 	"time"
 
+	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/client"
@@ -74,7 +76,9 @@ func (f *GoWithTheFlow) performTransaction(
 		return emptyEvents, err
 	}
 
-	result, err := waitForSeal(ctx, c, tx.ID())
+	id := tx.ID()
+	log.Printf("%v transaction with id %s\n", emoji.Scroll, id)
+	result, err := waitForSeal(ctx, c, id)
 	if err != nil {
 		return emptyEvents, err
 	}
