@@ -143,7 +143,7 @@ func (a *GoWithTheFlowAccount) EnrichWithAccountSignerAndKey(c *client.Client) (
 	if err != nil {
 		return nil, err
 	}
-	serviceAccountKey := serviceAccount.Keys[0]
+	serviceAccountKey := serviceAccount.Keys[1]
 	a.Account = serviceAccount
 	signer := crypto.NewInMemorySigner(a.PrivateKey, serviceAccountKey.HashAlgo)
 	a.Signer = &signer
