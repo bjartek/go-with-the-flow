@@ -5,7 +5,7 @@ deploy:
 	flow project deploy -n emulator
 
 .PHONY: demo
-demo: deploy
+demo: 
 	go run ./demo/main.go
 
 .PHONY: mint

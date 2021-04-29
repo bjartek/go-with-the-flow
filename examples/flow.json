@@ -44,40 +44,36 @@
 	"accounts": {
 		"emulator-account": {
 			"address": "f8d6e0586b0a20c7",
-			"keys": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8",
-			"chain": "flow-emulator"
+			"keys": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8"
 		},
 		"first" : {
 			"address": "01cf0e2f2f715450",
-			"keys": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8",
-			"chain": "flow-emulator"
+			"keys": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8"
 		},
 		"second" : {
 			"address": "179b6b1cb6755e31",
-			"keys": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8",
-			"chain": "flow-emulator"
+			"keys": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8"
 		},
 		"emulator3" : {
 			"address": "f3fcd2c1a78f5eee",
-			"keys": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8",
-			"chain": "flow-emulator"
+			"keys": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8"
 		},
 		"emulator4" : {
 			"address": "e03daebed8ca0615",
-			"keys": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8",
-			"chain": "flow-emulator"
+			"keys": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8"
 		},
 		"emulator5" : {
 			"address": "045a1763c93006ca",
-			"keys": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8",
-			"chain": "flow-emulator"
+			"keys": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8"
 		}
 	},
 	"deployments": {
 	  "emulator": {
 			"emulator-account": [
 				"NonFungibleToken"
-			]
+			],
+			"first" : [],
+			"second" : []
 		}
 	},
 	"comment" : "EVERYTHING AFTER THIS IS GWTF SPECIFIC",

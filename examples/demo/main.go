@@ -1,6 +1,8 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"log"
 
 	"github.com/davecgh/go-spew/spew"
@@ -12,9 +14,12 @@ import (
 	"github.com/onflow/flow-go-sdk/crypto"
 )
 
-func ca(flowConfigName string, accountName string) {
+func start(flowConfigName string) {
 
+	network := "emulator"
+	//this is only for emulator right now
 	saAccountName := "emulator-account"
+
 	p, err := project.Load([]string{flowConfigName})
 	if err != nil {
 		log.Fatal(err)
@@ -28,32 +33,77 @@ func ca(flowConfigName string, accountName string) {
 
 	service := services.NewServices(gateway, p, logger)
 
-	//This feels realy cumbersome just to get a Public key from a private key in config
-	key := p.AccountByName(accountName).DefaultKey().ToConfig()
-	pk := key.Context[config.PrivateKeyField]
-	privateKey, err := crypto.DecodePrivateKeyHex(crypto.ECDSA_P256, pk)
-	if err != nil {
-		log.Fatal(err)
-	}
-	publicKey := privateKey.PublicKey().String()
-
-	a, err := service.Accounts.Create(
-		saAccountName,
-		[]string{publicKey},
-		[]int{1000},
-		key.SigAlgo.String(),
-		key.HashAlgo.String(),
-		[]string{})
+	log.Println("Deploying contracts")
+	_, err = service.Project.Deploy(network, false)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	spew.Dump(a)
+	accounts := p.AccountNamesForNetwork(network)
+
+	for _, accountName := range accounts {
+		log.Println(fmt.Sprintf("Ensuring account with name '%s' is present", accountName))
+		account := p.AccountByName(accountName)
+
+		_, err := service.Accounts.Get(account.Address().String())
+		if err == nil {
+			logger.Debug("Account is present")
+			continue
+		}
+
+		configuredAccount := p.AccountByName(accountName)
+		key := configuredAccount.DefaultKey().ToConfig()
+		pk := key.Context[config.PrivateKeyField]
+		privateKey, err := crypto.DecodePrivateKeyHex(crypto.ECDSA_P256, pk)
+		if err != nil {
+			log.Fatal(err)
+		}
+		publicKey := privateKey.PublicKey().String()
+
+		a, err := service.Accounts.Create(
+			saAccountName,
+			[]string{publicKey},
+			[]int{1000},
+			key.SigAlgo.String(),
+			key.HashAlgo.String(),
+			[]string{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		if configuredAccount.Address() != a.Address {
+			log.Fatal(errors.New(fmt.Sprintf("Configured account address != created address, %s != %s", configuredAccount.Address(), a.Address)))
+		}
+		log.Println("Account created " + a.Address.String())
+	}
+
+	tx, res, err := service.Transactions.Send(
+		"transactions/create_nft_collection.cdc",
+		"first",
+		[]string{},
+		"",
+		"emulator")
+	if err != nil {
+		log.Fatal(err)
+	}
+	spew.Dump(tx)
+	spew.Dump(res)
+
+	account := p.AccountByName("second").Address().Hex()
+	value, err := service.Scripts.Execute(
+		"scripts/test.cdc",
+		[]string{fmt.Sprintf("Address:%s", account)},
+		"",
+		"emulator")
+	if err != nil {
+		log.Fatal(err)
+	}
+	spew.Dump(value)
 
 }
+
 func main() {
 
-	ca("flow.json", "first")
+	start("flow.json")
 	/*
 		g := gwtf.
 			NewGoWithTheFlowEmulator().
