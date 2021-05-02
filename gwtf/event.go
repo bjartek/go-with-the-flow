@@ -10,10 +10,10 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/onflow/cadence/runtime/sema"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/client"
 	"github.com/pkg/errors"
@@ -264,6 +264,85 @@ func fetchEvents(ctx context.Context, c *client.Client, query client.EventRangeQ
 	return formatedEvents, nil
 }
 
+func FetchEvents2(address string, names []string, startBlock uint64, endBlock uint64) []*FormatedEvent {
+
+	const blockCount = 249
+	var workerCount = 20
+
+	var queries []client.EventRangeQuery
+	for startBlock <= endBlock {
+		suggestedEndBlock := startBlock + blockCount
+		endHeight := endBlock
+		if suggestedEndBlock < endHeight {
+			endHeight = suggestedEndBlock
+		}
+		for _, name := range names {
+			queries = append(queries, client.EventRangeQuery{
+				Type:        name,
+				StartHeight: startBlock,
+				EndHeight:   endHeight,
+			})
+		}
+		startBlock = suggestedEndBlock + 1
+	}
+
+	jobChan := make(chan client.EventRangeQuery, workerCount)
+	results := make(chan []*FormatedEvent)
+
+	var wg sync.WaitGroup
+
+	for i := 0; i < workerCount; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			eventWorker(jobChan, results, address)
+		}()
+	}
+
+	// wait on the workers to finish and close the result channel
+	// to signal downstream that all work is done
+	go func() {
+		defer close(results)
+		wg.Wait()
+	}()
+
+	go func() {
+		defer close(jobChan)
+		for _, query := range queries {
+			jobChan <- query
+		}
+	}()
+
+	var resultEvents []*FormatedEvent
+	for events := range results {
+		resultEvents = append(resultEvents, events...)
+	}
+	return resultEvents
+
+}
+
+func eventWorker(jobChan <-chan client.EventRangeQuery, results chan<- []*FormatedEvent, address string) {
+	flowClient, err := client.New(address, grpc.WithInsecure(), grpc.WithMaxMsgSize(1_000_000_000))
+	if err != nil {
+		panic(err)
+	}
+	for eventQuery := range jobChan {
+		var events []*FormatedEvent
+		blockEvents, err := flowClient.GetEventsForHeightRange(context.Background(), eventQuery)
+		if err != nil {
+			panic(err)
+		}
+
+		for _, blockEvent := range blockEvents {
+			for _, event := range blockEvent.Events {
+				ev := ParseEvent(event, blockEvent.Height, blockEvent.BlockTimestamp, []string{})
+				events = append(events, ev)
+			}
+		}
+		results <- events
+	}
+}
+
 func between(value string, a string, b string) string {
 	// Get substring between two strings.
 	posFirst := strings.Index(value, a)
@@ -322,7 +401,8 @@ func ParseEvent(event flow.Event, blockHeight uint64, time time.Time, ignoreFiel
 			continue
 		}
 
-		finalFields[name] = fmt.Sprintf("%v", field)
+		field:= fmt.Sprintf("%v", field)
+		finalFields[name] = field
 	}
 	return &FormatedEvent{
 		Name:        event.Type,
@@ -338,40 +418,4 @@ type FormatedEvent struct {
 	BlockHeight uint64            `json:"blockHeight,omitempty"`
 	Time        time.Time         `json:"time,omitempty"`
 	Fields      map[string]string `json:"fields"`
-}
-
-//just copied this from here https://github.com/onflow/cadence/blob/master/encoding/json/encode.go
-func encodeUFix64(v uint64) string {
-	integer := v / sema.Fix64Factor
-	fraction := v % sema.Fix64Factor
-
-	return fmt.Sprintf(
-		"%d.%08d",
-		integer,
-		fraction,
-	)
-}
-
-func encodeFix64(v int64) string {
-	integer := v / sema.Fix64Factor
-	fraction := v % sema.Fix64Factor
-
-	negative := fraction < 0
-
-	var builder strings.Builder
-
-	if negative {
-		fraction = -fraction
-		if integer == 0 {
-			builder.WriteRune('-')
-		}
-	}
-
-	builder.WriteString(fmt.Sprintf(
-		"%d.%08d",
-		integer,
-		fraction,
-	))
-
-	return builder.String()
 }
