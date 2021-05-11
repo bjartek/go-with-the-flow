@@ -1,31 +1,36 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/bjartek/go-with-the-flow/gwtf"
-	"github.com/davecgh/go-spew/spew"
 )
 
 func main() {
 
 	g := gwtf.NewGoWithTheFlowEmulator()
 
-	eventBuilder := g.SendEventsTo("gwtf").
-		TrackProgressIn("/tmp/gwtf_events").
-		EventIgnoringFields("flow.AccountCodeUpdated", []string{"codeHash"}).
+	eventsFetcher := g.EventFetcher().
+		Last(2).
+		EventIgnoringFields("flow.AccountCreated", []string{"codeHash"}).
 		EventIgnoringFields("flow.AccountKeyAdded", []string{"publicKey"})
-
-	err, event := eventBuilder.Run()
-	if err != nil {
-		panic(err)
-	}
-	spew.Dump(event)
 
 	g.CreateAccountPrintEvents("first")
 
-	err, event = eventBuilder.Run()
+	events, err := eventsFetcher.Run()
 	if err != nil {
 		panic(err)
 	}
-	spew.Dump(event)
+
+	fmt.Printf("%v", events)
+
+	/*
+		//if you add an eventHook in discord to the flow.json in the example folder you can use this to send the events to a discord channel
+		msg, err := eventsFetcher.SendEventsToWebhook("gwtf")
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("send message with id", msg.ID)
+	*/
 
 }

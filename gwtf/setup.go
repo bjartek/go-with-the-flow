@@ -59,6 +59,16 @@ func NewGoWithTheFlowDevNet() *GoWithTheFlow {
 	return NewGoWithTheFlow(flowConfigFile)
 }
 
+// NewGoWithTheFlowDevNet setup dev like in https://www.notion.so/Accessing-Flow-Devnet-ad35623797de48c08d8b88102ea38131
+func NewGoWithTheFlowMainNet() *GoWithTheFlow {
+	flowConfigFile, err := homedir.Expand("~/.flow.json")
+	if err != nil {
+		log.Fatalf("%v error %v", emoji.PileOfPoo, err)
+	}
+
+	return NewGoWithTheFlow(flowConfigFile)
+}
+
 // NewGoWithTheFlow with custom file panic on error
 func NewGoWithTheFlow(filename string) *GoWithTheFlow {
 	gwtf, err := NewGoWithTheFlowError(filename)

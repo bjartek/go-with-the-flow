@@ -10,93 +10,111 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/onflow/cadence/runtime/sema"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/client"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 )
 
-//EventHookBuilder builder to hold info about eventhook context
-type EventHookBuilder struct {
+//EventFetcherBuilder builder to hold info about eventhook context
+type EventFetcherBuilder struct {
 	GoWithTheFlow         *GoWithTheFlow
-	WebhookName           string
 	EventsAndIgnoreFields map[string][]string
 	FromIndex             int64
 	EndAtCurrentHeight    bool
 	EndIndex              uint64
 	ProgressFile          string
+	Ctx                   context.Context
+	NumberOfWorkers       int
+	EventBatchSize        uint64
 }
 
 // SendEventsTo starts a event hook builder
-func (f *GoWithTheFlow) SendEventsTo(eventHookName string) EventHookBuilder {
-	return EventHookBuilder{
+func (f *GoWithTheFlow) EventFetcher() EventFetcherBuilder {
+	return EventFetcherBuilder{
 		GoWithTheFlow:         f,
-		WebhookName:           eventHookName,
 		EventsAndIgnoreFields: map[string][]string{},
 		EndAtCurrentHeight:    true,
 		FromIndex:             -10,
 		ProgressFile:          "",
+		Ctx:                   context.Background(),
+		EventBatchSize:        250,
+		NumberOfWorkers:       20,
 	}
+}
+func (e EventFetcherBuilder) Workers(workers int) EventFetcherBuilder {
+	e.NumberOfWorkers = workers
+	return e
+}
+
+func (e EventFetcherBuilder) BatchSize(batchSize uint64) EventFetcherBuilder {
+	e.EventBatchSize = batchSize
+	return e
+}
+
+func (e EventFetcherBuilder) Context(ctx context.Context) EventFetcherBuilder {
+	e.Ctx = ctx
+	return e
 }
 
 // Event fetches and Events and all its fields
-func (e EventHookBuilder) Event(eventName string) EventHookBuilder {
+func (e EventFetcherBuilder) Event(eventName string) EventFetcherBuilder {
 	e.EventsAndIgnoreFields[eventName] = []string{}
 	return e
 }
 
 //EventIgnoringFields fetch event and ignore the specified fields
-func (e EventHookBuilder) EventIgnoringFields(eventName string, ignoreFields []string) EventHookBuilder {
+func (e EventFetcherBuilder) EventIgnoringFields(eventName string, ignoreFields []string) EventFetcherBuilder {
 	e.EventsAndIgnoreFields[eventName] = ignoreFields
 	return e
 }
 
 //Start specify what blockHeight to fetch starting atm. This can be negative related to end/until
-func (e EventHookBuilder) Start(blockHeight int64) EventHookBuilder {
+func (e EventFetcherBuilder) Start(blockHeight int64) EventFetcherBuilder {
 	e.FromIndex = blockHeight
 	return e
 }
 
 //From specify what blockHeight to fetch from. This can be negative related to end.
-func (e EventHookBuilder) From(blockHeight int64) EventHookBuilder {
+func (e EventFetcherBuilder) From(blockHeight int64) EventFetcherBuilder {
 	e.FromIndex = blockHeight
 	return e
 }
 
 //End specify what index to end at
-func (e EventHookBuilder) End(blockHeight uint64) EventHookBuilder {
+func (e EventFetcherBuilder) End(blockHeight uint64) EventFetcherBuilder {
 	e.EndIndex = blockHeight
 	e.EndAtCurrentHeight = false
 	return e
 }
 
 //Last fetch events from the number last blocks
-func (e EventHookBuilder) Last(number uint64) EventHookBuilder {
+func (e EventFetcherBuilder) Last(number uint64) EventFetcherBuilder {
 	e.EndAtCurrentHeight = true
 	e.FromIndex = -int64(number)
 	return e
 }
 
 //Until specify what index to end at
-func (e EventHookBuilder) Until(blockHeight uint64) EventHookBuilder {
+func (e EventFetcherBuilder) Until(blockHeight uint64) EventFetcherBuilder {
 	e.EndIndex = blockHeight
 	e.EndAtCurrentHeight = false
 	return e
 }
 
 //UntilCurrent Specify to fetch events until the current Block
-func (e EventHookBuilder) UntilCurrent() EventHookBuilder {
+func (e EventFetcherBuilder) UntilCurrent() EventFetcherBuilder {
 	e.EndAtCurrentHeight = true
 	e.EndIndex = 0
 	return e
 }
 
 //TrackProgressIn Specify a file to store progress in
-func (e EventHookBuilder) TrackProgressIn(fileName string) EventHookBuilder {
+func (e EventFetcherBuilder) TrackProgressIn(fileName string) EventFetcherBuilder {
 	e.ProgressFile = fileName
 	e.EndIndex = 0
 	e.FromIndex = 0
@@ -137,8 +155,20 @@ func readProgressFromFile(fileName string) (int64, error) {
 
 const maxGRPCMessageSize = 1024 * 1024 * 16
 
-// Run the eventHook flow
-func (e EventHookBuilder) Run() (*discordgo.Message, error) {
+func (e EventFetcherBuilder) SendEventsToWebhook(webhook string) (*discordgo.Message, error) {
+	eventHook, ok := e.GoWithTheFlow.WebHooks[webhook]
+	if !ok {
+		return nil, errors.New("Could not find webhook with name " + webhook)
+	}
+
+	events, err := e.Run()
+	if err != nil {
+		return nil, err
+	}
+	return eventHook.SendEventsToWebhook(events)
+}
+
+func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 
 	//if we have a progress file read the value from it and set it as oldHeight
 	if e.ProgressFile != "" {
@@ -163,12 +193,6 @@ func (e EventHookBuilder) Run() (*discordgo.Message, error) {
 		}
 	}
 
-	eventHook, ok := e.GoWithTheFlow.WebHooks[e.WebhookName]
-	if !ok {
-		return nil, errors.New("Could not find webhook with name " + e.WebhookName)
-	}
-
-	ctx := context.Background()
 	c, err := client.New(e.GoWithTheFlow.Address, grpc.WithInsecure(), grpc.WithMaxMsgSize(maxGRPCMessageSize))
 	if err != nil {
 		return nil, err
@@ -176,7 +200,7 @@ func (e EventHookBuilder) Run() (*discordgo.Message, error) {
 
 	endIndex := e.EndIndex
 	if e.EndAtCurrentHeight {
-		header, err := c.GetLatestBlockHeader(ctx, true)
+		header, err := c.GetLatestBlockHeader(e.Ctx, true)
 		if err != nil {
 			return nil, err
 		}
@@ -194,18 +218,16 @@ func (e EventHookBuilder) Run() (*discordgo.Message, error) {
 	}
 
 	log.Printf("Fetching events from %d to %d", fromIndex, endIndex)
-	formatedEvents := []*FormatedEvent{}
-	for contract, ignoreFields := range e.EventsAndIgnoreFields {
-		events, err := fetchEvents(ctx, c,
-			client.EventRangeQuery{
-				Type:        contract,
-				StartHeight: uint64(fromIndex),
-				EndHeight:   endIndex,
-			}, ignoreFields)
-		if err != nil {
-			return nil, err
-		}
-		formatedEvents = append(formatedEvents, events...)
+
+	formatedEvents, err := fetchEvents(e.GoWithTheFlow.Address,
+		e.EventsAndIgnoreFields,
+		uint64(fromIndex),
+		endIndex,
+		e.EventBatchSize-1, // need to substract one from eventsize since the eventQuery is incluive
+		e.NumberOfWorkers)
+
+	if err != nil {
+		return nil, err
 	}
 
 	sort.Slice(formatedEvents, func(i, j int) bool {
@@ -218,50 +240,88 @@ func (e EventHookBuilder) Run() (*discordgo.Message, error) {
 			return nil, errors.Wrap(err, "Could not write progress to file")
 		}
 	}
-
-	if len(formatedEvents) == 0 {
-		return nil, nil
-	}
-
-	return eventHook.SendEventsToWebhook(formatedEvents)
-
-}
-
-// SendEventsToWebhook Sends events to the webhook with the given name from flow.json
-func (dw DiscordWebhook) SendEventsToWebhook(events []*FormatedEvent) (*discordgo.Message, error) {
-
-	discord, err := discordgo.New()
-	if err != nil {
-		return nil, err
-	}
-
-	status, err := discord.WebhookExecute(
-		dw.ID,
-		dw.Token,
-		dw.Wait,
-		EventsToWebhookParams(events))
-
-	if err != nil {
-		return nil, err
-	}
-	return status, nil
-}
-
-//FetchEvents fetches events for the given query and formats them
-func fetchEvents(ctx context.Context, c *client.Client, query client.EventRangeQuery, ignoreFields []string) ([]*FormatedEvent, error) {
-
-	formatedEvents := []*FormatedEvent{}
-	blockEvents, err := c.GetEventsForHeightRange(ctx, query)
-	if err != nil {
-		return nil, err
-	}
-	for _, blockEvent := range blockEvents {
-		for _, event := range blockEvent.Events {
-			ev := ParseEvent(event, blockEvent.Height, blockEvent.BlockTimestamp, ignoreFields)
-			formatedEvents = append(formatedEvents, ev)
-		}
-	}
 	return formatedEvents, nil
+
+}
+
+func fetchEvents(address string, eventsWithIgnoreFields map[string][]string, startBlock uint64, endBlock uint64, blockCount uint64, workerCount int) ([]*FormatedEvent, error) {
+
+	var queries []EventRangeQueryWithIngnorefields
+	for startBlock <= endBlock {
+		suggestedEndBlock := startBlock + blockCount
+		endHeight := endBlock
+		if suggestedEndBlock < endHeight {
+			endHeight = suggestedEndBlock
+		}
+		for name, ignoreFields := range eventsWithIgnoreFields {
+			queries = append(queries, EventRangeQueryWithIngnorefields{client.EventRangeQuery{
+				Type:        name,
+				StartHeight: startBlock,
+				EndHeight:   endHeight,
+			}, ignoreFields})
+		}
+		startBlock = suggestedEndBlock + 1
+	}
+
+	jobChan := make(chan EventRangeQueryWithIngnorefields, workerCount)
+	results := make(chan EventWorkerResult)
+
+	var wg sync.WaitGroup
+
+	for i := 0; i < workerCount; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			eventWorker(jobChan, results, address)
+		}()
+	}
+
+	// wait on the workers to finish and close the result channel
+	// to signal downstream that all work is done
+	go func() {
+		defer close(results)
+		wg.Wait()
+	}()
+
+	go func() {
+		defer close(jobChan)
+		for _, query := range queries {
+			jobChan <- query
+		}
+	}()
+
+	var resultEvents []*FormatedEvent
+	for eventResult := range results {
+		if eventResult.Error != nil {
+			return nil, eventResult.Error
+		}
+
+		resultEvents = append(resultEvents, eventResult.Events...)
+	}
+	return resultEvents, nil
+
+}
+
+func eventWorker(jobChan <-chan EventRangeQueryWithIngnorefields, results chan<- EventWorkerResult, address string) {
+	flowClient, err := client.New(address, grpc.WithInsecure(), grpc.WithMaxMsgSize(1_000_000_000))
+	if err != nil {
+		results <- EventWorkerResult{nil, err}
+	}
+	for eventQuery := range jobChan {
+		var events []*FormatedEvent
+		blockEvents, err := flowClient.GetEventsForHeightRange(context.Background(), eventQuery.Query)
+		if err != nil {
+			results <- EventWorkerResult{nil, err}
+		}
+
+		for _, blockEvent := range blockEvents {
+			for _, event := range blockEvent.Events {
+				ev := ParseEvent(event, blockEvent.Height, blockEvent.BlockTimestamp, eventQuery.IgnoreFields)
+				events = append(events, ev)
+			}
+		}
+		results <- EventWorkerResult{events, nil}
+	}
 }
 
 func between(value string, a string, b string) string {
@@ -322,7 +382,8 @@ func ParseEvent(event flow.Event, blockHeight uint64, time time.Time, ignoreFiel
 			continue
 		}
 
-		finalFields[name] = fmt.Sprintf("%v", field)
+		field := fmt.Sprintf("%v", field)
+		finalFields[name] = field
 	}
 	return &FormatedEvent{
 		Name:        event.Type,
@@ -340,38 +401,16 @@ type FormatedEvent struct {
 	Fields      map[string]string `json:"fields"`
 }
 
-//just copied this from here https://github.com/onflow/cadence/blob/master/encoding/json/encode.go
-func encodeUFix64(v uint64) string {
-	integer := v / sema.Fix64Factor
-	fraction := v % sema.Fix64Factor
-
-	return fmt.Sprintf(
-		"%d.%08d",
-		integer,
-		fraction,
-	)
+func (e FormatedEvent) String() string {
+	return fmt.Sprintf("%s blockHeight: %d time %s fields:%v\n", e.Name, e.BlockHeight, e.Time.String(), e.Fields)
 }
 
-func encodeFix64(v int64) string {
-	integer := v / sema.Fix64Factor
-	fraction := v % sema.Fix64Factor
+type EventRangeQueryWithIngnorefields struct {
+	Query        client.EventRangeQuery
+	IgnoreFields []string
+}
 
-	negative := fraction < 0
-
-	var builder strings.Builder
-
-	if negative {
-		fraction = -fraction
-		if integer == 0 {
-			builder.WriteRune('-')
-		}
-	}
-
-	builder.WriteString(fmt.Sprintf(
-		"%d.%08d",
-		integer,
-		fraction,
-	))
-
-	return builder.String()
+type EventWorkerResult struct {
+	Events []*FormatedEvent
+	Error  error
 }
