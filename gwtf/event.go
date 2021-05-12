@@ -324,23 +324,6 @@ func eventWorker(jobChan <-chan EventRangeQueryWithIngnorefields, results chan<-
 	}
 }
 
-func between(value string, a string, b string) string {
-	// Get substring between two strings.
-	posFirst := strings.Index(value, a)
-	if posFirst == -1 {
-		return ""
-	}
-	posLast := strings.Index(value, b)
-	if posLast == -1 {
-		return ""
-	}
-	posFirstAdjusted := posFirst + len(a)
-	if posFirstAdjusted >= posLast {
-		return ""
-	}
-	return value[posFirstAdjusted:posLast]
-}
-
 //PrintEvents prints th events, ignoring fields specified for the given event typeID
 func PrintEvents(events []flow.Event, ignoreFields map[string][]string) {
 	if len(events) > 0 {
@@ -369,7 +352,7 @@ func ParseEvent(event flow.Event, blockHeight uint64, time time.Time, ignoreFiel
 	for _, eventTypeFields := range event.Value.EventType.Fields {
 		fieldNames = append(fieldNames, eventTypeFields.Identifier)
 	}
-	finalFields := map[string]string{}
+	finalFields := map[string]interface{}{}
 	for id, field := range event.Value.Fields {
 		skip := false
 		name := fieldNames[id]
@@ -382,8 +365,7 @@ func ParseEvent(event flow.Event, blockHeight uint64, time time.Time, ignoreFiel
 			continue
 		}
 
-		field := fmt.Sprintf("%v", field)
-		finalFields[name] = field
+		finalFields[name] = CadenceValueToInterface(field)
 	}
 	return &FormatedEvent{
 		Name:        event.Type,
@@ -395,14 +377,18 @@ func ParseEvent(event flow.Event, blockHeight uint64, time time.Time, ignoreFiel
 
 //FormatedEvent event in a more condensed formated form
 type FormatedEvent struct {
-	Name        string            `json:"name"`
-	BlockHeight uint64            `json:"blockHeight,omitempty"`
-	Time        time.Time         `json:"time,omitempty"`
-	Fields      map[string]string `json:"fields"`
+	Name        string                 `json:"name"`
+	BlockHeight uint64                 `json:"blockHeight,omitempty"`
+	Time        time.Time              `json:"time,omitempty"`
+	Fields      map[string]interface{} `json:"fields"`
 }
 
 func (e FormatedEvent) String() string {
-	return fmt.Sprintf("%s blockHeight: %d time %s fields:%v\n", e.Name, e.BlockHeight, e.Time.String(), e.Fields)
+	json, err := json.MarshalIndent(e, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	return string(json)
 }
 
 type EventRangeQueryWithIngnorefields struct {
