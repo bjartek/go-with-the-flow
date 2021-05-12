@@ -37,7 +37,7 @@ func EventsToWebhookParams(events []*FormatedEvent) *discordgo.WebhookParams {
 		for name, value := range event.Fields {
 			fields = append(fields, &discordgo.MessageEmbedField{
 				Name:  name,
-				Value: value,
+				Value: fmt.Sprintf("%v", value),
 			})
 		}
 

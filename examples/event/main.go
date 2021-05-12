@@ -11,17 +11,14 @@ func main() {
 	g := gwtf.NewGoWithTheFlowMainNet()
 
 	eventsFetcher := g.EventFetcher().
-		Last(2).
-		EventIgnoringFields("flow.AccountCreated", []string{"codeHash"}).
-		EventIgnoringFields("flow.AccountKeyAdded", []string{"publicKey"})
-
-	g.CreateAccountPrintEvents("first")
+		Start(14415071).
+		UntilCurrent().
+		Event("A.d796ff17107bbff6.Versus.Bid")
 
 	events, err := eventsFetcher.Run()
 	if err != nil {
 		panic(err)
 	}
-
 	fmt.Printf("%v", events)
 
 	/*
