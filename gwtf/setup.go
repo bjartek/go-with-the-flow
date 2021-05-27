@@ -106,7 +106,7 @@ func NewGoWithTheFlowError(fileName string) (*GoWithTheFlow, error) {
 	for account, key := range config.EmulatorAccounts {
 		rawAccounts[account] = RawAccount{
 			Address: key,
-			Keys:    "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8",
+			Keys:    "1cd391b90c98671d3f07c7104f016c4704242704d8a7ad7d2126c6d5331516e8",
 		}
 	}
 
