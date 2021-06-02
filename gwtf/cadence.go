@@ -14,32 +14,31 @@ func CadenceValueToJsonString(value cadence.Value) string {
 }
 
 func CadenceValueToInterface(field cadence.Value) interface{} {
-	dictionaryValue, isDictionary := field.(cadence.Dictionary)
-	structValue, isStruct := field.(cadence.Struct)
-	arrayValue, isArray := field.(cadence.Array)
-	if isStruct {
-		subStructNames := structValue.StructType.Fields
+	switch field.(type) {
+	case cadence.Dictionary:
 		result := map[string]interface{}{}
-		for j, subField := range structValue.Fields {
-			result[subStructNames[j].Identifier] = CadenceValueToInterface(subField)
-		}
-		return result
-	} else if isDictionary {
-		result := map[string]interface{}{}
-		for _, item := range dictionaryValue.Pairs {
+		for _, item := range field.(cadence.Dictionary).Pairs {
 			result[item.Key.String()] = CadenceValueToInterface(item.Value)
 		}
 		return result
-	} else if isArray {
+	case cadence.Struct:
+		result := map[string]interface{}{}
+		subStructNames := field.(cadence.Struct).StructType.Fields
+		for j, subField := range field.(cadence.Struct).Fields {
+			result[subStructNames[j].Identifier] = CadenceValueToInterface(subField)
+		}
+		return result
+	case cadence.Array:
 		result := []interface{}{}
-		for _, item := range arrayValue.Values {
+		for _, item := range field.(cadence.Array).Values {
 			result = append(result, CadenceValueToInterface(item))
 		}
 		return result
+	default:
+		result, err := strconv.Unquote(field.String())
+		if err != nil {
+			return field.String()
+		}
+		return result
 	}
-	result, err := strconv.Unquote(field.String())
-	if err != nil {
-		return field.String()
-	}
-	return result
 }
