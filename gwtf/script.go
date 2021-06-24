@@ -191,6 +191,14 @@ func (t FlowScriptBuilder) RunReturns() cadence.Value {
 		log.Fatalf("%v Error executing script: %s output %v", emoji.PileOfPoo, t.FileName, err)
 	}
 
-	log.Printf("%v Script run from path %s result: %v\n", emoji.Star, scriptFilePath, result)
+	log.Printf("%v Script run from path %s result: %v\n", emoji.Star, scriptFilePath, CadenceValueToJsonString(result))
 	return result
+}
+
+func (t FlowScriptBuilder) RunReturnsJsonString() string{
+	return CadenceValueToJsonString(t.RunReturns())
+}
+
+func (t FlowScriptBuilder) RunReturnsInterface() interface{}{
+	return CadenceValueToInterface(t.RunReturns())
 }
