@@ -11,13 +11,20 @@ func main() {
 	g := gwtf.NewGoWithTheFlowMainNet()
 
 	eventsFetcher := g.EventFetcher().
-		Start(14415071).
-		UntilCurrent().
+		Start(13978126).
+		End(14013459).
 		Event("A.d796ff17107bbff6.Versus.Bid")
 
 	events, err := eventsFetcher.Run()
 	if err != nil {
 		panic(err)
+	}
+
+
+	var bids stringlll[]int
+	for _, ev := range events {
+
+		
 	}
 	fmt.Printf("%v", events)
 
