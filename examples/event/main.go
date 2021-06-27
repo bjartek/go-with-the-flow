@@ -21,7 +21,7 @@ func main() {
 	}
 
 
-	var bids stringlll[]int
+	var bids string[]int
 	for _, ev := range events {
 
 		

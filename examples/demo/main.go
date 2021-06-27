@@ -6,12 +6,14 @@ import (
 	"log"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/onflow/flow-cli/pkg/flowcli/config"
-	"github.com/onflow/flow-cli/pkg/flowcli/gateway"
-	"github.com/onflow/flow-cli/pkg/flowcli/output"
-	"github.com/onflow/flow-cli/pkg/flowcli/project"
-	"github.com/onflow/flow-cli/pkg/flowcli/services"
+	"github.com/onflow/cadence"
+	"github.com/onflow/flow-cli/pkg/flowkit"
+	"github.com/onflow/flow-cli/pkg/flowkit/config"
+	"github.com/onflow/flow-cli/pkg/flowkit/gateway"
+	"github.com/onflow/flow-cli/pkg/flowkit/output"
+	"github.com/onflow/flow-cli/pkg/flowkit/services"
 	"github.com/onflow/flow-go-sdk/crypto"
+	"github.com/spf13/afero"
 )
 
 func start(flowConfigName string) {
@@ -20,7 +22,8 @@ func start(flowConfigName string) {
 	//this is only for emulator right now
 	saAccountName := "emulator-account"
 
-	p, err := project.Load([]string{flowConfigName})
+	loader := &afero.Afero{Fs: afero.NewOsFs()}
+	p, err := flowkit.Load([]string{flowConfigName}, loader)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -39,61 +42,68 @@ func start(flowConfigName string) {
 		log.Fatal(err)
 	}
 
+	signerAccount := p.Accounts().ByName(saAccountName)
+
 	accounts := p.AccountNamesForNetwork(network)
 
 	for _, accountName := range accounts {
 		log.Println(fmt.Sprintf("Ensuring account with name '%s' is present", accountName))
-		account := p.AccountByName(accountName)
+		account := p.Accounts().ByName(accountName)
 
-		_, err := service.Accounts.Get(account.Address().String())
+		_, err := service.Accounts.Get(account.Address())
 		if err == nil {
 			logger.Debug("Account is present")
 			continue
 		}
 
-		configuredAccount := p.AccountByName(accountName)
-		key := configuredAccount.DefaultKey().ToConfig()
-		pk := key.Context[config.PrivateKeyField]
-		privateKey, err := crypto.DecodePrivateKeyHex(crypto.ECDSA_P256, pk)
-		if err != nil {
-			log.Fatal(err)
-		}
-		publicKey := privateKey.PublicKey().String()
-
 		a, err := service.Accounts.Create(
-			saAccountName,
-			[]string{publicKey},
+			signerAccount,
+			[]crypto.PublicKey{account.Key().ToConfig().PrivateKey.PublicKey()},
 			[]int{1000},
-			key.SigAlgo.String(),
-			key.HashAlgo.String(),
+			account.Key().SigAlgo(),
+			account.Key().HashAlgo(),
 			[]string{})
 		if err != nil {
 			log.Fatal(err)
 		}
-		if configuredAccount.Address() != a.Address {
-			log.Fatal(errors.New(fmt.Sprintf("Configured account address != created address, %s != %s", configuredAccount.Address(), a.Address)))
+		if account.Address() != a.Address {
+			log.Fatal(errors.New(fmt.Sprintf("Configured account address != created address, %s != %s", account.Address(), a.Address)))
 		}
 		log.Println("Account created " + a.Address.String())
 	}
 
+	fileName := "transactions/create_nft_collection.cdc"
+	code, err := p.ReaderWriter().ReadFile(fileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	tx, res, err := service.Transactions.Send(
-		"transactions/create_nft_collection.cdc",
-		"first",
-		[]string{},
-		"",
+		p.Accounts().ByName("first"),
+		code,
+		fileName,
+		9999,
+		[]cadence.Value{},
 		"emulator")
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	spew.Dump(tx)
 	spew.Dump(res)
 
-	account := p.AccountByName("second").Address().Hex()
+	scriptName := "scripts/test.cdc"
+
+	script, err := p.ReaderWriter().ReadFile(scriptName)
+	if err != nil {
+		log.Fatal(err)
+	}
 	value, err := service.Scripts.Execute(
-		"scripts/test.cdc",
-		[]string{fmt.Sprintf("Address:%s", account)},
-		"",
+		script,
+		[]cadence.Value{cadence.Address(signerAccount.Address())},
+		scriptName,
 		"emulator")
+
 	if err != nil {
 		log.Fatal(err)
 	}
