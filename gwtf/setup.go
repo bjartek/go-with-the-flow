@@ -1,18 +1,16 @@
 package gwtf
 
 import (
-	"context"
-	"fmt"
 	"log"
 
 	"github.com/enescakir/emoji"
-	"github.com/mitchellh/go-homedir"
+	"github.com/spf13/afero"
 
-	"github.com/onflow/cadence"
-	"github.com/onflow/flow-go-sdk"
-	"github.com/onflow/flow-go-sdk/client"
-	"github.com/onflow/flow-go-sdk/crypto"
-	"github.com/pkg/errors"
+	"github.com/onflow/flow-cli/pkg/flowkit"
+	"github.com/onflow/flow-cli/pkg/flowkit/config"
+	"github.com/onflow/flow-cli/pkg/flowkit/gateway"
+	"github.com/onflow/flow-cli/pkg/flowkit/output"
+	"github.com/onflow/flow-cli/pkg/flowkit/services"
 )
 
 // DiscordWebhook stores information about a webhook
@@ -24,54 +22,29 @@ type DiscordWebhook struct {
 
 // GoWithTheFlow Entire configuration to work with Go With the Flow
 type GoWithTheFlow struct {
-	Service  GoWithTheFlowAccount
-	Accounts map[string]GoWithTheFlowAccount
-	WebHooks map[string]DiscordWebhook
-	Address  string
-	Gas      uint64
-}
-
-// GoWithTheFlowAccount represents an account for flow with resolves types
-type GoWithTheFlowAccount struct {
-	Address    flow.Address
-	SigAlgo    crypto.SignatureAlgorithm
-	HashAlgo   crypto.HashAlgorithm
-	PrivateKey crypto.PrivateKey
-
-	//These three are set the first time they are accessed
-	Signer  *crypto.InMemorySigner
-	Account *flow.Account
-	Key     *flow.AccountKey
+	State    *flowkit.State
+	Services *services.Services
+	Network  string
 }
 
 //NewGoWithTheFlowEmulator create a new client
 func NewGoWithTheFlowEmulator() *GoWithTheFlow {
-	return NewGoWithTheFlow("./flow.json")
+	return NewGoWithTheFlow(config.DefaultPaths(), "emulator")
 }
 
 // NewGoWithTheFlowDevNet setup dev like in https://www.notion.so/Accessing-Flow-Devnet-ad35623797de48c08d8b88102ea38131
 func NewGoWithTheFlowDevNet() *GoWithTheFlow {
-	flowConfigFile, err := homedir.Expand("~/.flow-dev.json")
-	if err != nil {
-		log.Fatalf("%v error %v", emoji.PileOfPoo, err)
-	}
-
-	return NewGoWithTheFlow(flowConfigFile)
+	return NewGoWithTheFlow(config.DefaultPaths(), "devnet")
 }
 
 // NewGoWithTheFlowDevNet setup dev like in https://www.notion.so/Accessing-Flow-Devnet-ad35623797de48c08d8b88102ea38131
 func NewGoWithTheFlowMainNet() *GoWithTheFlow {
-	flowConfigFile, err := homedir.Expand("~/.flow.json")
-	if err != nil {
-		log.Fatalf("%v error %v", emoji.PileOfPoo, err)
-	}
-
-	return NewGoWithTheFlow(flowConfigFile)
+	return NewGoWithTheFlow(config.DefaultPaths(), "mainnet")
 }
 
 // NewGoWithTheFlow with custom file panic on error
-func NewGoWithTheFlow(filename string) *GoWithTheFlow {
-	gwtf, err := NewGoWithTheFlowError(filename)
+func NewGoWithTheFlow(filenames []string, network string) *GoWithTheFlow {
+	gwtf, err := NewGoWithTheFlowError(filenames, network)
 	if err != nil {
 		log.Fatalf("%v error %+v", emoji.PileOfPoo, err)
 	}
@@ -79,99 +52,26 @@ func NewGoWithTheFlow(filename string) *GoWithTheFlow {
 }
 
 // NewGoWithTheFlowError creates a new local go with the flow client
-func NewGoWithTheFlowError(fileName string) (*GoWithTheFlow, error) {
+func NewGoWithTheFlowError(paths []string, network string) (*GoWithTheFlow, error) {
 
-	config, err := NewRawFlowConfig(fileName)
+	loader := &afero.Afero{Fs: afero.NewOsFs()}
+	p, err := flowkit.Load(paths, loader)
 	if err != nil {
 		return nil, err
 	}
 
-	if _, ok := config.Accounts["emulator-account"]; !ok {
-		return nil, errors.New("Could not find emulator-account account in flow.json")
+	logger := output.NewStdoutLogger(output.DebugLog)
+	gateway, err := gateway.NewGrpcGateway(config.DefaultEmulatorNetwork().Host)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	//loop over all the
-
-	address := "127.0.0.1:3569"
-	if config.Address != "" {
-		address = config.Address
-	}
-
-	gas := uint64(1000)
-	if config.GasLimit != 0 {
-		gas = config.GasLimit
-	}
-
-	rawAccounts := config.Accounts
-	for account, key := range config.EmulatorAccounts {
-		rawAccounts[account] = RawAccount{
-			Address: key,
-			Keys:    "1cd391b90c98671d3f07c7104f016c4704242704d8a7ad7d2126c6d5331516e8",
-		}
-	}
-
-	var accounts = map[string]GoWithTheFlowAccount{}
-	var serviceAccount GoWithTheFlowAccount
-	for name, rawAccount := range rawAccounts {
-		//TODO: Only support the default for now
-		sigAlgo := crypto.StringToSignatureAlgorithm("ECDSA_P256")
-		hashAlgo := crypto.StringToHashAlgorithm("SHA3_256")
-		privateKey, err := crypto.DecodePrivateKeyHex(sigAlgo, rawAccount.Keys)
-		if err != nil {
-			return nil, errors.Wrap(err, fmt.Sprintf("Could not decode private key for %s", name))
-		}
-
-		address := flow.HexToAddress(rawAccount.Address)
-
-		gwtfAccount := GoWithTheFlowAccount{
-			Address:    address,
-			SigAlgo:    sigAlgo,
-			HashAlgo:   hashAlgo,
-			PrivateKey: privateKey,
-		}
-		if name == "emulator-account" {
-			serviceAccount = gwtfAccount
-		} else {
-			accounts[name] = gwtfAccount
-		}
-	}
+	service := services.NewServices(gateway, p, logger)
 
 	return &GoWithTheFlow{
-		Address:  address,
-		Gas:      gas,
-		Service:  serviceAccount,
-		Accounts: accounts,
-		WebHooks: config.Webhooks,
+		State:    p,
+		Services: service,
+		Network:  network,
 	}, nil
 
-}
-
-//EnrichWithAccountSignerAndKey enriches and Account
-func (a *GoWithTheFlowAccount) EnrichWithAccountSignerAndKey(c *client.Client) (*GoWithTheFlowAccount, error) {
-	ctx := context.Background()
-	serviceAccount, err := c.GetAccount(ctx, a.Address)
-	if err != nil {
-		return nil, err
-	}
-	serviceAccountKey := serviceAccount.Keys[0]
-	a.Account = serviceAccount
-	signer := crypto.NewInMemorySigner(a.PrivateKey, serviceAccountKey.HashAlgo)
-	a.Signer = &signer
-	a.Key = serviceAccountKey
-
-	return a, nil
-}
-
-//NewAccountKey creates a NewFlowAccountKey
-func (a *GoWithTheFlowAccount) NewAccountKey() *flow.AccountKey {
-	return flow.NewAccountKey().
-		SetPublicKey(a.PrivateKey.PublicKey()).
-		SetSigAlgo(a.SigAlgo).
-		SetHashAlgo(a.HashAlgo).
-		SetWeight(flow.AccountKeyWeightThreshold)
-}
-
-//FindAddress finds an candence.Address value from a given key in your wallet
-func (f *GoWithTheFlow) FindAddress(key string) cadence.Address {
-	return cadence.BytesToAddress(f.Accounts[key].Address.Bytes())
 }

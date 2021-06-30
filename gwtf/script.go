@@ -1,15 +1,11 @@
 package gwtf
 
 import (
-	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
 
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
-	"github.com/onflow/flow-go-sdk/client"
-	"google.golang.org/grpc"
 )
 
 //FlowScriptBuilder is a struct to hold information for running a script
@@ -31,7 +27,7 @@ func (f *GoWithTheFlow) ScriptFromFile(filename string) FlowScriptBuilder {
 //AccountArgument add an account as an argument
 func (t FlowScriptBuilder) AccountArgument(key string) FlowScriptBuilder {
 	f := t.GoWithTheFlow
-	address := cadence.BytesToAddress(f.Accounts[key].Address.Bytes())
+	address := cadence.BytesToAddress(f.State.Accounts().ByName(key).Address().Bytes())
 	return t.Argument(address)
 }
 
@@ -173,32 +169,30 @@ func (t FlowScriptBuilder) Run() {
 func (t FlowScriptBuilder) RunReturns() cadence.Value {
 
 	f := t.GoWithTheFlow
-	c, err := client.New(f.Address, grpc.WithInsecure(), grpc.WithMaxMsgSize(maxGRPCMessageSize))
-	if err != nil {
-		log.Fatalf("%v Error creating flow client", emoji.PileOfPoo)
-	}
-
 	scriptFilePath := fmt.Sprintf("./scripts/%s.cdc", t.FileName)
-	code, err := ioutil.ReadFile(scriptFilePath)
+	script, err := f.State.ReaderWriter().ReadFile(t.FileName)
 	if err != nil {
-		log.Fatalf("%v Could not read script file from path=%s", emoji.PileOfPoo, scriptFilePath)
+		log.Fatal(err)
 	}
 
-	log.Printf("Arguments %v\n", t.Arguments)
-	ctx := context.Background()
-	result, err := c.ExecuteScriptAtLatestBlock(ctx, code, t.Arguments)
+	result, err := f.Services.Scripts.Execute(
+		script,
+		t.Arguments,
+		t.FileName,
+		f.Network)
 	if err != nil {
 		log.Fatalf("%v Error executing script: %s output %v", emoji.PileOfPoo, t.FileName, err)
 	}
+
 
 	log.Printf("%v Script run from path %s result: %v\n", emoji.Star, scriptFilePath, CadenceValueToJsonString(result))
 	return result
 }
 
-func (t FlowScriptBuilder) RunReturnsJsonString() string{
+func (t FlowScriptBuilder) RunReturnsJsonString() string {
 	return CadenceValueToJsonString(t.RunReturns())
 }
 
-func (t FlowScriptBuilder) RunReturnsInterface() interface{}{
+func (t FlowScriptBuilder) RunReturnsInterface() interface{} {
 	return CadenceValueToInterface(t.RunReturns())
 }

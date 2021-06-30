@@ -1,88 +1,79 @@
 {
-	"emulators": {
-		"default": {
-			"port": 3569,
-			"serviceAccount": "emulator-account"
-		}
-	},
-  	"contracts": {
-		"NonFungibleToken": {
-			"source": "./contracts/NonFungibleToken.cdc",
-			"aliases": {
-				"testnet": "0x631e88ae7f1d7c20"
-			}
-		},
-		"FungibleToken": {
-			"source": "./contracts/FungibleToken.cdc",
-			"aliases": {
-				"testnet": "9a0766d93b6608b7",
-				"emulator": "ee82856bf20e2aa6"
-			}
-		},
-		"FlowToken": {
-			"source": "./contracts/FlowToken.cdc",
-			"aliases": {
-				"testnet": "0x7e60df042a9c0868",
-				"emulator": "0x0ae53cb6e3f42a79"
-			}
-		}
-	},
-	"networks": {
-		"emulator": {
-			"host": "127.0.0.1:3569",
-			"chain": "flow-emulator"
-		},
-		"mainnet": {
-			"host": "access.mainnet.nodes.onflow.org:9000",
-			"chain": "flow-mainnet"
-		},
-		"testnet": {
-			"host": "access.devnet.nodes.onflow.org:9000",
-			"chain": "flow-testnet"
-		}
-	},
-	"accounts": {
-		"emulator-account": {
-			"address": "f8d6e0586b0a20c7",
-			"key": "1cd391b90c98671d3f07c7104f016c4704242704d8a7ad7d2126c6d5331516e8"
-		},
-		"first" : {
-			"address": "1cf0e2f2f715450",
-      "key": "1cd391b90c98671d3f07c7104f016c4704242704d8a7ad7d2126c6d5331516e8"
-		},
-		"second" : {
-			"address": "179b6b1cb6755e31",
-      "key": "1cd391b90c98671d3f07c7104f016c4704242704d8a7ad7d2126c6d5331516e8"
-		},
-		"emulator3" : {
-			"address": "f3fcd2c1a78f5eee",
-      "key": "1cd391b90c98671d3f07c7104f016c4704242704d8a7ad7d2126c6d5331516e8"
-		},
-		"emulator4" : {
-			"address": "e03daebed8ca0615",
-      "key": "1cd391b90c98671d3f07c7104f016c4704242704d8a7ad7d2126c6d5331516e8"
-		},
-		"emulator5" : {
-			"address": "045a1763c93006ca",
-      "key": "1cd391b90c98671d3f07c7104f016c4704242704d8a7ad7d2126c6d5331516e8"
-		}
-	},
-	"deployments": {
-	  "emulator": {
-			"emulator-account": [
-				"NonFungibleToken"
-			],
-			"first" : [],
-			"second" : []
-		}
-	},
-	"comment" : "EVERYTHING AFTER THIS IS GWTF SPECIFIC",
-	"webHooks": {
-		"gwtf" : {
-			"id": "<id of webhook>",
-			"token": "<token of webhook>",
-			"wait" : true
-		}
-	},
-	"gasLimit" : 1000
+  "emulators": {
+    "default": {
+      "port": 3569,
+      "serviceAccount": "emulator-account"
+    }
+  },
+  "contracts": {
+    "NonFungibleToken": {
+      "source": "./contracts/NonFungibleToken.cdc",
+      "aliases": {
+        "testnet": "0x631e88ae7f1d7c20"
+      }
+    },
+    "FungibleToken": {
+      "source": "./contracts/FungibleToken.cdc",
+      "aliases": {
+        "testnet": "0x9a0766d93b6608b7",
+        "emulator": "0xee82856bf20e2aa6"
+      }
+    },
+    "FlowToken": {
+      "source": "./contracts/FlowToken.cdc",
+      "aliases": {
+        "testnet": "0x7e60df042a9c0868",
+        "emulator": "0x0ae53cb6e3f42a79"
+      }
+    }
+  },
+  "networks": {
+    "emulator":  "127.0.0.1:3569",
+    "mainnet": "access.mainnet.nodes.onflow.org:9000",
+    "testnet": "access.devnet.nodes.onflow.org:9000"
+  },
+  "accounts": {
+    "emulator-account": {
+      "address": "f8d6e0586b0a20c7",
+      "key": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8"
+    },
+    "first": {
+      "address": "1cf0e2f2f715450",
+      "key": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8"
+    },
+    "second": {
+      "address": "179b6b1cb6755e31",
+      "key": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8"
+    },
+    "emulator3": {
+      "address": "f3fcd2c1a78f5eee",
+      "key": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8"
+    },
+    "emulator4": {
+      "address": "e03daebed8ca0615",
+      "key": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8"
+    },
+    "emulator5": {
+      "address": "045a1763c93006ca",
+      "key": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8"
+    }
+  },
+  "deployments": {
+    "emulator": {
+      "emulator-account": [
+        "NonFungibleToken"
+      ],
+      "first": [],
+      "second": []
+    }
+  },
+  "comment": "EVERYTHING AFTER THIS IS GWTF SPECIFIC",
+  "webHooks": {
+    "gwtf": {
+      "id": "<id of webhook>",
+      "token": "<token of webhook>",
+      "wait": true
+    }
+  },
+  "gasLimit": 1000
 }

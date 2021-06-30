@@ -13,11 +13,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bwmarrin/discordgo"
+	"github.com/onflow/flow-cli/pkg/flowkit/services"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/client"
 	"github.com/pkg/errors"
-	"google.golang.org/grpc"
 )
 
 //EventFetcherBuilder builder to hold info about eventhook context
@@ -42,7 +41,7 @@ func (f *GoWithTheFlow) EventFetcher() EventFetcherBuilder {
 		FromIndex:             -10,
 		ProgressFile:          "",
 		Ctx:                   context.Background(),
-		EventBatchSize:        250,
+		EventBatchSize:        10000,
 		NumberOfWorkers:       20,
 	}
 }
@@ -155,6 +154,7 @@ func readProgressFromFile(fileName string) (int64, error) {
 
 const maxGRPCMessageSize = 1024 * 1024 * 16
 
+/*
 func (e EventFetcherBuilder) SendEventsToWebhook(webhook string) (*discordgo.Message, error) {
 	eventHook, ok := e.GoWithTheFlow.WebHooks[webhook]
 	if !ok {
@@ -167,6 +167,7 @@ func (e EventFetcherBuilder) SendEventsToWebhook(webhook string) (*discordgo.Mes
 	}
 	return eventHook.SendEventsToWebhook(events)
 }
+*/
 
 func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 
@@ -193,17 +194,13 @@ func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 		}
 	}
 
-	c, err := client.New(e.GoWithTheFlow.Address, grpc.WithInsecure(), grpc.WithMaxMsgSize(maxGRPCMessageSize))
-	if err != nil {
-		return nil, err
-	}
-
 	endIndex := e.EndIndex
 	if e.EndAtCurrentHeight {
-		header, err := c.GetLatestBlockHeader(e.Ctx, true)
+		block, _, _, err := e.GoWithTheFlow.Services.Blocks.GetBlock("latest", "", false)
 		if err != nil {
 			return nil, err
 		}
+		header := block.BlockHeader
 		endIndex = header.Height
 	}
 
@@ -219,7 +216,7 @@ func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 
 	log.Printf("Fetching events from %d to %d", fromIndex, endIndex)
 
-	formatedEvents, err := fetchEvents(e.GoWithTheFlow.Address,
+	formatedEvents, err := fetchEvents(e.GoWithTheFlow.Services.Events,
 		e.EventsAndIgnoreFields,
 		uint64(fromIndex),
 		endIndex,
@@ -244,7 +241,7 @@ func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 
 }
 
-func fetchEvents(address string, eventsWithIgnoreFields map[string][]string, startBlock uint64, endBlock uint64, blockCount uint64, workerCount int) ([]*FormatedEvent, error) {
+func fetchEvents(eventService *services.Events, eventsWithIgnoreFields map[string][]string, startBlock uint64, endBlock uint64, blockCount uint64, workerCount int) ([]*FormatedEvent, error) {
 
 	var queries []EventRangeQueryWithIngnorefields
 	for startBlock <= endBlock {
@@ -272,7 +269,7 @@ func fetchEvents(address string, eventsWithIgnoreFields map[string][]string, sta
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			eventWorker(jobChan, results, address)
+			eventWorker(jobChan, results, eventService)
 		}()
 	}
 
@@ -302,14 +299,12 @@ func fetchEvents(address string, eventsWithIgnoreFields map[string][]string, sta
 
 }
 
-func eventWorker(jobChan <-chan EventRangeQueryWithIngnorefields, results chan<- EventWorkerResult, address string) {
-	flowClient, err := client.New(address, grpc.WithInsecure(), grpc.WithMaxMsgSize(1_000_000_000))
-	if err != nil {
-		results <- EventWorkerResult{nil, err}
-	}
+func eventWorker(jobChan <-chan EventRangeQueryWithIngnorefields, results chan<- EventWorkerResult, eventService *services.Events) {
 	for eventQuery := range jobChan {
 		var events []*FormatedEvent
-		blockEvents, err := flowClient.GetEventsForHeightRange(context.Background(), eventQuery.Query)
+		q := eventQuery.Query
+
+		blockEvents, err := eventService.Get(q.Type, string(q.StartHeight), string(q.EndHeight))
 		if err != nil {
 			results <- EventWorkerResult{nil, err}
 		}

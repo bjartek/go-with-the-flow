@@ -2,11 +2,11 @@ package gwtf
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
+	"github.com/onflow/flow-cli/pkg/flowkit"
 	"github.com/onflow/flow-go-sdk"
 )
 
@@ -17,21 +17,18 @@ func (f *GoWithTheFlow) TransactionFromFile(filename string) FlowTransactionBuil
 		FileName:       filename,
 		MainSigner:     nil,
 		Arguments:      []cadence.Value{},
-		PayloadSigners: []*GoWithTheFlowAccount{},
+		PayloadSigners: []*flowkit.Account{},
+		GasLimit: 9999,
 	}
 }
 
-//SignProposeAndPayAsService set the payer, proposer and envelope signer
-func (t FlowTransactionBuilder) SignProposeAndPayAsService() FlowTransactionBuilder {
-	mainSigner := t.GoWithTheFlow.Service
-	t.MainSigner = &mainSigner
+func(t FlowTransactionBuilder) Gas(limit uint64) FlowTransactionBuilder {
+	t.GasLimit=limit
 	return t
 }
-
 //SignProposeAndPayAs set the payer, proposer and envelope signer
 func (t FlowTransactionBuilder) SignProposeAndPayAs(signer string) FlowTransactionBuilder {
-	mainSigner := t.GoWithTheFlow.Accounts[signer]
-	t.MainSigner = &mainSigner
+	t.MainSigner = t.GoWithTheFlow.State.Accounts().ByName(signer)
 	return t
 }
 
@@ -46,7 +43,7 @@ func (t FlowTransactionBuilder) RawAccountArgument(key string) FlowTransactionBu
 //AccountArgument add an account as an argument
 func (t FlowTransactionBuilder) AccountArgument(key string) FlowTransactionBuilder {
 	f := t.GoWithTheFlow
-	address := cadence.BytesToAddress(f.Accounts[key].Address.Bytes())
+	address := cadence.BytesToAddress(f.State.Accounts().ByName(key).Address().Bytes())
 	return t.Argument(address)
 }
 
@@ -179,12 +176,15 @@ func (t FlowTransactionBuilder) Argument(value cadence.Value) FlowTransactionBui
 	return t
 }
 
+/*
 //PayloadSigner set a signer for the payload
 func (t FlowTransactionBuilder) PayloadSigner(value string) FlowTransactionBuilder {
-	signer := t.GoWithTheFlow.Accounts[value]
-	t.PayloadSigners = append(t.PayloadSigners, &signer)
+	log.Fatal(errors.New("This method is not supported in this version of gwtf"))
+	signer := t.GoWithTheFlow.State.Accounts().ByName(value)
+	t.PayloadSigners = append(t.PayloadSigners, signer)
 	return t
 }
+ */
 
 //RunPrintEventsFull will run a transaction and print all events
 func (t FlowTransactionBuilder) RunPrintEventsFull() {
@@ -201,19 +201,26 @@ func (t FlowTransactionBuilder) Run() []flow.Event {
 	if t.MainSigner == nil {
 		log.Fatalf("%v You need to set the main signer", emoji.PileOfPoo)
 	}
-	txFilePath := fmt.Sprintf("./transactions/%s.cdc", t.FileName)
-	code, err := ioutil.ReadFile(txFilePath)
-	if err != nil {
-		log.Fatalf("%v Could not read transaction file from path=%s", emoji.PileOfPoo, txFilePath)
-	}
-	tx := flow.NewTransaction().SetScript(code)
+	codeFileName := fmt.Sprintf("./transactions/%s.cdc", t.FileName)
 
-	events, err := t.GoWithTheFlow.performTransaction(tx, t.MainSigner, t.PayloadSigners, t.Arguments)
+	code, err := t.GoWithTheFlow.State.ReaderWriter().ReadFile(codeFileName)
 	if err != nil {
-		log.Fatalf("%v error sending transaction %s %+v", emoji.PileOfPoo, t.FileName, err)
+		log.Fatalf("%v Could not read transaction file from path=%s", emoji.PileOfPoo, codeFileName)
 	}
+
+	_, res, err := t.GoWithTheFlow.Services.Transactions.Send(t.MainSigner,
+		code,
+		codeFileName,
+		t.GasLimit,
+		t.Arguments,
+		t.GoWithTheFlow.Network)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	log.Printf("%v Transaction %s successfully applied\n", emoji.OkHand, t.FileName)
-	return events
+	return res.Events
 }
 
 //FlowTransactionBuilder used to create a builder pattern for a transaction
@@ -221,6 +228,7 @@ type FlowTransactionBuilder struct {
 	GoWithTheFlow  *GoWithTheFlow
 	FileName       string
 	Arguments      []cadence.Value
-	MainSigner     *GoWithTheFlowAccount
-	PayloadSigners []*GoWithTheFlowAccount
+	MainSigner     *flowkit.Account
+	PayloadSigners []*flowkit.Account
+	GasLimit		uint64
 }
