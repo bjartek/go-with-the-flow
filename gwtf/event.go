@@ -304,7 +304,7 @@ func eventWorker(jobChan <-chan EventRangeQueryWithIngnorefields, results chan<-
 		var events []*FormatedEvent
 		q := eventQuery.Query
 
-		blockEvents, err := eventService.Get(q.Type, string(q.StartHeight), string(q.EndHeight))
+		blockEvents, err := eventService.Get(q.Type, strconv.FormatUint(q.StartHeight, 10), strconv.FormatUint(q.EndHeight, 10))
 		if err != nil {
 			results <- EventWorkerResult{nil, err}
 		}

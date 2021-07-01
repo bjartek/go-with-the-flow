@@ -22,6 +22,19 @@ func (f *GoWithTheFlow) TransactionFromFile(filename string) FlowTransactionBuil
 	}
 }
 
+//TransactionFromFile will start a flow transaction builder
+func (f *GoWithTheFlow) Transaction(content string) FlowTransactionBuilder {
+	return FlowTransactionBuilder{
+		GoWithTheFlow:  f,
+		FileName:       "inline",
+		Content: content,
+		MainSigner:     nil,
+		Arguments:      []cadence.Value{},
+		PayloadSigners: []*flowkit.Account{},
+		GasLimit: 9999,
+	}
+}
+
 func(t FlowTransactionBuilder) Gas(limit uint64) FlowTransactionBuilder {
 	t.GasLimit=limit
 	return t
@@ -203,9 +216,15 @@ func (t FlowTransactionBuilder) Run() []flow.Event {
 	}
 	codeFileName := fmt.Sprintf("./transactions/%s.cdc", t.FileName)
 
-	code, err := t.GoWithTheFlow.State.ReaderWriter().ReadFile(codeFileName)
-	if err != nil {
-		log.Fatalf("%v Could not read transaction file from path=%s", emoji.PileOfPoo, codeFileName)
+	var code []byte
+	var err error
+	if  t.Content=="" {
+		code, err = t.GoWithTheFlow.State.ReaderWriter().ReadFile(codeFileName)
+		if err != nil {
+			log.Fatalf("%v Could not read transaction file from path=%s", emoji.PileOfPoo, codeFileName)
+		}
+	} else {
+		code = []byte(t.Content)
 	}
 
 	_, res, err := t.GoWithTheFlow.Services.Transactions.Send(t.MainSigner,
@@ -227,6 +246,7 @@ func (t FlowTransactionBuilder) Run() []flow.Event {
 type FlowTransactionBuilder struct {
 	GoWithTheFlow  *GoWithTheFlow
 	FileName       string
+	Content 	   string
 	Arguments      []cadence.Value
 	MainSigner     *flowkit.Account
 	PayloadSigners []*flowkit.Account

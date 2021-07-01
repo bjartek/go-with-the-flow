@@ -25,53 +25,70 @@ type GoWithTheFlow struct {
 	State    *flowkit.State
 	Services *services.Services
 	Network  string
+	Logger   output.Logger
+}
+
+
+//NewGoWithTheFlowInMemoryEmulator this method is used to create an in memory emulator, deploy all contracts for the emulator and create all accounts
+func NewGoWithTheFlowInMemoryEmulator() *GoWithTheFlow {
+	return NewGoWithTheFlow(config.DefaultPaths(), "emulator", true).InitializeContracts().CreateAccounts("emulator-account")
 }
 
 //NewGoWithTheFlowEmulator create a new client
 func NewGoWithTheFlowEmulator() *GoWithTheFlow {
-	return NewGoWithTheFlow(config.DefaultPaths(), "emulator")
+	return NewGoWithTheFlow(config.DefaultPaths(), "emulator", false)
 }
 
-// NewGoWithTheFlowDevNet setup dev like in https://www.notion.so/Accessing-Flow-Devnet-ad35623797de48c08d8b88102ea38131
 func NewGoWithTheFlowDevNet() *GoWithTheFlow {
-	return NewGoWithTheFlow(config.DefaultPaths(), "devnet")
+	return NewGoWithTheFlow(config.DefaultPaths(), "testnet", false)
 }
 
-// NewGoWithTheFlowDevNet setup dev like in https://www.notion.so/Accessing-Flow-Devnet-ad35623797de48c08d8b88102ea38131
 func NewGoWithTheFlowMainNet() *GoWithTheFlow {
-	return NewGoWithTheFlow(config.DefaultPaths(), "mainnet")
+	return NewGoWithTheFlow(config.DefaultPaths(), "mainnet", false)
 }
 
 // NewGoWithTheFlow with custom file panic on error
-func NewGoWithTheFlow(filenames []string, network string) *GoWithTheFlow {
-	gwtf, err := NewGoWithTheFlowError(filenames, network)
+func NewGoWithTheFlow(filenames []string, network string, inMemory bool) *GoWithTheFlow {
+	gwtf, err := NewGoWithTheFlowError(filenames, network, inMemory)
 	if err != nil {
 		log.Fatalf("%v error %+v", emoji.PileOfPoo, err)
 	}
 	return gwtf
 }
 
+
 // NewGoWithTheFlowError creates a new local go with the flow client
-func NewGoWithTheFlowError(paths []string, network string) (*GoWithTheFlow, error) {
+func NewGoWithTheFlowError(paths []string, network string, inMemory bool) (*GoWithTheFlow, error) {
 
 	loader := &afero.Afero{Fs: afero.NewOsFs()}
-	p, err := flowkit.Load(paths, loader)
+	state, err := flowkit.Load(paths, loader)
 	if err != nil {
 		return nil, err
 	}
 
-	logger := output.NewStdoutLogger(output.DebugLog)
-	gateway, err := gateway.NewGrpcGateway(config.DefaultEmulatorNetwork().Host)
-	if err != nil {
-		log.Fatal(err)
+	logger := output.NewStdoutLogger(output.InfoLog)
+
+
+	var service *services.Services
+	if inMemory {
+		//YAY we can run it inline in memory!
+		acc, _ := state.EmulatorServiceAccount()
+		//TODO: How can i get the log output here? And enable verbose logging?
+		gw := gateway.NewEmulatorGateway(acc)
+		service = services.NewServices(gw, state, logger)
+	} else {
+		host := state.Networks().ByName(network).Host
+		gw, err := gateway.NewGrpcGateway(host)
+		if err != nil {
+			log.Fatal(err)
+		}
+		service = services.NewServices(gw, state, logger)
 	}
-
-	service := services.NewServices(gateway, p, logger)
-
 	return &GoWithTheFlow{
-		State:    p,
+		State:    state,
 		Services: service,
 		Network:  network,
+		Logger: logger,
 	}, nil
 
 }

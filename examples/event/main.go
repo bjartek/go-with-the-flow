@@ -20,12 +20,6 @@ func main() {
 		panic(err)
 	}
 
-
-	var bids string[]int
-	for _, ev := range events {
-
-		
-	}
 	fmt.Printf("%v", events)
 
 	/*
