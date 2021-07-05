@@ -14,11 +14,10 @@ Breaking changes between v1 and v2:
 
 Special thanks to @sideninja for helping me get my changes into flow-cli.
 
-## How to configure devnet
-Create a ~/.flow.json file and specify testnet accounts and addresses
-
-## How to write contracts
-Put contracts in the contract folder and name the file the same as the contract.
+## Main features
+ - Create a single go file that will start emulator, deploy contracts, create accounts and run scripts and transactions. see `examples/demo/main.go` 
+ - Fetch events, store progress in a file and send results to Discord. 
+ - Support inline scripts if you do not want to sture everything in a file when testing 
 
 ## Examples
 
