@@ -19,6 +19,11 @@ Special thanks to @sideninja for helping me get my changes into flow-cli.
  - Fetch events, store progress in a file and send results to Discord. 
  - Support inline scripts if you do not want to sture everything in a file when testing 
 
+
+## Gotchas
+ - When specifying extra accounts that are created on emulator they are created in alphabetical order, the addresses the emulator assign is always fixed. 
+ - tldr; Name your stakeholder acounts in alphabetical order
+
 ## Examples
 
 In order to run the demo example you only have to run `make` in the example folder of this project. 
