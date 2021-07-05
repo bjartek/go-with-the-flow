@@ -1,28 +1,32 @@
 # Go with the Flow
 
-
 Set of go scripts to make it easer to run a Story consisting of creating accounts, deploying contracts, executing transactions and running scripts on the Flow Blockchain.
 
-Feel free to ask questions to @bjartek or @0xAlchemist in the Flow Discord.
+Feel free to ask questions to @bjartek in the Flow Discord.
 
-## How to configure the flow.json file
-The flow json file for working on emulator should look something like the file you have in the example folder. 
+v2 of GoWithTheFlow removed a lot of the code in favor of `flowkit` in the flow-cli. Some of the code from here was
+contributed by me into flow-cli like the goroutine based event fetcher.
 
-Right now the examples are only creating one account for all contracts and two user accounts but if you need more feel free to rename the 4-10 keys to suit your needs. Note that the emulator will always create the accounts in that order given that service account. 
+Breaking changes between v1 and v2:
+ - Multisign is currently not supported in v2
+ - the SignProposeAndPayAsService() method is removed since the concept of a serviceAccount is not really there anymore. Replace with using the `emulator-account` account manually
+ - v1 had a config section for discord webhooks. That has been removed since the flow-cli will remove extra config things in flow.json. Store the webhook url in an env variable and use it as argument when creating the DiscordWebhook struct.
 
-The service account is the same as the one used in vscode extension so that you will get syntax highlighting in vscode.
+Special thanks to @sideninja for helping me get my changes into flow-cli.
 
 ## How to configure devnet
-Create a ~/.flow-dev.json file that has fully qualified accounts for all your deployed contracts addresses. Make sure that the address is pointed to the latest working devnet node. 
+Create a ~/.flow.json file and specify testnet accounts and addresses
 
 ## How to write contracts
 Put contracts in the contract folder and name the file the same as the contract.
 
 ## Examples
 
-1. `cd examples/`
-2. make emulator in terminal 1
-3. make in terminal 2
+In order to run the demo example you only have to run `make` in the example folder of this project. 
+The emulator will be run in memory. 
+
+If you want to have a standalone emulator to get logs as then the `examples/script/main.go` file can be run while running
+and emulator
 
 ## Credits
 
