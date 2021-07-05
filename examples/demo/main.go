@@ -21,19 +21,19 @@ func main() {
 
 
 	g.Script(`
-import NonFungibleToken from "./contracts/NonFungibleToken.cdc"
-
 pub fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`).AccountArgument("second").Run()
 
 	g.Transaction(`
+import Debug from "../contracts/Debug.cdc"
 transaction(test:String) {
   prepare(acct: AuthAccount) {
+	Debug.log(test)
     log(acct)
     log(test)
  }
-}`).SignProposeAndPayAs("first").StringArgument("foobar").Run()
+}`).SignProposeAndPayAs("first").StringArgument("foobar").RunPrintEventsFull()
 
 	//Run script that returns
 	result := g.ScriptFromFile("test").AccountArgument("second").RunReturns()

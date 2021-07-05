@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/onflow/flow-go-sdk/crypto"
 	"log"
+	"sort"
 )
 
 
@@ -15,6 +16,7 @@ func (f *GoWithTheFlow) CreateAccounts(saAccountName string) *GoWithTheFlow {
 	signerAccount := p.Accounts().ByName(saAccountName)
 
 	accounts := p.AccountNamesForNetwork(f.Network)
+	sort.Strings(accounts)
 
 	log.Printf("%v\n", accounts)
 
