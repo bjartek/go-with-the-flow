@@ -9,8 +9,8 @@ import (
 
 func CadenceValueToJsonString(value cadence.Value) string {
 	result := CadenceValueToInterface(value)
-	json, _ := json.MarshalIndent(result, "", "    ")
-	return string(json)
+	j, _ := json.MarshalIndent(result, "", "    ")
+	return string(j)
 }
 
 func CadenceValueToInterface(field cadence.Value) interface{} {
@@ -29,7 +29,7 @@ func CadenceValueToInterface(field cadence.Value) interface{} {
 		}
 		return result
 	case cadence.Array:
-		result := []interface{}{}
+		var result []interface{}
 		for _, item := range field.(cadence.Array).Values {
 			result = append(result, CadenceValueToInterface(item))
 		}

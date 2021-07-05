@@ -4,16 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/bwmarrin/discordgo"
 	"io/ioutil"
 	"log"
 	"os"
 	"sort"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
-	"github.com/onflow/flow-cli/pkg/flowkit/services"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/client"
 	"github.com/pkg/errors"
@@ -152,22 +151,16 @@ func readProgressFromFile(fileName string) (int64, error) {
 
 }
 
-const maxGRPCMessageSize = 1024 * 1024 * 16
 
-/*
-func (e EventFetcherBuilder) SendEventsToWebhook(webhook string) (*discordgo.Message, error) {
-	eventHook, ok := e.GoWithTheFlow.WebHooks[webhook]
-	if !ok {
-		return nil, errors.New("Could not find webhook with name " + webhook)
-	}
+func (e EventFetcherBuilder) RunAndSendToWebhook(url string) (*discordgo.Message, error){
 
 	events, err := e.Run()
 	if err != nil {
 		return nil, err
 	}
-	return eventHook.SendEventsToWebhook(events)
+
+	return NewDiscordWebhook(url).SendEventsToWebhook(events)
 }
-*/
 
 func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 
@@ -196,12 +189,11 @@ func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 
 	endIndex := e.EndIndex
 	if e.EndAtCurrentHeight {
-		block, _, _, err := e.GoWithTheFlow.Services.Blocks.GetBlock("latest", "", false)
+		blockHeight, err := e.GoWithTheFlow.Services.Blocks.GetLatestBlockHeight()
 		if err != nil {
 			return nil, err
 		}
-		header := block.BlockHeader
-		endIndex = header.Height
+		endIndex = blockHeight
 	}
 
 	fromIndex := e.FromIndex
@@ -216,20 +208,17 @@ func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 
 	log.Printf("Fetching events from %d to %d", fromIndex, endIndex)
 
-	formatedEvents, err := fetchEvents(e.GoWithTheFlow.Services.Events,
-		e.EventsAndIgnoreFields,
-		uint64(fromIndex),
-		endIndex,
-		e.EventBatchSize-1, // need to substract one from eventsize since the eventQuery is incluive
-		e.NumberOfWorkers)
+	var events []string
+	for key := range e.EventsAndIgnoreFields {
+		events = append(events, key)
+	}
 
+	blockEvents, err := e.GoWithTheFlow.Services.Events.Get(events, uint64(fromIndex), endIndex, e.EventBatchSize, e.NumberOfWorkers)
 	if err != nil {
 		return nil, err
 	}
 
-	sort.Slice(formatedEvents, func(i, j int) bool {
-		return formatedEvents[i].BlockHeight < formatedEvents[j].BlockHeight
-	})
+	formatedEvents := FormatEvents(blockEvents, e.EventsAndIgnoreFields)
 
 	if e.ProgressFile != "" {
 		err := writeProgressToFile(e.ProgressFile, endIndex+1)
@@ -237,87 +226,15 @@ func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 			return nil, errors.Wrap(err, "Could not write progress to file")
 		}
 	}
+	sort.Slice(formatedEvents, func(i, j int) bool {
+		return formatedEvents[i].BlockHeight < formatedEvents[j].BlockHeight
+	})
+
+
 	return formatedEvents, nil
 
 }
 
-func fetchEvents(eventService *services.Events, eventsWithIgnoreFields map[string][]string, startBlock uint64, endBlock uint64, blockCount uint64, workerCount int) ([]*FormatedEvent, error) {
-
-	var queries []EventRangeQueryWithIngnorefields
-	for startBlock <= endBlock {
-		suggestedEndBlock := startBlock + blockCount
-		endHeight := endBlock
-		if suggestedEndBlock < endHeight {
-			endHeight = suggestedEndBlock
-		}
-		for name, ignoreFields := range eventsWithIgnoreFields {
-			queries = append(queries, EventRangeQueryWithIngnorefields{client.EventRangeQuery{
-				Type:        name,
-				StartHeight: startBlock,
-				EndHeight:   endHeight,
-			}, ignoreFields})
-		}
-		startBlock = suggestedEndBlock + 1
-	}
-
-	jobChan := make(chan EventRangeQueryWithIngnorefields, workerCount)
-	results := make(chan EventWorkerResult)
-
-	var wg sync.WaitGroup
-
-	for i := 0; i < workerCount; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			eventWorker(jobChan, results, eventService)
-		}()
-	}
-
-	// wait on the workers to finish and close the result channel
-	// to signal downstream that all work is done
-	go func() {
-		defer close(results)
-		wg.Wait()
-	}()
-
-	go func() {
-		defer close(jobChan)
-		for _, query := range queries {
-			jobChan <- query
-		}
-	}()
-
-	var resultEvents []*FormatedEvent
-	for eventResult := range results {
-		if eventResult.Error != nil {
-			return nil, eventResult.Error
-		}
-
-		resultEvents = append(resultEvents, eventResult.Events...)
-	}
-	return resultEvents, nil
-
-}
-
-func eventWorker(jobChan <-chan EventRangeQueryWithIngnorefields, results chan<- EventWorkerResult, eventService *services.Events) {
-	for eventQuery := range jobChan {
-		var events []*FormatedEvent
-		q := eventQuery.Query
-
-		blockEvents, err := eventService.Get(q.Type, strconv.FormatUint(q.StartHeight, 10), strconv.FormatUint(q.EndHeight, 10))
-		if err != nil {
-			results <- EventWorkerResult{nil, err}
-		}
-
-		for _, blockEvent := range blockEvents {
-			for _, event := range blockEvent.Events {
-				ev := ParseEvent(event, blockEvent.Height, blockEvent.BlockTimestamp, eventQuery.IgnoreFields)
-				events = append(events, ev)
-			}
-		}
-		results <- EventWorkerResult{events, nil}
-	}
-}
 
 //PrintEvents prints th events, ignoring fields specified for the given event typeID
 func PrintEvents(events []flow.Event, ignoreFields map[string][]string) {
@@ -339,6 +256,18 @@ func PrintEvents(events []flow.Event, ignoreFields map[string][]string) {
 	if len(events) > 0 {
 		fmt.Println("======")
 	}
+}
+
+//FormatEvents
+func FormatEvents(blockEvents []client.BlockEvents, ignoreFields map[string][]string) []*FormatedEvent {
+	var events []*FormatedEvent
+	for _, blockEvent := range blockEvents {
+		for _, event := range blockEvent.Events {
+			ev := ParseEvent(event, blockEvent.Height, blockEvent.BlockTimestamp, ignoreFields[event.Type])
+			events = append(events, ev)
+		}
+	}
+	return events
 }
 
 //ParseEvent parses a flow event into a more terse representation
@@ -379,19 +308,9 @@ type FormatedEvent struct {
 }
 
 func (e FormatedEvent) String() string {
-	json, err := json.MarshalIndent(e, "", "  ")
+	j, err := json.MarshalIndent(e, "", "  ")
 	if err != nil {
 		panic(err)
 	}
-	return string(json)
-}
-
-type EventRangeQueryWithIngnorefields struct {
-	Query        client.EventRangeQuery
-	IgnoreFields []string
-}
-
-type EventWorkerResult struct {
-	Events []*FormatedEvent
-	Error  error
+	return string(j)
 }

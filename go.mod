@@ -2,6 +2,8 @@ module github.com/bjartek/go-with-the-flow
 
 go 1.16
 
+replace github.com/onflow/flow-cli => /Users/bjartek/dev/flow-cli
+
 require (
 	github.com/bwmarrin/discordgo v0.23.2
 	github.com/enescakir/emoji v1.0.0

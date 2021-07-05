@@ -13,12 +13,6 @@ import (
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
 )
 
-// DiscordWebhook stores information about a webhook
-type DiscordWebhook struct {
-	ID    string `json:"id"`
-	Token string `json:"token"`
-	Wait  bool   `json:"wait"`
-}
 
 // GoWithTheFlow Entire configuration to work with Go With the Flow
 type GoWithTheFlow struct {
@@ -32,6 +26,11 @@ type GoWithTheFlow struct {
 //NewGoWithTheFlowInMemoryEmulator this method is used to create an in memory emulator, deploy all contracts for the emulator and create all accounts
 func NewGoWithTheFlowInMemoryEmulator() *GoWithTheFlow {
 	return NewGoWithTheFlow(config.DefaultPaths(), "emulator", true).InitializeContracts().CreateAccounts("emulator-account")
+}
+
+func NewGoWithTheFlowForNetwork(network string) *GoWithTheFlow {
+	return NewGoWithTheFlow(config.DefaultPaths(), network, false)
+
 }
 
 //NewGoWithTheFlowEmulator create a new client

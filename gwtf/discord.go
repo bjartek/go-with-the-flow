@@ -2,11 +2,30 @@ package gwtf
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
 
 
+// DiscordWebhook stores information about a webhook
+type DiscordWebhook struct {
+	ID    string `json:"id"`
+	Token string `json:"token"`
+	Wait  bool   `json:"wait"`
+}
+
+
+//NewDiscordWebhook create a new discord webhook from an discord url on the form ofhttps://discord.com/api/webhooks/<id>/<token>
+func NewDiscordWebhook(url string) DiscordWebhook {
+	parts := strings.Split(url, "/")
+	length := len(parts)
+	return DiscordWebhook{
+		ID: parts[length-1],
+		Token: parts[length],
+		Wait: true,
+	}
+}
 
 // SendEventsToWebhook Sends events to the webhook with the given name from flow.json
 func (dw DiscordWebhook) SendEventsToWebhook(events []*FormatedEvent) (*discordgo.Message, error) {
@@ -30,10 +49,10 @@ func (dw DiscordWebhook) SendEventsToWebhook(events []*FormatedEvent) (*discordg
 
 //EventsToWebhookParams convert events to rich webhook
 func EventsToWebhookParams(events []*FormatedEvent) *discordgo.WebhookParams {
-	embeds := []*discordgo.MessageEmbed{}
+	var embeds []*discordgo.MessageEmbed
 	for _, event := range events {
 
-		fields := []*discordgo.MessageEmbedField{}
+		var fields []*discordgo.MessageEmbedField
 		for name, value := range event.Fields {
 			fields = append(fields, &discordgo.MessageEmbedField{
 				Name:  name,
