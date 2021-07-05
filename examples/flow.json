@@ -28,7 +28,7 @@
     }
   },
   "networks": {
-    "emulator":  "127.0.0.1:3569",
+    "emulator": "127.0.0.1:3569",
     "mainnet": "access.mainnet.nodes.onflow.org:9000",
     "testnet": "access.devnet.nodes.onflow.org:9000"
   },
@@ -66,14 +66,6 @@
       "first": [],
       "second": []
     }
-  },
-  "comment": "EVERYTHING AFTER THIS IS GWTF SPECIFIC",
-  "webHooks": {
-    "gwtf": {
-      "id": "<id of webhook>",
-      "token": "<token of webhook>",
-      "wait": true
-    }
-  },
-  "gasLimit": 1000
+  }
 }
+
