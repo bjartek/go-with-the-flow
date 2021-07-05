@@ -14,7 +14,7 @@ func main() {
 	g.TransactionFromFile("argumentsWithAccount").SignProposeAndPayAs("first").AccountArgument("second").RunPrintEventsFull()
 
 	//multiple signers is not something I have handled yet.
-	//g.TransactionFromFile("signWithMultipleAccounts").SignProposeAndPayAs("first").PayloadSigner("second").RunPrintEventsFull()
+	g.TransactionFromFile("signWithMultipleAccounts").SignProposeAndPayAs("first").PayloadSigner("second").RunPrintEventsFull()
 
 	g.ScriptFromFile("test").AccountArgument("second").Run()
 	g.TransactionFromFile("mint_tokens").SignProposeAndPayAs("emulator-account").AccountArgument("first").UFix64Argument("10.0").RunPrintEventsFull()

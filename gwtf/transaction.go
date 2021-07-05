@@ -42,6 +42,7 @@ func(t FlowTransactionBuilder) Gas(limit uint64) FlowTransactionBuilder {
 //SignProposeAndPayAs set the payer, proposer and envelope signer
 func (t FlowTransactionBuilder) SignProposeAndPayAs(signer string) FlowTransactionBuilder {
 	t.MainSigner = t.GoWithTheFlow.State.Accounts().ByName(signer)
+	//note that we also put the signers in here so that we can use the authorizers and signers from here
 	return t
 }
 
@@ -189,15 +190,12 @@ func (t FlowTransactionBuilder) Argument(value cadence.Value) FlowTransactionBui
 	return t
 }
 
-/*
 //PayloadSigner set a signer for the payload
 func (t FlowTransactionBuilder) PayloadSigner(value string) FlowTransactionBuilder {
-	log.Fatal(errors.New("This method is not supported in this version of gwtf"))
 	signer := t.GoWithTheFlow.State.Accounts().ByName(value)
 	t.PayloadSigners = append(t.PayloadSigners, signer)
 	return t
 }
- */
 
 //RunPrintEventsFull will run a transaction and print all events
 func (t FlowTransactionBuilder) RunPrintEventsFull() {
@@ -216,6 +214,8 @@ func (t FlowTransactionBuilder) Run() []flow.Event {
 	}
 	codeFileName := fmt.Sprintf("./transactions/%s.cdc", t.FileName)
 
+	//we append the mainSigners at the end here so that it signs last
+	signers := append(t.PayloadSigners, t.MainSigner)
 	var code []byte
 	var err error
 	if  t.Content=="" {
@@ -227,12 +227,44 @@ func (t FlowTransactionBuilder) Run() []flow.Event {
 		code = []byte(t.Content)
 	}
 
-	_, res, err := t.GoWithTheFlow.Services.Transactions.Send(t.MainSigner,
+	signerKeyIndex := t.MainSigner.Key().Index()
+
+	var authorizers []flow.Address
+	for _, signer := range signers {
+		authorizers=append(authorizers, signer.Address())
+	}
+
+	tx, err := t.GoWithTheFlow.Services.Transactions.Build(
+		t.MainSigner.Address(),
+		authorizers,
+		t.MainSigner.Address(),
+		signerKeyIndex,
 		code,
 		codeFileName,
 		t.GasLimit,
 		t.Arguments,
-		t.GoWithTheFlow.Network)
+		t.GoWithTheFlow.Network,
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, signer := range signers{
+		err = tx.SetSigner(signer)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		tx, err = tx.Sign()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	t.GoWithTheFlow.Logger.Info(fmt.Sprintf("Transaction ID: %s", tx.FlowTransaction().ID()))
+	t.GoWithTheFlow.Logger.StartProgress("Sending transaction...")
+	defer t.GoWithTheFlow.Logger.StopProgress()
+	_, res, err := t.GoWithTheFlow.Services.Transactions.SendSigned(tx.FlowTransaction().PayloadMessage())
 
 	if err != nil {
 		log.Fatal(err)
