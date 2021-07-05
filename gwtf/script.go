@@ -2,6 +2,7 @@ package gwtf
 
 import (
 	"fmt"
+	"github.com/onflow/flow-go-sdk"
 	"log"
 
 	"github.com/enescakir/emoji"
@@ -41,6 +42,14 @@ func (t FlowScriptBuilder) AccountArgument(key string) FlowScriptBuilder {
 	f := t.GoWithTheFlow
 	address := cadence.BytesToAddress(f.State.Accounts().ByName(key).Address().Bytes())
 	return t.Argument(address)
+}
+
+//RawAccountArgument add an account from a string as an argument
+func (t FlowScriptBuilder) RawAccountArgument(key string) FlowScriptBuilder {
+
+	account := flow.HexToAddress(key)
+	accountArg := cadence.BytesToAddress(account.Bytes())
+	return t.Argument(accountArg)
 }
 
 //Argument add an argument to the transaction
