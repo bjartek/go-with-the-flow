@@ -264,7 +264,8 @@ func (t FlowTransactionBuilder) Run() []flow.Event {
 	t.GoWithTheFlow.Logger.Info(fmt.Sprintf("Transaction ID: %s", tx.FlowTransaction().ID()))
 	t.GoWithTheFlow.Logger.StartProgress("Sending transaction...")
 	defer t.GoWithTheFlow.Logger.StopProgress()
-	_, res, err := t.GoWithTheFlow.Services.Transactions.SendSigned(tx)
+	txBytes :=[]byte(fmt.Sprintf("%x", tx.FlowTransaction().Encode()))
+	_, res, err := t.GoWithTheFlow.Services.Transactions.SendSigned(txBytes)
 
 	if err != nil {
 		log.Fatal(err)
