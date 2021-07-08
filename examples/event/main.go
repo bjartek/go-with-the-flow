@@ -11,9 +11,8 @@ func main() {
 	g := gwtf.NewGoWithTheFlowMainNet()
 
 	eventsFetcher := g.EventFetcher().
-		Start(13978126).
-		End(14013459).
-		Event("A.d796ff17107bbff6.Versus.Bid")
+		Last(1000).
+		Event("A.0b2a3299cc857e29.TopShot.Withdraw")
 
 	events, err := eventsFetcher.Run()
 	if err != nil {

@@ -26,7 +26,7 @@ type EventFetcherBuilder struct {
 	EndAtCurrentHeight    bool
 	EndIndex              uint64
 	ProgressFile          string
-	Ctx                   context.Context
+	                   context.Context
 	NumberOfWorkers       int
 	EventBatchSize        uint64
 }
@@ -39,8 +39,7 @@ func (f *GoWithTheFlow) EventFetcher() EventFetcherBuilder {
 		EndAtCurrentHeight:    true,
 		FromIndex:             -10,
 		ProgressFile:          "",
-		Ctx:                   context.Background(),
-		EventBatchSize:        10000,
+		EventBatchSize:        250,
 		NumberOfWorkers:       20,
 	}
 }
@@ -51,11 +50,6 @@ func (e EventFetcherBuilder) Workers(workers int) EventFetcherBuilder {
 
 func (e EventFetcherBuilder) BatchSize(batchSize uint64) EventFetcherBuilder {
 	e.EventBatchSize = batchSize
-	return e
-}
-
-func (e EventFetcherBuilder) Context(ctx context.Context) EventFetcherBuilder {
-	e.Ctx = ctx
 	return e
 }
 

@@ -8,6 +8,7 @@ import (
 
 func main() {
 
+	//This special New method will setupup and in memory emulator, deploy all contracts, create all acconts that does not have contracts in deploy block and prepare for unit testing or like this an demo script
 	g := gwtf.NewGoWithTheFlowInMemoryEmulator()
 	g.TransactionFromFile("create_nft_collection").SignProposeAndPayAs("first").RunPrintEventsFull()
 	g.TransactionFromFile("arguments").SignProposeAndPayAs("first").StringArgument("argument1").RunPrintEventsFull()
