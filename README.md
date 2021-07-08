@@ -29,8 +29,7 @@ Special thanks to @sideninja for helping me get my changes into flow-cli.
 In order to run the demo example you only have to run `make` in the example folder of this project. 
 The emulator will be run in memory. 
 
-If you want to have a standalone emulator to get logs as then the `examples/script/main.go` file can be run while running
-and emulator
+If you want to have a standalone emulator to get logs as then the `examples/script/main.go` file can be run while running and emulator
 
 ## Credits
 
