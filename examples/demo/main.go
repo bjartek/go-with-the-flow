@@ -15,26 +15,26 @@ func main() {
 	g.TransactionFromFile("argumentsWithAccount").SignProposeAndPayAs("first").AccountArgument("second").RunPrintEventsFull()
 
 	//multiple signers is not something I have handled yet.
-	//g.TransactionFromFile("signWithMultipleAccounts").SignProposeAndPayAs("first").PayloadSigner("second").RunPrintEventsFull()
+	g.TransactionFromFile("signWithMultipleAccounts").SignProposeAndPayAs("first").PayloadSigner("second").RunPrintEventsFull()
 
 	g.ScriptFromFile("test").AccountArgument("second").Run()
 	g.TransactionFromFile("mint_tokens").SignProposeAndPayAs("emulator-account").AccountArgument("first").UFix64Argument("10.0").RunPrintEventsFull()
 
 
 	g.Script(`
-import NonFungibleToken from "./contracts/NonFungibleToken.cdc"
-
 pub fun main(account: Address): String {
     return getAccount(account).address.toString()
 }`).AccountArgument("second").Run()
 
 	g.Transaction(`
+import Debug from "../contracts/Debug.cdc"
 transaction(test:String) {
   prepare(acct: AuthAccount) {
+	Debug.log(test)
     log(acct)
     log(test)
  }
-}`).SignProposeAndPayAs("first").StringArgument("foobar").Run()
+}`).SignProposeAndPayAs("first").StringArgument("foobar").RunPrintEventsFull()
 
 	//Run script that returns
 	result := g.ScriptFromFile("test").AccountArgument("second").RunReturns()
