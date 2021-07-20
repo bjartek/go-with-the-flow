@@ -2,8 +2,9 @@ package gwtf
 
 import (
 	"fmt"
-	"github.com/onflow/flow-go-sdk"
 	"log"
+
+	"github.com/onflow/flow-go-sdk"
 
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
@@ -11,18 +12,18 @@ import (
 
 //FlowScriptBuilder is a struct to hold information for running a script
 type FlowScriptBuilder struct {
-	GoWithTheFlow *GoWithTheFlow
-	FileName      string
-	Arguments     []cadence.Value
-	ScriptAsString  string
+	GoWithTheFlow  *GoWithTheFlow
+	FileName       string
+	Arguments      []cadence.Value
+	ScriptAsString string
 }
 
 //ScriptFromFile will start a flow script builder
 func (f *GoWithTheFlow) Script(content string) FlowScriptBuilder {
 	return FlowScriptBuilder{
-		GoWithTheFlow: f,
-		FileName:      "inline",
-		Arguments:     []cadence.Value{},
+		GoWithTheFlow:  f,
+		FileName:       "inline",
+		Arguments:      []cadence.Value{},
 		ScriptAsString: content,
 	}
 }
@@ -30,9 +31,9 @@ func (f *GoWithTheFlow) Script(content string) FlowScriptBuilder {
 //ScriptFromFile will start a flow script builder
 func (f *GoWithTheFlow) ScriptFromFile(filename string) FlowScriptBuilder {
 	return FlowScriptBuilder{
-		GoWithTheFlow: f,
-		FileName:      filename,
-		Arguments:     []cadence.Value{},
+		GoWithTheFlow:  f,
+		FileName:       filename,
+		Arguments:      []cadence.Value{},
 		ScriptAsString: "",
 	}
 }
@@ -183,7 +184,8 @@ func (t FlowScriptBuilder) UFix64Argument(value string) FlowScriptBuilder {
 
 // Run executes a read only script
 func (t FlowScriptBuilder) Run() {
-	_ = t.RunReturns()
+	result := t.RunReturns()
+	log.Printf("%v Script run from result: %v\n", emoji.Star, CadenceValueToJsonString(result))
 }
 
 // RunReturns executes a read only script
@@ -212,8 +214,7 @@ func (t FlowScriptBuilder) RunReturns() cadence.Value {
 		log.Fatalf("%v Error executing script: %s output %v", emoji.PileOfPoo, t.FileName, err)
 	}
 
-
-	log.Printf("%v Script run from path %s result: %v\n", emoji.Star, scriptFilePath, CadenceValueToJsonString(result))
+	log.Printf("%v Script run from path %s\n", emoji.Star, scriptFilePath)
 	return result
 }
 

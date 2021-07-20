@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/bwmarrin/discordgo"
 	"io/ioutil"
 	"log"
 	"os"
@@ -12,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/bwmarrin/discordgo"
 
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/client"
@@ -26,9 +27,9 @@ type EventFetcherBuilder struct {
 	EndAtCurrentHeight    bool
 	EndIndex              uint64
 	ProgressFile          string
-	                   context.Context
-	NumberOfWorkers       int
-	EventBatchSize        uint64
+	context.Context
+	NumberOfWorkers int
+	EventBatchSize  uint64
 }
 
 // SendEventsTo starts a event hook builder
@@ -145,8 +146,7 @@ func readProgressFromFile(fileName string) (int64, error) {
 
 }
 
-
-func (e EventFetcherBuilder) RunAndSendToWebhook(url string) (*discordgo.Message, error){
+func (e EventFetcherBuilder) RunAndSendToWebhook(url string) (*discordgo.Message, error) {
 
 	events, err := e.Run()
 	if err != nil {
@@ -224,11 +224,9 @@ func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 		return formatedEvents[i].BlockHeight < formatedEvents[j].BlockHeight
 	})
 
-
 	return formatedEvents, nil
 
 }
-
 
 //PrintEvents prints th events, ignoring fields specified for the given event typeID
 func PrintEvents(events []flow.Event, ignoreFields map[string][]string) {

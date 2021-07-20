@@ -18,7 +18,7 @@ func (f *GoWithTheFlow) TransactionFromFile(filename string) FlowTransactionBuil
 		MainSigner:     nil,
 		Arguments:      []cadence.Value{},
 		PayloadSigners: []*flowkit.Account{},
-		GasLimit: 9999,
+		GasLimit:       9999,
 	}
 }
 
@@ -27,23 +27,32 @@ func (f *GoWithTheFlow) Transaction(content string) FlowTransactionBuilder {
 	return FlowTransactionBuilder{
 		GoWithTheFlow:  f,
 		FileName:       "inline",
-		Content: content,
+		Content:        content,
 		MainSigner:     nil,
 		Arguments:      []cadence.Value{},
 		PayloadSigners: []*flowkit.Account{},
-		GasLimit: 9999,
+		GasLimit:       9999,
 	}
 }
 
-func(t FlowTransactionBuilder) Gas(limit uint64) FlowTransactionBuilder {
-	t.GasLimit=limit
+func (t FlowTransactionBuilder) Gas(limit uint64) FlowTransactionBuilder {
+	t.GasLimit = limit
 	return t
 }
+
 //SignProposeAndPayAs set the payer, proposer and envelope signer
 func (t FlowTransactionBuilder) SignProposeAndPayAs(signer string) FlowTransactionBuilder {
 	t.MainSigner = t.GoWithTheFlow.State.Accounts().ByName(signer)
+	if t.MainSigner == nil {
+		panic("could not find signer with name " + signer)
+	}
 	//note that we also put the signers in here so that we can use the authorizers and signers from here
 	return t
+}
+
+//SignProposeAndPayAsService set the payer, proposer and envelope signer
+func (t FlowTransactionBuilder) SignProposeAndPayAsService() FlowTransactionBuilder {
+	return t.SignProposeAndPayAs(fmt.Sprintf("%s-account", t.GoWithTheFlow.Network))
 }
 
 //RawAccountArgument add an account from a string as an argument
@@ -218,7 +227,7 @@ func (t FlowTransactionBuilder) Run() []flow.Event {
 	signers := append(t.PayloadSigners, t.MainSigner)
 	var code []byte
 	var err error
-	if  t.Content=="" {
+	if t.Content == "" {
 		code, err = t.GoWithTheFlow.State.ReaderWriter().ReadFile(codeFileName)
 		if err != nil {
 			log.Fatalf("%v Could not read transaction file from path=%s", emoji.PileOfPoo, codeFileName)
@@ -231,7 +240,7 @@ func (t FlowTransactionBuilder) Run() []flow.Event {
 
 	var authorizers []flow.Address
 	for _, signer := range signers {
-		authorizers=append(authorizers, signer.Address())
+		authorizers = append(authorizers, signer.Address())
 	}
 
 	tx, err := t.GoWithTheFlow.Services.Transactions.Build(
@@ -249,7 +258,7 @@ func (t FlowTransactionBuilder) Run() []flow.Event {
 		log.Fatal(err)
 	}
 
-	for _, signer := range signers{
+	for _, signer := range signers {
 		err = tx.SetSigner(signer)
 		if err != nil {
 			log.Fatal(err)
@@ -264,11 +273,15 @@ func (t FlowTransactionBuilder) Run() []flow.Event {
 	t.GoWithTheFlow.Logger.Info(fmt.Sprintf("Transaction ID: %s", tx.FlowTransaction().ID()))
 	t.GoWithTheFlow.Logger.StartProgress("Sending transaction...")
 	defer t.GoWithTheFlow.Logger.StopProgress()
-	txBytes :=[]byte(fmt.Sprintf("%x", tx.FlowTransaction().Encode()))
+	txBytes := []byte(fmt.Sprintf("%x", tx.FlowTransaction().Encode()))
 	_, res, err := t.GoWithTheFlow.Services.Transactions.SendSigned(txBytes)
 
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if res.Error != nil {
+		log.Fatal(res.Error)
 	}
 
 	log.Printf("%v Transaction %s successfully applied\n", emoji.OkHand, t.FileName)
@@ -279,9 +292,9 @@ func (t FlowTransactionBuilder) Run() []flow.Event {
 type FlowTransactionBuilder struct {
 	GoWithTheFlow  *GoWithTheFlow
 	FileName       string
-	Content 	   string
+	Content        string
 	Arguments      []cadence.Value
 	MainSigner     *flowkit.Account
 	PayloadSigners []*flowkit.Account
-	GasLimit		uint64
+	GasLimit       uint64
 }

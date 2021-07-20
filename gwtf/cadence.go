@@ -8,13 +8,26 @@ import (
 )
 
 func CadenceValueToJsonString(value cadence.Value) string {
+	if value == nil {
+		return "{}"
+	}
 	result := CadenceValueToInterface(value)
 	j, _ := json.MarshalIndent(result, "", "    ")
 	return string(j)
 }
 
 func CadenceValueToInterface(field cadence.Value) interface{} {
+	if field == nil {
+		return ""
+	}
+
 	switch field.(type) {
+	case cadence.Optional:
+		if field == nil {
+			return nil
+		} else {
+			return CadenceValueToInterface(field.(cadence.Optional).Value)
+		}
 	case cadence.Dictionary:
 		result := map[string]interface{}{}
 		for _, item := range field.(cadence.Dictionary).Pairs {
