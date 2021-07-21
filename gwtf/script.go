@@ -18,7 +18,7 @@ type FlowScriptBuilder struct {
 	ScriptAsString string
 }
 
-//ScriptFromFile will start a flow script builder
+//Script start a script builder with the inline script as body
 func (f *GoWithTheFlow) Script(content string) FlowScriptBuilder {
 	return FlowScriptBuilder{
 		GoWithTheFlow:  f,
@@ -219,10 +219,12 @@ func (t FlowScriptBuilder) RunReturns() cadence.Value {
 	return result
 }
 
+//RunReturnsJsonString runs the script and returns pretty printed json string
 func (t FlowScriptBuilder) RunReturnsJsonString() string {
 	return CadenceValueToJsonString(t.RunReturns())
 }
 
+//RunReturnsInterface runs the script and returns interface{}
 func (t FlowScriptBuilder) RunReturnsInterface() interface{} {
 	return CadenceValueToInterface(t.RunReturns())
 }

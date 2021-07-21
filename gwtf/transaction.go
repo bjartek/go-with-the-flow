@@ -22,7 +22,7 @@ func (f *GoWithTheFlow) TransactionFromFile(filename string) FlowTransactionBuil
 	}
 }
 
-//TransactionFromFile will start a flow transaction builder
+//Transaction will start a flow transaction builder using the inline transaction
 func (f *GoWithTheFlow) Transaction(content string) FlowTransactionBuilder {
 	return FlowTransactionBuilder{
 		GoWithTheFlow:  f,
@@ -35,6 +35,7 @@ func (f *GoWithTheFlow) Transaction(content string) FlowTransactionBuilder {
 	}
 }
 
+//Gas sets the gas limit for this transaction
 func (t FlowTransactionBuilder) Gas(limit uint64) FlowTransactionBuilder {
 	t.GasLimit = limit
 	return t
@@ -222,8 +223,17 @@ func (t FlowTransactionBuilder) RunPrintEvents(ignoreFields map[string][]string)
 
 //Run run the transaction
 func (t FlowTransactionBuilder) Run() []flow.Event {
+	events, err := t.RunE()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return events
+}
+
+//RunE runs returns error
+func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 	if t.MainSigner == nil {
-		log.Fatalf("%v You need to set the main signer", emoji.PileOfPoo)
+		return nil, fmt.Errorf("%v You need to set the main signer", emoji.PileOfPoo)
 	}
 	codeFileName := fmt.Sprintf("./transactions/%s.cdc", t.FileName)
 
@@ -234,7 +244,7 @@ func (t FlowTransactionBuilder) Run() []flow.Event {
 	if t.Content == "" {
 		code, err = t.GoWithTheFlow.State.ReaderWriter().ReadFile(codeFileName)
 		if err != nil {
-			log.Fatalf("%v Could not read transaction file from path=%s", emoji.PileOfPoo, codeFileName)
+			return nil, fmt.Errorf("%v Could not read transaction file from path=%s", emoji.PileOfPoo, codeFileName)
 		}
 	} else {
 		code = []byte(t.Content)
@@ -259,18 +269,18 @@ func (t FlowTransactionBuilder) Run() []flow.Event {
 		t.GoWithTheFlow.Network,
 	)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	for _, signer := range signers {
 		err = tx.SetSigner(signer)
 		if err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
 
 		tx, err = tx.Sign()
 		if err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
 	}
 
@@ -281,15 +291,15 @@ func (t FlowTransactionBuilder) Run() []flow.Event {
 	_, res, err := t.GoWithTheFlow.Services.Transactions.SendSigned(txBytes)
 
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	if res.Error != nil {
-		log.Fatal(res.Error)
+		return nil, res.Error
 	}
 
 	log.Printf("%v Transaction %s successfully applied\n", emoji.OkHand, t.FileName)
-	return res.Events
+	return res.Events, nil
 }
 
 //FlowTransactionBuilder used to create a builder pattern for a transaction

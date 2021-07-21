@@ -9,7 +9,7 @@ import (
 )
 
 
-//CreateAccount creates the accounts with the given names
+//CreateAccount ensures that all accounts present in the deployment block for the given network is present
 func (f *GoWithTheFlow) CreateAccounts(saAccountName string) *GoWithTheFlow {
 
 	p := f.State
@@ -48,7 +48,7 @@ func (f *GoWithTheFlow) CreateAccounts(saAccountName string) *GoWithTheFlow {
 	return f
 }
 
-//InitializeContracts installs all contracts to the account with name accounts
+//InitializeContracts installs all contracts in the deployment block for the configured network
 func (f *GoWithTheFlow) InitializeContracts() *GoWithTheFlow {
 	log.Println("Deploying contracts")
 	_, err := f.Services.Project.Deploy(f.Network, false)

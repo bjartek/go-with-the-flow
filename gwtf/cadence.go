@@ -7,6 +7,7 @@ import (
 	"github.com/onflow/cadence"
 )
 
+//CadenceValueToJsonString converts a cadence.Value into a json pretty printed string
 func CadenceValueToJsonString(value cadence.Value) string {
 	if value == nil {
 		return "{}"
@@ -16,6 +17,7 @@ func CadenceValueToJsonString(value cadence.Value) string {
 	return string(j)
 }
 
+//CadenceValueToInterface convert a candence.Value into interface{}
 func CadenceValueToInterface(field cadence.Value) interface{} {
 	if field == nil {
 		return ""

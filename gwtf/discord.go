@@ -7,7 +7,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-
 // DiscordWebhook stores information about a webhook
 type DiscordWebhook struct {
 	ID    string `json:"id"`
@@ -15,19 +14,18 @@ type DiscordWebhook struct {
 	Wait  bool   `json:"wait"`
 }
 
-
 //NewDiscordWebhook create a new discord webhook from an discord url on the form ofhttps://discord.com/api/webhooks/<id>/<token>
 func NewDiscordWebhook(url string) DiscordWebhook {
 	parts := strings.Split(url, "/")
 	length := len(parts)
 	return DiscordWebhook{
-		ID: parts[length-1],
+		ID:    parts[length-1],
 		Token: parts[length],
-		Wait: true,
+		Wait:  true,
 	}
 }
 
-// SendEventsToWebhook Sends events to the webhook with the given name from flow.json
+// SendEventsToWebhook Sends events to a webhook
 func (dw DiscordWebhook) SendEventsToWebhook(events []*FormatedEvent) (*discordgo.Message, error) {
 
 	discord, err := discordgo.New()
