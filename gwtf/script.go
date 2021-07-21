@@ -41,8 +41,9 @@ func (f *GoWithTheFlow) ScriptFromFile(filename string) FlowScriptBuilder {
 //AccountArgument add an account as an argument
 func (t FlowScriptBuilder) AccountArgument(key string) FlowScriptBuilder {
 	f := t.GoWithTheFlow
-	address := cadence.BytesToAddress(f.State.Accounts().ByName(key).Address().Bytes())
-	return t.Argument(address)
+
+	account := f.Account(key)
+	return t.Argument(cadence.BytesToAddress(account.Address().Bytes()))
 }
 
 //RawAccountArgument add an account from a string as an argument

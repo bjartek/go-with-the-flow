@@ -42,17 +42,20 @@ func (t FlowTransactionBuilder) Gas(limit uint64) FlowTransactionBuilder {
 
 //SignProposeAndPayAs set the payer, proposer and envelope signer
 func (t FlowTransactionBuilder) SignProposeAndPayAs(signer string) FlowTransactionBuilder {
-	t.MainSigner = t.GoWithTheFlow.State.Accounts().ByName(signer)
-	if t.MainSigner == nil {
-		panic("could not find signer with name " + signer)
-	}
-	//note that we also put the signers in here so that we can use the authorizers and signers from here
+
+	t.MainSigner = t.GoWithTheFlow.Account(signer)
 	return t
 }
 
 //SignProposeAndPayAsService set the payer, proposer and envelope signer
 func (t FlowTransactionBuilder) SignProposeAndPayAsService() FlowTransactionBuilder {
-	return t.SignProposeAndPayAs(fmt.Sprintf("%s-account", t.GoWithTheFlow.Network))
+	key := fmt.Sprintf("%s-account", t.GoWithTheFlow.Network)
+	account := t.GoWithTheFlow.State.Accounts().ByName(key)
+	if account == nil {
+		log.Fatalf("Could not find account with name %s", key)
+	}
+	t.MainSigner = account
+	return t
 }
 
 //RawAccountArgument add an account from a string as an argument
@@ -66,8 +69,9 @@ func (t FlowTransactionBuilder) RawAccountArgument(key string) FlowTransactionBu
 //AccountArgument add an account as an argument
 func (t FlowTransactionBuilder) AccountArgument(key string) FlowTransactionBuilder {
 	f := t.GoWithTheFlow
-	address := cadence.BytesToAddress(f.State.Accounts().ByName(key).Address().Bytes())
-	return t.Argument(address)
+
+	account := f.Account(key)
+	return t.Argument(cadence.BytesToAddress(account.Address().Bytes()))
 }
 
 //StringArgument add a String Argument to the transaction
@@ -201,7 +205,7 @@ func (t FlowTransactionBuilder) Argument(value cadence.Value) FlowTransactionBui
 
 //PayloadSigner set a signer for the payload
 func (t FlowTransactionBuilder) PayloadSigner(value string) FlowTransactionBuilder {
-	signer := t.GoWithTheFlow.State.Accounts().ByName(value)
+	signer := t.GoWithTheFlow.Account(value)
 	t.PayloadSigners = append(t.PayloadSigners, signer)
 	return t
 }

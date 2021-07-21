@@ -1,6 +1,7 @@
 package gwtf
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/enescakir/emoji"
@@ -13,15 +14,14 @@ import (
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
 )
 
-
 // GoWithTheFlow Entire configuration to work with Go With the Flow
 type GoWithTheFlow struct {
-	State    *flowkit.State
-	Services *services.Services
-	Network  string
-	Logger   output.Logger
+	State                        *flowkit.State
+	Services                     *services.Services
+	Network                      string
+	Logger                       output.Logger
+	PrependNetworkToAccountNames bool
 }
-
 
 //NewGoWithTheFlowInMemoryEmulator this method is used to create an in memory emulator, deploy all contracts for the emulator and create all accounts
 func NewGoWithTheFlowInMemoryEmulator() *GoWithTheFlow {
@@ -55,6 +55,31 @@ func NewGoWithTheFlow(filenames []string, network string, inMemory bool) *GoWith
 	return gwtf
 }
 
+func (f *GoWithTheFlow) DoNotPrependNetworkToAccountNames() {
+	f.PrependNetworkToAccountNames = false
+}
+
+func (f *GoWithTheFlow) Account(key string) *flowkit.Account {
+	if f.PrependNetworkToAccountNames {
+		key = fmt.Sprintf("%s-%s", f.Network, key)
+	}
+
+	account := f.State.Accounts().ByName(key)
+	if account == nil {
+		log.Fatalf("Could not find account with name %s", key)
+	}
+
+	return account
+
+}
+
+func (f *GoWithTheFlow) AccountName(key string) string {
+
+	if f.PrependNetworkToAccountNames {
+		return fmt.Sprintf("%s-%s", f.Network, key)
+	}
+	return key
+}
 
 // NewGoWithTheFlowError creates a new local go with the flow client
 func NewGoWithTheFlowError(paths []string, network string, inMemory bool) (*GoWithTheFlow, error) {
@@ -66,7 +91,6 @@ func NewGoWithTheFlowError(paths []string, network string, inMemory bool) (*GoWi
 	}
 
 	logger := output.NewStdoutLogger(output.InfoLog)
-
 
 	var service *services.Services
 	if inMemory {
@@ -84,10 +108,11 @@ func NewGoWithTheFlowError(paths []string, network string, inMemory bool) (*GoWi
 		service = services.NewServices(gw, state, logger)
 	}
 	return &GoWithTheFlow{
-		State:    state,
-		Services: service,
-		Network:  network,
-		Logger: logger,
+		State:                        state,
+		Services:                     service,
+		Network:                      network,
+		Logger:                       logger,
+		PrependNetworkToAccountNames: true,
 	}, nil
 
 }
