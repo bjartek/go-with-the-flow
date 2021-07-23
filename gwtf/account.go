@@ -3,17 +3,20 @@ package gwtf
 import (
 	"errors"
 	"fmt"
-	"github.com/onflow/flow-go-sdk/crypto"
 	"log"
 	"sort"
-)
 
+	"github.com/onflow/flow-go-sdk/crypto"
+)
 
 //CreateAccount ensures that all accounts present in the deployment block for the given network is present
 func (f *GoWithTheFlow) CreateAccounts(saAccountName string) *GoWithTheFlow {
 
 	p := f.State
-	signerAccount := p.Accounts().ByName(saAccountName)
+	signerAccount, err := p.Accounts().ByName(saAccountName)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	accounts := p.AccountNamesForNetwork(f.Network)
 	sort.Strings(accounts)
@@ -23,7 +26,10 @@ func (f *GoWithTheFlow) CreateAccounts(saAccountName string) *GoWithTheFlow {
 	for _, accountName := range accounts {
 		log.Println(fmt.Sprintf("Ensuring account with name '%s' is present", accountName))
 
-		account := p.Accounts().ByName(accountName)
+		account, err := p.Accounts().ByName(accountName)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		_, err2 := f.Services.Accounts.Get(account.Address())
 		if err2 == nil {

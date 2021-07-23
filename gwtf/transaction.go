@@ -51,9 +51,9 @@ func (t FlowTransactionBuilder) SignProposeAndPayAs(signer string) FlowTransacti
 //SignProposeAndPayAsService set the payer, proposer and envelope signer
 func (t FlowTransactionBuilder) SignProposeAndPayAsService() FlowTransactionBuilder {
 	key := fmt.Sprintf("%s-account", t.GoWithTheFlow.Network)
-	account := t.GoWithTheFlow.State.Accounts().ByName(key)
-	if account == nil {
-		log.Fatalf("Could not find account with name %s", key)
+	account, err := t.GoWithTheFlow.State.Accounts().ByName(key)
+	if err != nil {
+		log.Fatal(err)
 	}
 	t.MainSigner = account
 	return t

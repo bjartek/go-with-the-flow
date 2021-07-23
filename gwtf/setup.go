@@ -69,9 +69,9 @@ func (f *GoWithTheFlow) Account(key string) *flowkit.Account {
 		key = fmt.Sprintf("%s-%s", f.Network, key)
 	}
 
-	account := f.State.Accounts().ByName(key)
-	if account == nil {
-		log.Fatalf("Could not find account with name %s", key)
+	account, err := f.State.Accounts().ByName(key)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	return account
