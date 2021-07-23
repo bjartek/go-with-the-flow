@@ -12,5 +12,6 @@ require (
 	github.com/onflow/flow-go-sdk v0.20.1-0.20210623043139-533a95abf071
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/afero v1.6.0
+	github.com/stretchr/testify v1.7.0
 	google.golang.org/grpc v1.38.0 // indirect
 )
