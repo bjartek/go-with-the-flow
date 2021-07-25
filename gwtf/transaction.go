@@ -3,7 +3,9 @@ package gwtf
 import (
 	"fmt"
 	"log"
+	"time"
 
+	"github.com/araddon/dateparse"
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-cli/pkg/flowkit"
@@ -187,6 +189,29 @@ func (t FlowTransactionBuilder) Fix64Argument(value string) FlowTransactionBuild
 		panic(err)
 	}
 	return t.Argument(amount)
+}
+
+//DateStringAsUnixTimestamp sends a dateString parsed in the timezone as a unix timeszone ufix
+func (t FlowTransactionBuilder) DateStringAsUnixTimestamp(dateString string, timezone string) FlowTransactionBuilder {
+	return t.UFix64Argument(parseTime(dateString, timezone))
+}
+
+func parseTime(timeString string, location string) string {
+	loc, err := time.LoadLocation(location)
+	if err != nil {
+		panic(err)
+	}
+
+	time.Local = loc
+	t, err := dateparse.ParseLocal(timeString)
+	if err != nil {
+		panic(err)
+	}
+
+	unix := t.Unix()
+
+	time := fmt.Sprintf("%d.0", unix)
+	return time
 }
 
 //UFix64Argument add a UFix64 Argument to the transaction

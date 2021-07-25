@@ -37,12 +37,16 @@ func fileAsImageData(path string) (string, error) {
 		return "", err
 	}
 
+	return contentAsImageDataUrl(content), nil
+}
+
+func contentAsImageDataUrl(content []byte) string {
 	contentType := http.DetectContentType(content)
 
 	// Encode as base64.
 	encoded := base64.StdEncoding.EncodeToString(content)
 
-	return "data:" + contentType + ";base64, " + encoded, nil
+	return "data:" + contentType + ";base64, " + encoded
 }
 
 func fileAsBase64(path string) (string, error) {
@@ -69,6 +73,25 @@ func (f *GoWithTheFlow) UploadFile(filename string, accountName string) error {
 	if err != nil {
 		return err
 	}
+
+	return f.UploadString(content, accountName)
+}
+
+//UploadImageFromUrlAsDataUrl will upload a image file from the filesystem into /storage/upload of the given account
+func (f *GoWithTheFlow) DownloadImageAndUploadAsDataUrl(url, accountName string) error {
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	content := contentAsImageDataUrl(body)
 
 	return f.UploadString(content, accountName)
 }
