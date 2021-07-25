@@ -77,20 +77,36 @@ func (f *GoWithTheFlow) UploadFile(filename string, accountName string) error {
 	return f.UploadString(content, accountName)
 }
 
-//UploadImageFromUrlAsDataUrl will upload a image file from the filesystem into /storage/upload of the given account
-func (f *GoWithTheFlow) DownloadImageAndUploadAsDataUrl(url, accountName string) error {
+func getUrl(url string) ([]byte, error) {
 
 	resp, err := http.Get(url)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
+	return body, err
+}
+
+//DownloadAndUploadFile reads a file, base64 encodes it and chunk upload to /storage/upload
+func (f *GoWithTheFlow) DownloadAndUploadFile(url string, accountName string) error {
+	body, err := getUrl(url)
 	if err != nil {
 		return err
 	}
 
+	encoded := base64.StdEncoding.EncodeToString(body)
+	return f.UploadString(encoded, accountName)
+}
+
+//DownloadImageAndUploadAsDataUrl download an image and upload as data url
+func (f *GoWithTheFlow) DownloadImageAndUploadAsDataUrl(url, accountName string) error {
+
+	body, err := getUrl(url)
+	if err != nil {
+		return err
+	}
 	content := contentAsImageDataUrl(body)
 
 	return f.UploadString(content, accountName)
