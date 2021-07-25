@@ -122,16 +122,16 @@ func (f *GoWithTheFlow) UploadImageAsDataUrl(filename string, accountName string
 	return f.UploadString(content, accountName)
 }
 
-//UploadStrgin will upload the given string data in 1mb chunkts to /storage/upload of the given account
+//UploadString will upload the given string data in 1mb chunkts to /storage/upload of the given account
 func (f *GoWithTheFlow) UploadString(content string, accountName string) error {
 
 	//unload previous content if any.
 	_, err := f.Transaction(`
-transaction(part: String) {
+transaction {
     prepare(signer: AuthAccount) {
         let path = /storage/upload
         let existing = signer.load<String>(from: path) ?? ""
-				log(existing)
+		log(existing)
     }
 }
 
@@ -148,9 +148,11 @@ transaction(part: String) {
         let path = /storage/upload
         let existing = signer.load<String>(from: path) ?? ""
         signer.save(existing.concat(part), to: path)
+		log(signer.address.toString())
+		log(part)
     }
 }
-    `).SignProposeAndPayAs(accountName).StringArgument(part).SignProposeAndPayAsService().RunE()
+    `).SignProposeAndPayAs(accountName).StringArgument(part).RunE()
 		if err != nil {
 			return err
 		}

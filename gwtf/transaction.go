@@ -2,6 +2,7 @@ package gwtf
 
 import (
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"log"
 	"time"
 
@@ -47,6 +48,7 @@ func (t FlowTransactionBuilder) Gas(limit uint64) FlowTransactionBuilder {
 func (t FlowTransactionBuilder) SignProposeAndPayAs(signer string) FlowTransactionBuilder {
 
 	t.MainSigner = t.GoWithTheFlow.Account(signer)
+	spew.Dump(t.MainSigner.Address())
 	return t
 }
 

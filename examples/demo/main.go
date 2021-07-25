@@ -13,9 +13,9 @@ func main() {
 	g.TransactionFromFile("create_nft_collection").SignProposeAndPayAs("first").RunPrintEventsFull()
 	g.TransactionFromFile("arguments").SignProposeAndPayAs("first").StringArgument("argument1").RunPrintEventsFull()
 	g.TransactionFromFile("argumentsWithAccount").SignProposeAndPayAs("first").AccountArgument("second").RunPrintEventsFull()
-	g.TransactionFromFile("signWithMultipleAccounts").SignProposeAndPayAs("first").PayloadSigner("second").StringArgument("test").RunPrintEventsFull()
+	g.TransactionFromFile("signWithMultipleAccounts").SignProposeAndPayAs("first").PayloadSigner("second").StringArgument("asserts.go").RunPrintEventsFull()
 
-	g.ScriptFromFile("test").AccountArgument("second").Run()
+	g.ScriptFromFile("asserts.go").AccountArgument("second").Run()
 	g.TransactionFromFile("mint_tokens").SignProposeAndPayAsService().AccountArgument("first").UFix64Argument("10.0").RunPrintEventsFull()
 
 	g.Script(`
@@ -25,11 +25,11 @@ pub fun main(account: Address): String {
 
 	g.Transaction(`
 import Debug from "../contracts/Debug.cdc"
-transaction(test:String) {
+transaction(asserts.go:String) {
   prepare(acct: AuthAccount) {
-	Debug.log(test)
+	Debug.log(asserts.go)
     log(acct)
-    log(test)
+    log(asserts.go)
  }
 }`).SignProposeAndPayAs("first").StringArgument("foobar").RunPrintEventsFull()
 

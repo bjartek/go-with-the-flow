@@ -9,7 +9,7 @@ import (
 	"github.com/onflow/flow-go-sdk/crypto"
 )
 
-//CreateAccount ensures that all accounts present in the deployment block for the given network is present
+//CreateAccounts ensures that all accounts present in the deployment block for the given network is present
 func (f *GoWithTheFlow) CreateAccounts(saAccountName string) *GoWithTheFlow {
 
 	p := f.State

@@ -304,6 +304,15 @@ type FormatedEvent struct {
 	Fields      map[string]interface{} `json:"fields"`
 }
 
+func NewTestEvent(name string, fields map[string]interface{}) *FormatedEvent {
+	return &FormatedEvent{
+		Name: name,
+		BlockHeight: 0,
+		Time: time.Unix(0,0),
+		Fields: fields,
+	}
+}
+
 //String pretty print an event as a String
 func (e FormatedEvent) String() string {
 	j, err := json.MarshalIndent(e, "", "  ")
