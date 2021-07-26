@@ -214,10 +214,10 @@ func (t FlowScriptBuilder) RunReturns() cadence.Value {
 	result, err := f.Services.Scripts.Execute(
 		script,
 		t.Arguments,
-		t.FileName,
+		scriptFilePath,
 		f.Network)
 	if err != nil {
-		log.Fatalf("%v Error executing script: %s output %v", emoji.PileOfPoo, t.FileName, err)
+		log.Fatalf("%v Error executing script: %s output %v", emoji.PileOfPoo, scriptFilePath, err)
 	}
 
 	log.Printf("%v Script run from path %s\n", emoji.Star, scriptFilePath)
