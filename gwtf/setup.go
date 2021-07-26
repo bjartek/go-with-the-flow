@@ -88,7 +88,6 @@ func NewGoWithTheFlowError(paths []string, network string, inMemory bool) (*GoWi
 	}
 
 	logger := output.NewStdoutLogger(output.InfoLog)
-
 	var service *services.Services
 	if inMemory {
 		//YAY we can run it inline in memory!
@@ -112,3 +111,4 @@ func NewGoWithTheFlowError(paths []string, network string, inMemory bool) (*GoWi
 	}, nil
 
 }
+
