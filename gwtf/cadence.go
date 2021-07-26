@@ -23,29 +23,29 @@ func CadenceValueToInterface(field cadence.Value) interface{} {
 		return ""
 	}
 
-	switch field.(type) {
+	switch field := field.(type) {
 	case cadence.Optional:
-		if field == nil {
-			return nil
-		} else {
-			return CadenceValueToInterface(field.(cadence.Optional).Value)
-		}
+		return CadenceValueToInterface(field.Value)
 	case cadence.Dictionary:
 		result := map[string]interface{}{}
-		for _, item := range field.(cadence.Dictionary).Pairs {
-			result[item.Key.String()] = CadenceValueToInterface(item.Value)
+		for _, item := range field.Pairs {
+			key, err := strconv.Unquote(item.Key.String())
+			if err != nil {
+				return item.Key.String()
+			}
+			result[key] = CadenceValueToInterface(item.Value)
 		}
 		return result
 	case cadence.Struct:
 		result := map[string]interface{}{}
-		subStructNames := field.(cadence.Struct).StructType.Fields
-		for j, subField := range field.(cadence.Struct).Fields {
+		subStructNames := field.StructType.Fields
+		for j, subField := range field.Fields {
 			result[subStructNames[j].Identifier] = CadenceValueToInterface(subField)
 		}
 		return result
 	case cadence.Array:
 		var result []interface{}
-		for _, item := range field.(cadence.Array).Values {
+		for _, item := range field.Values {
 			result = append(result, CadenceValueToInterface(item))
 		}
 		return result
