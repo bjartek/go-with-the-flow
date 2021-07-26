@@ -1,7 +1,6 @@
 package gwtf
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"sort"
@@ -47,7 +46,7 @@ func (f *GoWithTheFlow) CreateAccounts(saAccountName string) *GoWithTheFlow {
 			log.Fatal(err)
 		}
 		if account.Address() != a.Address {
-			log.Fatal(errors.New(fmt.Sprintf("Configured account address != created address, %s != %s", account.Address(), a.Address)))
+			log.Fatal(fmt.Errorf("configured account address != created address, %s != %s", account.Address(), a.Address))
 		}
 		log.Println("Account created " + a.Address.String())
 	}
