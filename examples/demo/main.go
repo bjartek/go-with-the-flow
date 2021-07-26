@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/bjartek/go-with-the-flow/gwtf"
+	"github.com/bjartek/go-with-the-flow/v2/gwtf"
 )
 
 func main() {
@@ -15,7 +15,7 @@ func main() {
 	g.TransactionFromFile("argumentsWithAccount").SignProposeAndPayAs("first").AccountArgument("second").RunPrintEventsFull()
 	g.TransactionFromFile("signWithMultipleAccounts").SignProposeAndPayAs("first").PayloadSigner("second").StringArgument("asserts.go").RunPrintEventsFull()
 
-	g.ScriptFromFile("asserts.go").AccountArgument("second").Run()
+	g.ScriptFromFile("test").AccountArgument("second").Run()
 	g.TransactionFromFile("mint_tokens").SignProposeAndPayAsService().AccountArgument("first").UFix64Argument("10.0").RunPrintEventsFull()
 
 	g.Script(`

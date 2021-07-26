@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/bjartek/go-with-the-flow/gwtf"
+	"github.com/bjartek/go-with-the-flow/v2/gwtf"
 )
 
 /*
