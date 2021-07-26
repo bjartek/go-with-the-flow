@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 	"testing"
 
@@ -61,7 +60,7 @@ transaction(message:String) {
 	t.Run("Upload test file", func(t *testing.T) {
 		err := g.UploadFile("testFile.txt", "first")
 		assert.NoError(t, err)
-		res := g.Transaction(`
+		g.Transaction(`
 import Debug from "../contracts/Debug.cdc"
 transaction {
   prepare(account: AuthAccount) {
@@ -73,7 +72,6 @@ transaction {
 			Test(t).
 			AssertSuccess().
 			AssertDebugLog("VGhpcyBpcyBhIGZpbGU=")
-		spew.Dump(res.Events)
 	})
 
 
