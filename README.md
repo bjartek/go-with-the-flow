@@ -17,7 +17,7 @@ Special thanks to @sideninja for helping me get my changes into flow-cli.
  - Fetch events, store progress in a file and send results to Discord. see `examples/event/main.go`
  - Support inline scripts if you do not want to sture everything in a file when testing 
  - Supports writing tests against transactions and scripts with some limitations on how to implement them. 
-
+ - Asserts to make it easier to use the library in writing tests see `examples/transaction_test.go` for examples
 
 ## Gotchas
  - When specifying extra accounts that are created on emulator they are created in alphabetical order, the addresses the emulator assign is always fixed. 
