@@ -304,6 +304,9 @@ type FormatedEvent struct {
 }
 
 func NewTestEvent(name string, fields map[string]interface{}) *FormatedEvent {
+	loc, _ := time.LoadLocation("UTC")
+	// handle err
+	time.Local = loc // -> this is setting the global timezone
 	return &FormatedEvent{
 		Name:        name,
 		BlockHeight: 0,
