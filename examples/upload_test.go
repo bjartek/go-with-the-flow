@@ -7,7 +7,7 @@ import (
 )
 
 func TestTransactionUpload(t *testing.T) {
-	g := gwtf.NewGoWithTheFlowInMemoryEmulator()
+	g := gwtf.NewTestingEmulator()
 
 	t.Run("Upload test file", func(t *testing.T) {
 
