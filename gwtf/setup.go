@@ -23,17 +23,6 @@ type GoWithTheFlow struct {
 	PrependNetworkToAccountNames bool
 }
 
-type GoWithTheFlowBuilder struct {
-	ConfigPaths []string
-	Network string
-	InMemory bool
-	LogLevel int
-	InitializeContracts bool
-	CreateAccounts bool
-	PrependNetworkNameToAccounts bool
-}
-
-
 //NewGoWithTheFlowInMemoryEmulator this method is used to create an in memory emulator, deploy all contracts for the emulator and create all accounts
 func NewGoWithTheFlowInMemoryEmulator() *GoWithTheFlow {
 	return NewGoWithTheFlow(config.DefaultPaths(), "emulator", true, output.InfoLog).InitializeContracts().CreateAccounts("emulator-account")
