@@ -2,12 +2,13 @@ package gwtf
 
 import (
 	"github.com/onflow/cadence"
+	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestScriptArguments(t *testing.T) {
-	g := NewGoWithTheFlow([]string {"../examples/flow.json"}, "emulator", true)
+	g := NewGoWithTheFlow([]string {"../examples/flow.json"}, "emulator", true, output.NoneLog)
 	t.Parallel()
 
 	t.Run("Argument test", func(t *testing.T) {

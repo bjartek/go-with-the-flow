@@ -32,7 +32,7 @@ transaction(value:String) {
 }`).SignProposeAndPayAs("first").StringArgument("foobar").RunPrintEventsFull()
 
 	//Run script that returns
-	result := g.ScriptFromFile("test").AccountArgument("second").RunReturns()
+	result := g.ScriptFromFile("test").AccountArgument("second").RunFailOnError()
 	log.Printf("Script returned %s", result)
 
 }

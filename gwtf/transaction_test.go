@@ -2,6 +2,7 @@ package gwtf
 
 import (
 	"github.com/onflow/cadence"
+	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/stretchr/testify/assert"
 	"testing"
 
@@ -11,7 +12,7 @@ import (
  Tests must be in the same folder as flow.json with contracts and transactions/scripts in subdirectories in order for the path resolver to work correctly
 */
 func TestTransactionArguments(t *testing.T) {
-	g := NewGoWithTheFlow([]string {"../examples/flow.json"}, "emulator", true)
+	g := NewGoWithTheFlow([]string {"../examples/flow.json"}, "emulator", true, output.NoneLog )
 	t.Parallel()
 
 	t.Run("Argument test", func(t *testing.T) {
