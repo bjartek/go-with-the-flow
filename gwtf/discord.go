@@ -27,7 +27,6 @@ func NewDiscordWebhook(url string) DiscordWebhook {
 
 // SendEventsToWebhook Sends events to a webhook
 func (dw DiscordWebhook) SendEventsToWebhook(events []*FormatedEvent) (*discordgo.Message, error) {
-
 	discord, err := discordgo.New()
 	if err != nil {
 		return nil, err
