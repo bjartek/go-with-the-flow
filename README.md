@@ -1,4 +1,4 @@
-[![Coverage Status](https://coveralls.io/repos/github/bjartek/go-with-the-flow/badge.svg?branch=main)](https://coveralls.io/github/bjartek/go-with-the-flow?branch=main) [![ci](https://github.com/bjartek/go-with-the-flow/actions/workflows/test.yml/badge.svg)](https://github.com/bjartek/go-with-the-flow/actions/workflows/test.yml)
+[![Coverage Status](https://coveralls.io/repos/github/bjartek/go-with-the-flow/badge.svg)](https://coveralls.io/github/bjartek/go-with-the-flow) [![ci](https://github.com/bjartek/go-with-the-flow/actions/workflows/test.yml/badge.svg)](https://github.com/bjartek/go-with-the-flow/actions/workflows/test.yml)
 
 # Go with the Flow
 
