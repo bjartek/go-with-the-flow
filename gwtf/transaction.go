@@ -236,7 +236,7 @@ func (t FlowTransactionBuilder) RunPrintEventsFull() {
 	PrintEvents(t.Run(), map[string][]string{})
 }
 
-// RunPrintEvents will run a transaction and print all events
+// RunPrintEvents will run a transaction and print all events ignoring some fields
 func (t FlowTransactionBuilder) RunPrintEvents(ignoreFields map[string][]string) {
 	PrintEvents(t.Run(), ignoreFields)
 }

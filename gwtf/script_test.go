@@ -11,7 +11,7 @@ func TestSetupFails(t *testing.T) {
 
 	g := NewGoWithTheFlow([]string{"../examples/flow.json"}, "emulator", true, output.NoneLog)
 	_, err := g.CreateAccountsE("foobar")
-	assert.Error(t,err)
+	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "could not find account with name foobar")
 
 }

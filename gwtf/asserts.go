@@ -28,7 +28,7 @@ func (f FlowTransactionBuilder) Test(t *testing.T) TransactionResult {
 	}
 }
 
-func(t TransactionResult) AssertFailure(msg string) TransactionResult {
+func (t TransactionResult) AssertFailure(msg string) TransactionResult {
 	assert.Error(t.Testing, t.Err)
 	assert.Contains(t.Testing, t.Err.Error(), msg)
 	return t
@@ -56,6 +56,19 @@ func (t TransactionResult) AssertEmitEventName(event ...string) TransactionResul
 
 	for _, ev := range event {
 		assert.Contains(t.Testing, eventNames, ev)
+	}
+	return t
+}
+
+func (t TransactionResult) AssertEmitEventJson(event ...string) TransactionResult {
+
+	var jsonEvents []string
+	for _, fe := range t.Events {
+		jsonEvents = append(jsonEvents, fe.String())
+	}
+
+	for _, ev := range event {
+		assert.Contains(t.Testing, jsonEvents, ev)
 	}
 	return t
 }

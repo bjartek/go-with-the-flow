@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"sort"
 	"strconv"
@@ -235,22 +236,21 @@ func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 //PrintEvents prints th events, ignoring fields specified for the given event typeID
 func PrintEvents(events []flow.Event, ignoreFields map[string][]string) {
 	if len(events) > 0 {
-		fmt.Println("EVENTS")
-		fmt.Println("======")
+		log.Println("EVENTS")
+		log.Println("======")
 	}
 	for _, event := range events {
-
-		eventType := string(event.Value.EventType.Location.ID())
-		ignoreFieldsForType := ignoreFields[eventType]
+		//TODO: does this change work on mainnet/testnet?
+		ignoreFieldsForType := ignoreFields[event.Type]
 		ev := ParseEvent(event, uint64(0), time.Now(), ignoreFieldsForType)
 		prettyJSON, err := json.MarshalIndent(ev, "", "    ")
 		if err != nil {
 			panic(err)
 		}
-		fmt.Printf("%s\n", string(prettyJSON))
+		log.Printf("%s\n", string(prettyJSON))
 	}
 	if len(events) > 0 {
-		fmt.Println("======")
+		log.Println("======")
 	}
 }
 

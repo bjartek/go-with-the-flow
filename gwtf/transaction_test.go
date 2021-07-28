@@ -14,6 +14,11 @@ func TestTransactionArguments(t *testing.T) {
 	g := NewGoWithTheFlow([]string{"../examples/flow.json"}, "emulator", true, output.NoneLog)
 	t.Parallel()
 
+	t.Run("Gas test", func(t *testing.T) {
+		builder := g.Transaction("").Gas(100)
+		assert.Equal(t, uint64(100), builder.GasLimit)
+	})
+
 	t.Run("Argument test", func(t *testing.T) {
 
 		fix, _ := cadence.NewFix64("-1.0")

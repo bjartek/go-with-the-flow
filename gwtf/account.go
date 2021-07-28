@@ -8,7 +8,6 @@ import (
 	"github.com/onflow/flow-go-sdk/crypto"
 )
 
-
 func (f *GoWithTheFlow) CreateAccounts(saAccountName string) *GoWithTheFlow {
 	gwtf, err := f.CreateAccountsE(saAccountName)
 	if err != nil {
@@ -18,6 +17,7 @@ func (f *GoWithTheFlow) CreateAccounts(saAccountName string) *GoWithTheFlow {
 	return gwtf
 
 }
+
 // CreateAccountsE ensures that all accounts present in the deployment block for the given network is present
 func (f *GoWithTheFlow) CreateAccountsE(saAccountName string) (*GoWithTheFlow, error) {
 	p := f.State
