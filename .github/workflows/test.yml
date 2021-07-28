@@ -18,10 +18,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Run linters
-      uses: golangci/golangci-lint-action@v2 --timeout=5m
+      uses: golangci/golangci-lint-action@v2
       with:
         version: v1.29
-
+        timeout: 5m
+        
   test:
     runs-on: ubuntu-latest
     steps:
