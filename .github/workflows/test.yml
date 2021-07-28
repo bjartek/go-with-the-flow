@@ -41,7 +41,7 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - name: Calc coverage
+      - name: test
         run: |
           go test ./...
 
