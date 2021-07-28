@@ -27,7 +27,7 @@ jobs:
       - name: Setup gotestsum
         uses: autero1/action-gotestsum@v0.1.0
         with:
-          gotestsum_version: 1.7.1
+          gotestsum_version: 1.7.0
       - uses: actions/cache@v2
         with:
           # In order:
