@@ -10,6 +10,7 @@ name: run tests
 jobs:
   lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
     - name: Install Go
       uses: actions/setup-go@v2
@@ -21,8 +22,7 @@ jobs:
       uses: golangci/golangci-lint-action@v2
       with:
         version: v1.29
-        timeout: 5m
-        
+
   test:
     runs-on: ubuntu-latest
     steps:
