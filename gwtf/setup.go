@@ -25,33 +25,38 @@ type GoWithTheFlow struct {
 
 //NewGoWithTheFlowInMemoryEmulator this method is used to create an in memory emulator, deploy all contracts for the emulator and create all accounts
 func NewGoWithTheFlowInMemoryEmulator() *GoWithTheFlow {
-	return NewGoWithTheFlow(config.DefaultPaths(), "emulator", true).InitializeContracts().CreateAccounts("emulator-account")
+	return NewGoWithTheFlow(config.DefaultPaths(), "emulator", true, output.InfoLog).InitializeContracts().CreateAccounts("emulator-account")
+}
+
+//NewTEstingEmulator create new emulator that ignore all log messages
+func NewTestingEmulator() *GoWithTheFlow {
+	return NewGoWithTheFlow(config.DefaultPaths(), "emulator", true, output.NoneLog).InitializeContracts().CreateAccounts("emulator-account")
 }
 
 //NewGoWithTheFlowForNetwork creates a new gwtf client for the provided network
 func NewGoWithTheFlowForNetwork(network string) *GoWithTheFlow {
-	return NewGoWithTheFlow(config.DefaultPaths(), network, false)
+	return NewGoWithTheFlow(config.DefaultPaths(), network, false, output.InfoLog)
 
 }
 
 //NewGoWithTheFlowEmulator create a new client
 func NewGoWithTheFlowEmulator() *GoWithTheFlow {
-	return NewGoWithTheFlow(config.DefaultPaths(), "emulator", false)
+	return NewGoWithTheFlow(config.DefaultPaths(), "emulator", false, output.InfoLog)
 }
 
 //NewGoWithTheFlowDevNet creates a new gwtf client for devnet/testnet
 func NewGoWithTheFlowDevNet() *GoWithTheFlow {
-	return NewGoWithTheFlow(config.DefaultPaths(), "testnet", false)
+	return NewGoWithTheFlow(config.DefaultPaths(), "testnet", false, output.InfoLog)
 }
 
 //NewGoWithTheFlowMainNet creates a new gwft client for mainnet
 func NewGoWithTheFlowMainNet() *GoWithTheFlow {
-	return NewGoWithTheFlow(config.DefaultPaths(), "mainnet", false)
+	return NewGoWithTheFlow(config.DefaultPaths(), "mainnet", false, output.InfoLog)
 }
 
 // NewGoWithTheFlow with custom file panic on error
-func NewGoWithTheFlow(filenames []string, network string, inMemory bool) *GoWithTheFlow {
-	gwtf, err := NewGoWithTheFlowError(filenames, network, inMemory)
+func NewGoWithTheFlow(filenames []string, network string, inMemory bool, loglevel int) *GoWithTheFlow {
+	gwtf, err := NewGoWithTheFlowError(filenames, network, inMemory, loglevel)
 	if err != nil {
 		log.Fatalf("%v error %+v", emoji.PileOfPoo, err)
 	}
@@ -79,7 +84,7 @@ func (f *GoWithTheFlow) Account(key string) *flowkit.Account {
 }
 
 // NewGoWithTheFlowError creates a new local go with the flow client
-func NewGoWithTheFlowError(paths []string, network string, inMemory bool) (*GoWithTheFlow, error) {
+func NewGoWithTheFlowError(paths []string, network string, inMemory bool, logLevel int) (*GoWithTheFlow, error) {
 
 	loader := &afero.Afero{Fs: afero.NewOsFs()}
 	state, err := flowkit.Load(paths, loader)
@@ -87,7 +92,7 @@ func NewGoWithTheFlowError(paths []string, network string, inMemory bool) (*GoWi
 		return nil, err
 	}
 
-	logger := output.NewStdoutLogger(output.InfoLog)
+	logger := output.NewStdoutLogger(logLevel)
 	var service *services.Services
 	if inMemory {
 		//YAY we can run it inline in memory!
@@ -98,7 +103,7 @@ func NewGoWithTheFlowError(paths []string, network string, inMemory bool) (*GoWi
 		host := state.Networks().ByName(network).Host
 		gw, err := gateway.NewGrpcGateway(host)
 		if err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
 		service = services.NewServices(gw, state, logger)
 	}
@@ -111,4 +116,3 @@ func NewGoWithTheFlowError(paths []string, network string, inMemory bool) (*GoWi
 	}, nil
 
 }
-

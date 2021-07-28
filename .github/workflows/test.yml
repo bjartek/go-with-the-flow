@@ -10,50 +10,33 @@ name: run tests
 jobs:
   lint:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
     steps:
-    - name: Install Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.16.x
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Run linters
-      uses: golangci/golangci-lint-action@v2
-      with:
-        version: v1.29
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: golangci-lint
+        uses: reviewdog/action-golangci-lint@v2
 
-  test:
+  test-and-coverage:
     runs-on: ubuntu-latest
     steps:
-    - name: Install Go
-      if: success()
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.16.x
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Run tests
-      run: go test ./... -v -covermode=count
-
-  coverage:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Install Go
-      if: success()
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.16.x
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Calc coverage
-      run: |
-        go test ./... -v -covermode=count -coverprofile=coverage.out
-    - name: Convert coverage.out to coverage.lcov
-      uses: jandelgado/gcov2lcov-action@v1.0.6
-    - name: Coveralls
-      uses: coverallsapp/github-action@v1.1.2
-      with:
-          github-token: ${{ secrets.github_token }}
-          path-to-lcov: coverage.lcov
-
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          # In order:
+          # * Module download cache
+          # * Build cache (Linux)
+          # * Build cache (Mac)
+          # * Build cache (Windows)
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            %LocalAppData%\go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - run:  go test -coverprofile=profile.cov -covermode=atomic -coverpkg=github.com/bjartek/go-with-the-flow/v2/gwtf ./...
+      - uses: shogo82148/actions-goveralls@v1
+        with:
+         path-to-profile: profile.cov

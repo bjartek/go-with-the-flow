@@ -2,8 +2,6 @@ module github.com/bjartek/go-with-the-flow/v2
 
 go 1.16
 
-//replace github.com/onflow/flow-cli => /home/bjartek/dev/flow-cli
-
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/bwmarrin/discordgo v0.23.2

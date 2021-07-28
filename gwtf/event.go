@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"sort"
 	"strconv"
@@ -205,7 +204,7 @@ func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 		return nil, errors.New("FromIndex is negative")
 	}
 
-	log.Printf("Fetching events from %d to %d", fromIndex, endIndex)
+	e.GoWithTheFlow.Logger.Info(fmt.Sprintf("Fetching events from %d to %d", fromIndex, endIndex))
 
 	var events []string
 	for key := range e.EventsAndIgnoreFields {
@@ -306,10 +305,10 @@ type FormatedEvent struct {
 
 func NewTestEvent(name string, fields map[string]interface{}) *FormatedEvent {
 	return &FormatedEvent{
-		Name: name,
+		Name:        name,
 		BlockHeight: 0,
-		Time: time.Unix(0,0),
-		Fields: fields,
+		Time:        time.Unix(0, 0),
+		Fields:      fields,
 	}
 }
 

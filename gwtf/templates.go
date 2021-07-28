@@ -131,7 +131,7 @@ func (f *GoWithTheFlow) UploadString(content string, accountName string) error {
 			log(existing)
 		}
 	}
-	  `).SignProposeAndPayAs(accountName).RunE();err != nil {
+	  `).SignProposeAndPayAs(accountName).RunE(); err != nil {
 		return err
 	}
 
@@ -147,7 +147,7 @@ func (f *GoWithTheFlow) UploadString(content string, accountName string) error {
 				log(part)
 			}
 		}
-			`).SignProposeAndPayAs(accountName).StringArgument(part).RunE();err != nil {
+			`).SignProposeAndPayAs(accountName).StringArgument(part).RunE(); err != nil {
 			return err
 		}
 	}

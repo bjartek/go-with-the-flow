@@ -7,7 +7,7 @@ import (
 )
 
 func TestScript(t *testing.T) {
-	g := gwtf.NewGoWithTheFlowInMemoryEmulator()
+	g := gwtf.NewTestingEmulator()
 	t.Parallel()
 
 	t.Run("Raw account argument", func(t *testing.T) {

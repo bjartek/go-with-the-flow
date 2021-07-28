@@ -2,14 +2,14 @@ package gwtf
 
 import (
 	"fmt"
-	"log"
-	"time"
-
 	"github.com/araddon/dateparse"
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-cli/pkg/flowkit"
 	"github.com/onflow/flow-go-sdk"
+	"log"
+	"os"
+	"time"
 )
 
 // TransactionFromFile will start a flow transaction builder
@@ -245,7 +245,8 @@ func (t FlowTransactionBuilder) RunPrintEvents(ignoreFields map[string][]string)
 func (t FlowTransactionBuilder) Run() []flow.Event {
 	events, err := t.RunE()
 	if err != nil {
-		log.Fatal(err)
+		t.GoWithTheFlow.Logger.Error(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, t.FileName, err))
+		os.Exit(1)
 	}
 	return events
 }
@@ -257,9 +258,9 @@ func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 	}
 
 	codeFileName := fmt.Sprintf("./transactions/%s.cdc", t.FileName)
-	code,err:=t.getContractCode(codeFileName)
+	code, err := t.getContractCode(codeFileName)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	// we append the mainSigners at the end here so that it signs last
 	signers := append(t.PayloadSigners, t.MainSigner)
@@ -312,7 +313,7 @@ func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 		return nil, res.Error
 	}
 
-	log.Printf("%v Transaction %s successfully applied\n", emoji.OkHand, t.FileName)
+	t.GoWithTheFlow.Logger.Info(fmt.Sprintf("%v Transaction %s successfully applied\n", emoji.OkHand, t.FileName))
 	return res.Events, nil
 }
 

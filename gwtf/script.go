@@ -3,6 +3,7 @@ package gwtf
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/onflow/flow-go-sdk"
 
@@ -190,12 +191,12 @@ func (t FlowScriptBuilder) UFix64Argument(value string) FlowScriptBuilder {
 
 // Run executes a read only script
 func (t FlowScriptBuilder) Run() {
-	result := t.RunReturns()
+	result := t.RunFailOnError()
 	log.Printf("%v Script run from result: %v\n", emoji.Star, CadenceValueToJsonString(result))
 }
 
 // RunReturns executes a read only script
-func (t FlowScriptBuilder) RunReturns() cadence.Value {
+func (t FlowScriptBuilder) RunReturns() (cadence.Value, error) {
 
 	f := t.GoWithTheFlow
 	scriptFilePath := fmt.Sprintf("./scripts/%s.cdc", t.FileName)
@@ -205,7 +206,7 @@ func (t FlowScriptBuilder) RunReturns() cadence.Value {
 	if t.ScriptAsString == "" {
 		script, err = f.State.ReaderWriter().ReadFile(scriptFilePath)
 		if err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
 	}
 
@@ -215,19 +216,28 @@ func (t FlowScriptBuilder) RunReturns() cadence.Value {
 		scriptFilePath,
 		f.Network)
 	if err != nil {
-		log.Fatalf("%v Error executing script: %s output %v", emoji.PileOfPoo, scriptFilePath, err)
+		return nil, err
 	}
 
-	log.Printf("%v Script run from path %s\n", emoji.Star, scriptFilePath)
+	f.Logger.Info(fmt.Sprintf("%v Script run from path %s\n", emoji.Star, scriptFilePath))
+	return result, nil
+}
+func (t FlowScriptBuilder) RunFailOnError() cadence.Value {
+	result, err := t.RunReturns()
+	if err != nil {
+		t.GoWithTheFlow.Logger.Error(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, t.FileName, err))
+		os.Exit(1)
+	}
 	return result
+
 }
 
 //RunReturnsJsonString runs the script and returns pretty printed json string
 func (t FlowScriptBuilder) RunReturnsJsonString() string {
-	return CadenceValueToJsonString(t.RunReturns())
+	return CadenceValueToJsonString(t.RunFailOnError())
 }
 
 //RunReturnsInterface runs the script and returns interface{}
 func (t FlowScriptBuilder) RunReturnsInterface() interface{} {
-	return CadenceValueToInterface(t.RunReturns())
+	return CadenceValueToInterface(t.RunFailOnError())
 }

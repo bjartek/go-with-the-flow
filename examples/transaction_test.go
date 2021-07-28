@@ -10,7 +10,7 @@ import (
  Tests must be in the same folder as flow.json with contracts and transactions/scripts in subdirectories in order for the path resolver to work correctly
 */
 func TestTransaction(t *testing.T) {
-	g := gwtf.NewGoWithTheFlowInMemoryEmulator()
+	g := gwtf.NewTestingEmulator()
 	t.Parallel()
 
 	t.Run("Create NFT collection", func(t *testing.T) {
@@ -70,4 +70,3 @@ transaction(user:Address) {
 	})
 
 }
-
