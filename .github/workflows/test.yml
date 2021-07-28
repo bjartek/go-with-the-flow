@@ -40,7 +40,7 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - run: gotestsum -f testname --no-color -f test-result.xml
+      - run: gotestsum -f testname --no-color -junitfile test-result.xml
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
         if: always()
