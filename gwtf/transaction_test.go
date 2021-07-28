@@ -5,14 +5,13 @@ import (
 	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/stretchr/testify/assert"
 	"testing"
-
 )
 
 /*
  Tests must be in the same folder as flow.json with contracts and transactions/scripts in subdirectories in order for the path resolver to work correctly
 */
 func TestTransactionArguments(t *testing.T) {
-	g := NewGoWithTheFlow([]string {"../examples/flow.json"}, "emulator", true, output.NoneLog )
+	g := NewGoWithTheFlow([]string{"../examples/flow.json"}, "emulator", true, output.NoneLog)
 	t.Parallel()
 
 	t.Run("Argument test", func(t *testing.T) {
@@ -21,8 +20,8 @@ func TestTransactionArguments(t *testing.T) {
 		ufix, _ := cadence.NewUFix64("1.0")
 		dateFix, _ := cadence.NewUFix64("1627560000.00000000")
 
-		builder :=g.Transaction("").BooleanArgument(true) .
-			BytesArgument([]byte{ 1}).
+		builder := g.Transaction("").BooleanArgument(true).
+			BytesArgument([]byte{1}).
 			Fix64Argument("-1.0").
 			UFix64Argument("1.0").
 			DateStringAsUnixTimestamp("July 29, 2021 08:00:00 AM", "America/New_York")
@@ -33,9 +32,8 @@ func TestTransactionArguments(t *testing.T) {
 		assert.Contains(t, builder.Arguments, dateFix)
 	})
 
-
 	t.Run("Word argument test", func(t *testing.T) {
-		builder :=g.Transaction("").
+		builder := g.Transaction("").
 			Word8Argument(8).
 			Word16Argument(16).
 			Word32Argument(32).
@@ -48,7 +46,7 @@ func TestTransactionArguments(t *testing.T) {
 	})
 
 	t.Run("UInt argument test", func(t *testing.T) {
-		builder :=g.Transaction("").
+		builder := g.Transaction("").
 			UIntArgument(1).
 			UInt8Argument(8).
 			UInt16Argument(16).
@@ -67,7 +65,7 @@ func TestTransactionArguments(t *testing.T) {
 	})
 
 	t.Run("Int argument test", func(t *testing.T) {
-		builder :=g.Transaction("").
+		builder := g.Transaction("").
 			IntArgument(1).
 			Int8Argument(-8).
 			Int16Argument(16).
@@ -85,4 +83,3 @@ func TestTransactionArguments(t *testing.T) {
 		assert.Contains(t, builder.Arguments, cadence.NewInt256(256))
 	})
 }
-

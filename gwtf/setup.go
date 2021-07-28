@@ -116,4 +116,3 @@ func NewGoWithTheFlowError(paths []string, network string, inMemory bool, logLev
 	}, nil
 
 }
-

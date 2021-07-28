@@ -258,9 +258,9 @@ func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 	}
 
 	codeFileName := fmt.Sprintf("./transactions/%s.cdc", t.FileName)
-	code, err:=t.getContractCode(codeFileName)
+	code, err := t.getContractCode(codeFileName)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	// we append the mainSigners at the end here so that it signs last
 	signers := append(t.PayloadSigners, t.MainSigner)
@@ -298,7 +298,6 @@ func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 			return nil, err
 		}
 	}
-
 
 	t.GoWithTheFlow.Logger.Info(fmt.Sprintf("Transaction ID: %s", tx.FlowTransaction().ID()))
 	t.GoWithTheFlow.Logger.StartProgress("Sending transaction...")

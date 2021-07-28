@@ -305,10 +305,10 @@ type FormatedEvent struct {
 
 func NewTestEvent(name string, fields map[string]interface{}) *FormatedEvent {
 	return &FormatedEvent{
-		Name: name,
+		Name:        name,
 		BlockHeight: 0,
-		Time: time.Unix(0,0),
-		Fields: fields,
+		Time:        time.Unix(0, 0),
+		Fields:      fields,
 	}
 }
 

@@ -70,4 +70,3 @@ transaction(user:Address) {
 	})
 
 }
-

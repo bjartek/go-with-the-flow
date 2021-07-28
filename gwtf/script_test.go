@@ -8,7 +8,7 @@ import (
 )
 
 func TestScriptArguments(t *testing.T) {
-	g := NewGoWithTheFlow([]string {"../examples/flow.json"}, "emulator", true, output.NoneLog)
+	g := NewGoWithTheFlow([]string{"../examples/flow.json"}, "emulator", true, output.NoneLog)
 	t.Parallel()
 
 	t.Run("Argument test", func(t *testing.T) {
@@ -18,15 +18,14 @@ func TestScriptArguments(t *testing.T) {
 
 		dateFix, _ := cadence.NewUFix64("1627560000.00000000")
 
-		builder :=g.Script("").BooleanArgument(true) .
-			BytesArgument([]byte{ 1}).
+		builder := g.Script("").BooleanArgument(true).
+			BytesArgument([]byte{1}).
 			Fix64Argument("-1.0").
 			UFix64Argument("1.0").
 			StringArgument("test").
 			DateStringAsUnixTimestamp("July 29, 2021 08:00:00 AM", "America/New_York")
 
-
-    	assert.Contains(t, builder.Arguments, cadence.NewBool(true))
+		assert.Contains(t, builder.Arguments, cadence.NewBool(true))
 		assert.Contains(t, builder.Arguments, cadence.NewBytes([]byte{1}))
 		assert.Contains(t, builder.Arguments, fix)
 		assert.Contains(t, builder.Arguments, ufix)
@@ -36,7 +35,7 @@ func TestScriptArguments(t *testing.T) {
 	})
 
 	t.Run("Word argument test", func(t *testing.T) {
-		builder :=g.Script("").
+		builder := g.Script("").
 			Word8Argument(8).
 			Word16Argument(16).
 			Word32Argument(32).
@@ -49,7 +48,7 @@ func TestScriptArguments(t *testing.T) {
 	})
 
 	t.Run("UInt argument test", func(t *testing.T) {
-		builder :=g.Script("").
+		builder := g.Script("").
 			UIntArgument(1).
 			UInt8Argument(8).
 			UInt16Argument(16).
@@ -68,7 +67,7 @@ func TestScriptArguments(t *testing.T) {
 	})
 
 	t.Run("Int argument test", func(t *testing.T) {
-		builder :=g.Script("").
+		builder := g.Script("").
 			IntArgument(1).
 			Int8Argument(-8).
 			Int16Argument(16).
