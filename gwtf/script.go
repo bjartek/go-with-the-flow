@@ -3,7 +3,7 @@ package gwtf
 import (
 	"fmt"
 	"github.com/onflow/flow-go-sdk"
-	"log"
+	"os"
 
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
@@ -183,11 +183,11 @@ func (t FlowScriptBuilder) UFix64Argument(value string) FlowScriptBuilder {
 
 // Run executes a read only script
 func (t FlowScriptBuilder) Run() {
-	_ = t.RunReturns()
+	_ = t.RunFailOnError()
 }
 
 // RunReturns executes a read only script
-func (t FlowScriptBuilder) RunReturns() cadence.Value {
+func (t FlowScriptBuilder) RunReturns() (cadence.Value, error) {
 
 	f := t.GoWithTheFlow
 	scriptFilePath := fmt.Sprintf("./scripts/%s.cdc", t.FileName)
@@ -197,7 +197,7 @@ func (t FlowScriptBuilder) RunReturns() cadence.Value {
 	if t.ScriptAsString == "" {
 		script, err = f.State.ReaderWriter().ReadFile(scriptFilePath)
 		if err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
 	} else {
 		script = []byte(t.ScriptAsString)
@@ -209,18 +209,26 @@ func (t FlowScriptBuilder) RunReturns() cadence.Value {
 		t.FileName,
 		f.Network)
 	if err != nil {
-		log.Fatalf("%v Error executing script: %s output %v", emoji.PileOfPoo, t.FileName, err)
+		return nil, err
 	}
 
-
-	log.Printf("%v Script run from path %s result: %v\n", emoji.Star, scriptFilePath, CadenceValueToJsonString(result))
+	f.Logger.Info(fmt.Sprintf("%v Script run from path %s result: %v\n", emoji.Star, scriptFilePath, CadenceValueToJsonString(result)))
+	return result, nil
+}
+func (t FlowScriptBuilder) RunFailOnError() cadence.Value {
+	result, err := t.RunReturns()
+	if err != nil {
+		t.GoWithTheFlow.Logger.Error(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, t.FileName, err))
+		os.Exit(1)
+	}
 	return result
+
 }
 
 func (t FlowScriptBuilder) RunReturnsJsonString() string {
-	return CadenceValueToJsonString(t.RunReturns())
+	return CadenceValueToJsonString(t.RunFailOnError())
 }
 
 func (t FlowScriptBuilder) RunReturnsInterface() interface{} {
-	return CadenceValueToInterface(t.RunReturns())
+	return CadenceValueToInterface(t.RunFailOnError())
 }

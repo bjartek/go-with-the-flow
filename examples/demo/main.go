@@ -31,13 +31,14 @@ import Debug from "../contracts/Debug.cdc"
 transaction(test:String) {
   prepare(acct: AuthAccount) {
 	Debug.log(test)
+    val 
     log(acct)
     log(test)
  }
 }`).SignProposeAndPayAs("first").StringArgument("foobar").RunPrintEventsFull()
 
 	//Run script that returns
-	result := g.ScriptFromFile("test").AccountArgument("second").RunReturns()
+	result := g.ScriptFromFile("test").AccountArgument("second").RunFailOnError()
 	log.Printf("Script returned %s", result)
 
 }

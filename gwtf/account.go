@@ -18,16 +18,16 @@ func (f *GoWithTheFlow) CreateAccounts(saAccountName string) *GoWithTheFlow {
 	accounts := p.AccountNamesForNetwork(f.Network)
 	sort.Strings(accounts)
 
-	log.Printf("%v\n", accounts)
+	f.Logger.Info(fmt.Sprintf("%v\n", accounts))
 
 	for _, accountName := range accounts {
-		log.Println(fmt.Sprintf("Ensuring account with name '%s' is present", accountName))
+		f.Logger.Info(fmt.Sprintf("Ensuring account with name '%s' is present", accountName))
 
 		account := p.Accounts().ByName(accountName)
 
 		_, err2 := f.Services.Accounts.Get(account.Address())
 		if err2 == nil {
-			log.Println("Account is present")
+			f.Logger.Info("Account is present")
 			continue
 		}
 		a, err := f.Services.Accounts.Create(
@@ -43,14 +43,14 @@ func (f *GoWithTheFlow) CreateAccounts(saAccountName string) *GoWithTheFlow {
 		if account.Address() != a.Address {
 			log.Fatal(errors.New(fmt.Sprintf("Configured account address != created address, %s != %s", account.Address(), a.Address)))
 		}
-		log.Println("Account created " + a.Address.String())
+		f.Logger.Info("Account created " + a.Address.String())
 	}
 	return f
 }
 
 //InitializeContracts installs all contracts to the account with name accounts
 func (f *GoWithTheFlow) InitializeContracts() *GoWithTheFlow {
-	log.Println("Deploying contracts")
+	f.Logger.Info("Deploying contracts")
 	_, err := f.Services.Project.Deploy(f.Network, false)
 	if err != nil {
 		log.Fatal(err)

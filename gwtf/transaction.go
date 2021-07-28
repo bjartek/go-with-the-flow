@@ -1,8 +1,10 @@
 package gwtf
 
 import (
+	"errors"
 	"fmt"
-	"log"
+	"os"
+	"time"
 
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
@@ -199,18 +201,44 @@ func (t FlowTransactionBuilder) PayloadSigner(value string) FlowTransactionBuild
 
 //RunPrintEventsFull will run a transaction and print all events
 func (t FlowTransactionBuilder) RunPrintEventsFull() {
-	PrintEvents(t.Run(), map[string][]string{})
+	PrintEvents(t.RunFailOnError(), map[string][]string{})
 }
 
 //RunPrintEvents will run a transaction and print all events
 func (t FlowTransactionBuilder) RunPrintEvents(ignoreFields map[string][]string) {
-	PrintEvents(t.Run(), ignoreFields)
+	PrintEvents(t.RunFailOnError(), ignoreFields)
+}
+
+func(t FlowTransactionBuilder) RunFailOnError() []flow.Event {
+
+	result, err := t.Run()
+	if err != nil {
+		t.GoWithTheFlow.Logger.Error(fmt.Sprintf("%v Error executing script: %s output %v", emoji.PileOfPoo, t.FileName, err))
+		os.Exit(1)
+	}
+	return result
+}
+
+func (t FlowTransactionBuilder) RunFormatEvents() ([]*FormatedEvent, error){
+	result, err := t.Run()
+	if err != nil {
+		return nil, err
+	}
+
+	var events []*FormatedEvent
+	for _, event := range result{
+		ev := ParseEvent(event, 0, time.Now(),  []string {})
+		events = append(events, ev)
+	}
+
+	return events, nil
+
 }
 
 //Run run the transaction
-func (t FlowTransactionBuilder) Run() []flow.Event {
+func (t FlowTransactionBuilder) Run() ([]flow.Event, error) {
 	if t.MainSigner == nil {
-		log.Fatalf("%v You need to set the main signer", emoji.PileOfPoo)
+		return nil, errors.New(fmt.Sprintf("%v You need to set the main signer", emoji.PileOfPoo))
 	}
 	codeFileName := fmt.Sprintf("./transactions/%s.cdc", t.FileName)
 
@@ -221,7 +249,7 @@ func (t FlowTransactionBuilder) Run() []flow.Event {
 	if  t.Content=="" {
 		code, err = t.GoWithTheFlow.State.ReaderWriter().ReadFile(codeFileName)
 		if err != nil {
-			log.Fatalf("%v Could not read transaction file from path=%s", emoji.PileOfPoo, codeFileName)
+			return nil, err
 		}
 	} else {
 		code = []byte(t.Content)
@@ -246,20 +274,21 @@ func (t FlowTransactionBuilder) Run() []flow.Event {
 		t.GoWithTheFlow.Network,
 	)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	for _, signer := range signers{
 		err = tx.SetSigner(signer)
 		if err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
 
 		tx, err = tx.Sign()
 		if err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
 	}
+
 
 	t.GoWithTheFlow.Logger.Info(fmt.Sprintf("Transaction ID: %s", tx.FlowTransaction().ID()))
 	t.GoWithTheFlow.Logger.StartProgress("Sending transaction...")
@@ -268,11 +297,11 @@ func (t FlowTransactionBuilder) Run() []flow.Event {
 	_, res, err := t.GoWithTheFlow.Services.Transactions.SendSigned(txBytes)
 
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	log.Printf("%v Transaction %s successfully applied\n", emoji.OkHand, t.FileName)
-	return res.Events
+	t.GoWithTheFlow.Logger.Info(fmt.Sprintf("%v Transaction %s successfully applied\n", emoji.OkHand, t.FileName))
+	return res.Events, nil
 }
 
 //FlowTransactionBuilder used to create a builder pattern for a transaction
