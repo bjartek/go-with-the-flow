@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/bjartek/go-with-the-flow/v2/gwtf"
 )
@@ -20,7 +20,7 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("%v", events)
+	log.Printf("%v", events)
 
 	//to send events to a discord eventhook use
 	//	message, err := gwtf.NewDiscordWebhook("http://your-webhook-url").SendEventsToWebhook(events)
