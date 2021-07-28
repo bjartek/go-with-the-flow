@@ -78,15 +78,14 @@ func (f *GoWithTheFlow) UploadFile(filename string, accountName string) error {
 }
 
 func getUrl(url string) ([]byte, error) {
-
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
 	}
+
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	return body, err
+	return ioutil.ReadAll(resp.Body)
 }
 
 //DownloadAndUploadFile reads a file, base64 encodes it and chunk upload to /storage/upload
@@ -102,7 +101,6 @@ func (f *GoWithTheFlow) DownloadAndUploadFile(url string, accountName string) er
 
 //DownloadImageAndUploadAsDataUrl download an image and upload as data url
 func (f *GoWithTheFlow) DownloadImageAndUploadAsDataUrl(url, accountName string) error {
-
 	body, err := getUrl(url)
 	if err != nil {
 		return err
@@ -124,38 +122,35 @@ func (f *GoWithTheFlow) UploadImageAsDataUrl(filename string, accountName string
 
 //UploadString will upload the given string data in 1mb chunkts to /storage/upload of the given account
 func (f *GoWithTheFlow) UploadString(content string, accountName string) error {
-
 	//unload previous content if any.
-	_, err := f.Transaction(`
-transaction {
-    prepare(signer: AuthAccount) {
-        let path = /storage/upload
-        let existing = signer.load<String>(from: path) ?? ""
-		log(existing)
-    }
-}
-
-  `).SignProposeAndPayAs(accountName).RunE()
-	if err != nil {
+	if _, err := f.Transaction(`
+	transaction {
+		prepare(signer: AuthAccount) {
+			let path = /storage/upload
+			let existing = signer.load<String>(from: path) ?? ""
+			log(existing)
+		}
+	}
+	  `).SignProposeAndPayAs(accountName).RunE();err != nil {
 		return err
 	}
 
 	parts := splitByWidthMake(content, 1_000_000)
 	for _, part := range parts {
-		_, err := f.Transaction(`
-transaction(part: String) {
-    prepare(signer: AuthAccount) {
-        let path = /storage/upload
-        let existing = signer.load<String>(from: path) ?? ""
-        signer.save(existing.concat(part), to: path)
-		log(signer.address.toString())
-		log(part)
-    }
-}
-    `).SignProposeAndPayAs(accountName).StringArgument(part).RunE()
-		if err != nil {
+		if _, err := f.Transaction(`
+		transaction(part: String) {
+			prepare(signer: AuthAccount) {
+				let path = /storage/upload
+				let existing = signer.load<String>(from: path) ?? ""
+				signer.save(existing.concat(part), to: path)
+				log(signer.address.toString())
+				log(part)
+			}
+		}
+			`).SignProposeAndPayAs(accountName).StringArgument(part).RunE();err != nil {
 			return err
 		}
 	}
+
 	return nil
 }

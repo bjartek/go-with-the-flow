@@ -2,22 +2,27 @@ package gwtf
 
 import (
 	"encoding/json"
+	"log"
 	"strconv"
 
 	"github.com/onflow/cadence"
 )
 
-//CadenceValueToJsonString converts a cadence.Value into a json pretty printed string
+// CadenceValueToJsonString converts a cadence.Value into a json pretty printed string
 func CadenceValueToJsonString(value cadence.Value) string {
 	if value == nil {
 		return "{}"
 	}
 	result := CadenceValueToInterface(value)
-	j, _ := json.MarshalIndent(result, "", "    ")
+	j, err := json.MarshalIndent(result, "", "    ")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return string(j)
 }
 
-//CadenceValueToInterface convert a candence.Value into interface{}
+// CadenceValueToInterface convert a candence.Value into interface{}
 func CadenceValueToInterface(field cadence.Value) interface{} {
 	if field == nil {
 		return ""

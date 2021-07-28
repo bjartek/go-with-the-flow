@@ -200,15 +200,13 @@ func (t FlowScriptBuilder) RunReturns() cadence.Value {
 	f := t.GoWithTheFlow
 	scriptFilePath := fmt.Sprintf("./scripts/%s.cdc", t.FileName)
 
-	var script []byte
 	var err error
+	script := []byte(t.ScriptAsString)
 	if t.ScriptAsString == "" {
 		script, err = f.State.ReaderWriter().ReadFile(scriptFilePath)
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else {
-		script = []byte(t.ScriptAsString)
 	}
 
 	result, err := f.Services.Scripts.Execute(
