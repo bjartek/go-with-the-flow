@@ -16,14 +16,9 @@ jobs:
       - name: golangci-lint
         uses: reviewdog/action-golangci-lint@v2
 
-  test:
+  test-and-coverage:
     runs-on: ubuntu-latest
     steps:
-      - name: Install Go
-        if: success()
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.16.x
       - name: Checkout code
         uses: actions/checkout@v2
       - uses: actions/cache@v2
@@ -41,15 +36,6 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - name: test
-        run: |
-          go test ./...
-
-  coverage:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
       - run:  go test -coverprofile=profile.cov -covermode=atomic -coverpkg=github.com/bjartek/go-with-the-flow/v2/gwtf ./...
       - uses: shogo82148/actions-goveralls@v1
         with:
