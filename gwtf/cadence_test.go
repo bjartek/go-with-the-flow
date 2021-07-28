@@ -9,6 +9,10 @@ import (
 func TestCadenceValueToJsonString(t *testing.T) {
 
 	t.Parallel()
+	t.Run("Empty value should be empty json object", func(t *testing.T) {
+		value := CadenceValueToJsonString(nil)
+		assert.Equal(t, "{}", value)
+	})
 
 	t.Run("Empty optional should be empty string", func(t *testing.T) {
 		value := CadenceValueToJsonString(cadence.NewOptional(nil))

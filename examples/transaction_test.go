@@ -16,9 +16,9 @@ func TestTransaction(t *testing.T) {
 	t.Run("Create NFT collection", func(t *testing.T) {
 		g.TransactionFromFile("create_nft_collection").
 			SignProposeAndPayAs("first").
-			Test(t).
-			AssertSuccess().
-			AssertNoEvents()
+			Test(t). //This method will return a TransactionResult that we can assert upon
+			AssertSuccess().  //Assert that there are no errors and that the transactions succeeds
+			AssertNoEvents()  //Assert that we did not emit any events.
 	})
 
 	t.Run("Mint tokens assert events", func(t *testing.T) {
@@ -28,12 +28,10 @@ func TestTransaction(t *testing.T) {
 			UFix64Argument("100.0").
 			Test(t).
 			AssertSuccess().
-			AssertEventCount(3).
-			AssertEmitEventName("A.0ae53cb6e3f42a79.FlowToken.TokensMinted").
-			AssertEmitEventName("A.0ae53cb6e3f42a79.FlowToken.TokensDeposited").
-			AssertEmitEventName("A.0ae53cb6e3f42a79.FlowToken.MinterCreated").
-			AssertEmitEventName("A.0ae53cb6e3f42a79.FlowToken.TokensMinted", "A.0ae53cb6e3f42a79.FlowToken.TokensDeposited", "A.0ae53cb6e3f42a79.FlowToken.MinterCreated").
-			AssertEmitEvent(gwtf.NewTestEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted", map[string]interface{}{"amount": "100.00000000"}))
+			AssertEventCount(3). //assert the number of events returned
+			AssertEmitEventName("A.0ae53cb6e3f42a79.FlowToken.TokensMinted"). //assert the name of a single event
+			AssertEmitEventName("A.0ae53cb6e3f42a79.FlowToken.TokensMinted", "A.0ae53cb6e3f42a79.FlowToken.TokensDeposited", "A.0ae53cb6e3f42a79.FlowToken.MinterCreated"). //or assert more then one eventname in a go
+			AssertEmitEvent(gwtf.NewTestEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted", map[string]interface{}{"amount": "100.00000000"})) //assert a given event, can also take multiple events if you like
 
 	})
 
@@ -50,7 +48,7 @@ transaction(message:String) {
 			StringArgument("foobar").
 			Test(t).
 			AssertSuccess().
-			AssertDebugLog("foobar")
+			AssertDebugLog("foobar") //assert that we have debug logged something. The assertion is contains so you do not need to write the entire debug log output if you do not like
 
 	})
 
@@ -67,6 +65,20 @@ transaction(user:Address) {
 			Test(t).
 			AssertSuccess().
 			AssertDebugLog("0x1cf0e2f2f715450")
+	})
+
+	t.Run("transaction that should fail", func(t *testing.T) {
+		g.Transaction(`
+import Debug from "../contracts/Debug.cdc"
+transaction(user:Address) {
+  prepare(acct: AuthAccount) {
+	Debug.log(user.toStrig())
+ }
+}`).
+			SignProposeAndPayAsService().
+			RawAccountArgument("0x1cf0e2f2f715450").
+			Test(t).
+			AssertFailure("has no member `toStrig`") //assert failure with an error message. uses contains so you do not need to write entire message
 	})
 
 }

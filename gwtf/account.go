@@ -8,12 +8,22 @@ import (
 	"github.com/onflow/flow-go-sdk/crypto"
 )
 
-// CreateAccounts ensures that all accounts present in the deployment block for the given network is present
+
 func (f *GoWithTheFlow) CreateAccounts(saAccountName string) *GoWithTheFlow {
+	gwtf, err := f.CreateAccountsE(saAccountName)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return gwtf
+
+}
+// CreateAccountsE ensures that all accounts present in the deployment block for the given network is present
+func (f *GoWithTheFlow) CreateAccountsE(saAccountName string) (*GoWithTheFlow, error) {
 	p := f.State
 	signerAccount, err := p.Accounts().ByName(saAccountName)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	accounts := p.AccountNamesForNetwork(f.Network)
@@ -26,7 +36,7 @@ func (f *GoWithTheFlow) CreateAccounts(saAccountName string) *GoWithTheFlow {
 
 		account, err := p.Accounts().ByName(accountName)
 		if err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
 
 		if _, err := f.Services.Accounts.Get(account.Address()); err == nil {
@@ -42,16 +52,16 @@ func (f *GoWithTheFlow) CreateAccounts(saAccountName string) *GoWithTheFlow {
 			account.Key().HashAlgo(),
 			[]string{})
 		if err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
 
 		if account.Address() != a.Address {
-			log.Fatal(fmt.Errorf("configured account address != created address, %s != %s", account.Address(), a.Address))
+			return nil, fmt.Errorf("configured account address != created address, %s != %s", account.Address(), a.Address)
 		}
 
 		f.Logger.Info("Account created " + a.Address.String())
 	}
-	return f
+	return f, nil
 }
 
 // InitializeContracts installs all contracts in the deployment block for the configured network

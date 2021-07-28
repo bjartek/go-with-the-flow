@@ -28,6 +28,11 @@ func (f FlowTransactionBuilder) Test(t *testing.T) TransactionResult {
 	}
 }
 
+func(t TransactionResult) AssertFailure(msg string) TransactionResult {
+	assert.Error(t.Testing, t.Err)
+	assert.Contains(t.Testing, t.Err.Error(), msg)
+	return t
+}
 func (t TransactionResult) AssertSuccess() TransactionResult {
 	assert.NoError(t.Testing, t.Err)
 	return t
