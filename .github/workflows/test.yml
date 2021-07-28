@@ -36,11 +36,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - run: gotestsum -f testname --no-color --hide-summary failed --junitfile test-result.xml
-      - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v1
-        if: always()
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v2
         with:
-           files: test-result.xml
+          report_paths: 'test-result.xml'
+ #     - name: Publish Unit Test Results
+ #       uses: EnricoMi/publish-unit-test-result-action@v1
+ #       if: always()
+ #       with:
+#           files: test-result.xml
 
   coverage:
     runs-on: ubuntu-latest
