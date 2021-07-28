@@ -1,19 +1,21 @@
 package gwtf
 
 import (
-	"errors"
 	"fmt"
-	"github.com/onflow/flow-go-sdk/crypto"
 	"log"
 	"sort"
+
+	"github.com/onflow/flow-go-sdk/crypto"
 )
 
-
-//CreateAccount creates the accounts with the given names
+//CreateAccounts ensures that all accounts present in the deployment block for the given network is present
 func (f *GoWithTheFlow) CreateAccounts(saAccountName string) *GoWithTheFlow {
 
 	p := f.State
-	signerAccount := p.Accounts().ByName(saAccountName)
+	signerAccount, err := p.Accounts().ByName(saAccountName)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	accounts := p.AccountNamesForNetwork(f.Network)
 	sort.Strings(accounts)
@@ -23,7 +25,10 @@ func (f *GoWithTheFlow) CreateAccounts(saAccountName string) *GoWithTheFlow {
 	for _, accountName := range accounts {
 		f.Logger.Info(fmt.Sprintf("Ensuring account with name '%s' is present", accountName))
 
-		account := p.Accounts().ByName(accountName)
+		account, err := p.Accounts().ByName(accountName)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		_, err2 := f.Services.Accounts.Get(account.Address())
 		if err2 == nil {
@@ -41,14 +46,14 @@ func (f *GoWithTheFlow) CreateAccounts(saAccountName string) *GoWithTheFlow {
 			log.Fatal(err)
 		}
 		if account.Address() != a.Address {
-			log.Fatal(errors.New(fmt.Sprintf("Configured account address != created address, %s != %s", account.Address(), a.Address)))
+			log.Fatal(fmt.Errorf("configured account address != created address, %s != %s", account.Address(), a.Address))
 		}
 		f.Logger.Info("Account created " + a.Address.String())
 	}
 	return f
 }
 
-//InitializeContracts installs all contracts to the account with name accounts
+//InitializeContracts installs all contracts in the deployment block for the configured network
 func (f *GoWithTheFlow) InitializeContracts() *GoWithTheFlow {
 	f.Logger.Info("Deploying contracts")
 	_, err := f.Services.Project.Deploy(f.Network, false)

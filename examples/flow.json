@@ -39,23 +39,23 @@
 			"address": "f8d6e0586b0a20c7",
 			"key": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8"
 		},
-		"first": {
+		"emulator-first": {
 			"address": "01cf0e2f2f715450",
 			"key": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8"
 		},
-		"second": {
+		"emulator-second": {
 			"address": "179b6b1cb6755e31",
 			"key": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8"
 		},
-		"emulator3": {
+		"emulator-3": {
 			"address": "f3fcd2c1a78f5eee",
 			"key": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8"
 		},
-		"emulator4": {
+		"emulator-4": {
 			"address": "e03daebed8ca0615",
 			"key": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8"
 		},
-		"emulator5": {
+		"emulator-5": {
 			"address": "045a1763c93006ca",
 			"key": "d5457a187e9642a8e49d4032b3b4f85c92da7202c79681d9302c6e444e7033a8"
 		}
@@ -66,8 +66,8 @@
 				"NonFungibleToken",
 				"Debug"
 			],
-			"first": [],
-			"second": []
+			"emulator-first": [],
+			"emulator-second": []
 		}
 	}
 }

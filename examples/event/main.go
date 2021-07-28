@@ -3,16 +3,17 @@ package main
 import (
 	"fmt"
 
-	"github.com/bjartek/go-with-the-flow/gwtf"
+	"github.com/bjartek/go-with-the-flow/v2/gwtf"
 )
 
 func main() {
 
-	g := gwtf.NewGoWithTheFlowMainNet()
+	g := gwtf.NewGoWithTheFlowDevNet()
 
 	eventsFetcher := g.EventFetcher().
 		Last(1000).
 		Event("A.0b2a3299cc857e29.TopShot.Withdraw")
+		//EventIgnoringFields("A.0b2a3299cc857e29.TopShot.Withdraw", []string{"field1", "field"})
 
 	events, err := eventsFetcher.Run()
 	if err != nil {
@@ -21,13 +22,7 @@ func main() {
 
 	fmt.Printf("%v", events)
 
-	/*
-		//if you add an eventHook in discord to the flow.json in the example folder you can use this to send the events to a discord channel
-		msg, err := eventsFetcher.SendEventsToWebhook("gwtf")
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println("send message with id", msg.ID)
-	*/
+	//to send events to a discord eventhook use
+	//	message, err := gwtf.NewDiscordWebhook("http://your-webhook-url").SendEventsToWebhook(events)
 
 }

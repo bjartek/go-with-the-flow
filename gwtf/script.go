@@ -2,8 +2,9 @@ package gwtf
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/onflow/flow-go-sdk"
-	"os"
 
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
@@ -11,18 +12,18 @@ import (
 
 //FlowScriptBuilder is a struct to hold information for running a script
 type FlowScriptBuilder struct {
-	GoWithTheFlow *GoWithTheFlow
-	FileName      string
-	Arguments     []cadence.Value
-	ScriptAsString  string
+	GoWithTheFlow  *GoWithTheFlow
+	FileName       string
+	Arguments      []cadence.Value
+	ScriptAsString string
 }
 
-//ScriptFromFile will start a flow script builder
+//Script start a script builder with the inline script as body
 func (f *GoWithTheFlow) Script(content string) FlowScriptBuilder {
 	return FlowScriptBuilder{
-		GoWithTheFlow: f,
-		FileName:      "inline",
-		Arguments:     []cadence.Value{},
+		GoWithTheFlow:  f,
+		FileName:       "inline",
+		Arguments:      []cadence.Value{},
 		ScriptAsString: content,
 	}
 }
@@ -30,9 +31,9 @@ func (f *GoWithTheFlow) Script(content string) FlowScriptBuilder {
 //ScriptFromFile will start a flow script builder
 func (f *GoWithTheFlow) ScriptFromFile(filename string) FlowScriptBuilder {
 	return FlowScriptBuilder{
-		GoWithTheFlow: f,
-		FileName:      filename,
-		Arguments:     []cadence.Value{},
+		GoWithTheFlow:  f,
+		FileName:       filename,
+		Arguments:      []cadence.Value{},
 		ScriptAsString: "",
 	}
 }
@@ -40,8 +41,9 @@ func (f *GoWithTheFlow) ScriptFromFile(filename string) FlowScriptBuilder {
 //AccountArgument add an account as an argument
 func (t FlowScriptBuilder) AccountArgument(key string) FlowScriptBuilder {
 	f := t.GoWithTheFlow
-	address := cadence.BytesToAddress(f.State.Accounts().ByName(key).Address().Bytes())
-	return t.Argument(address)
+
+	account := f.Account(key)
+	return t.Argument(cadence.BytesToAddress(account.Address().Bytes()))
 }
 
 //RawAccountArgument add an account from a string as an argument
@@ -50,6 +52,11 @@ func (t FlowScriptBuilder) RawAccountArgument(key string) FlowScriptBuilder {
 	account := flow.HexToAddress(key)
 	accountArg := cadence.BytesToAddress(account.Bytes())
 	return t.Argument(accountArg)
+}
+
+//DateStringAsUnixTimestamp sends a dateString parsed in the timezone as a unix timeszone ufix
+func (t FlowScriptBuilder) DateStringAsUnixTimestamp(dateString string, timezone string) FlowScriptBuilder {
+	return t.UFix64Argument(parseTime(dateString, timezone))
 }
 
 //Argument add an argument to the transaction
@@ -183,7 +190,8 @@ func (t FlowScriptBuilder) UFix64Argument(value string) FlowScriptBuilder {
 
 // Run executes a read only script
 func (t FlowScriptBuilder) Run() {
-	_ = t.RunFailOnError()
+	result := t.RunFailOnError()
+	log.Printf("%v Script run from result: %v\n", emoji.Star, CadenceValueToJsonString(result))
 }
 
 // RunReturns executes a read only script
@@ -206,13 +214,13 @@ func (t FlowScriptBuilder) RunReturns() (cadence.Value, error) {
 	result, err := f.Services.Scripts.Execute(
 		script,
 		t.Arguments,
-		t.FileName,
+		scriptFilePath,
 		f.Network)
 	if err != nil {
 		return nil, err
 	}
 
-	f.Logger.Info(fmt.Sprintf("%v Script run from path %s result: %v\n", emoji.Star, scriptFilePath, CadenceValueToJsonString(result)))
+	f.Logger.Info(fmt.Sprintf("%v Script run from path %s\n", emoji.Star, scriptFilePath))
 	return result, nil
 }
 func (t FlowScriptBuilder) RunFailOnError() cadence.Value {
@@ -225,10 +233,12 @@ func (t FlowScriptBuilder) RunFailOnError() cadence.Value {
 
 }
 
+//RunReturnsJsonString runs the script and returns pretty printed json string
 func (t FlowScriptBuilder) RunReturnsJsonString() string {
 	return CadenceValueToJsonString(t.RunFailOnError())
 }
 
+//RunReturnsInterface runs the script and returns interface{}
 func (t FlowScriptBuilder) RunReturnsInterface() interface{} {
 	return CadenceValueToInterface(t.RunFailOnError())
 }

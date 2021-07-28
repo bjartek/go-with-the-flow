@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"os"
 	"time"
+	"time"
 
+	"github.com/araddon/dateparse"
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-cli/pkg/flowkit"
@@ -20,31 +22,44 @@ func (f *GoWithTheFlow) TransactionFromFile(filename string) FlowTransactionBuil
 		MainSigner:     nil,
 		Arguments:      []cadence.Value{},
 		PayloadSigners: []*flowkit.Account{},
-		GasLimit: 9999,
+		GasLimit:       9999,
 	}
 }
 
-//TransactionFromFile will start a flow transaction builder
+//Transaction will start a flow transaction builder using the inline transaction
 func (f *GoWithTheFlow) Transaction(content string) FlowTransactionBuilder {
 	return FlowTransactionBuilder{
 		GoWithTheFlow:  f,
 		FileName:       "inline",
-		Content: content,
+		Content:        content,
 		MainSigner:     nil,
 		Arguments:      []cadence.Value{},
 		PayloadSigners: []*flowkit.Account{},
-		GasLimit: 9999,
+		GasLimit:       9999,
 	}
 }
 
-func(t FlowTransactionBuilder) Gas(limit uint64) FlowTransactionBuilder {
-	t.GasLimit=limit
+//Gas sets the gas limit for this transaction
+func (t FlowTransactionBuilder) Gas(limit uint64) FlowTransactionBuilder {
+	t.GasLimit = limit
 	return t
 }
+
 //SignProposeAndPayAs set the payer, proposer and envelope signer
 func (t FlowTransactionBuilder) SignProposeAndPayAs(signer string) FlowTransactionBuilder {
-	t.MainSigner = t.GoWithTheFlow.State.Accounts().ByName(signer)
-	//note that we also put the signers in here so that we can use the authorizers and signers from here
+
+	t.MainSigner = t.GoWithTheFlow.Account(signer)
+	return t
+}
+
+//SignProposeAndPayAsService set the payer, proposer and envelope signer
+func (t FlowTransactionBuilder) SignProposeAndPayAsService() FlowTransactionBuilder {
+	key := fmt.Sprintf("%s-account", t.GoWithTheFlow.Network)
+	account, err := t.GoWithTheFlow.State.Accounts().ByName(key)
+	if err != nil {
+		log.Fatal(err)
+	}
+	t.MainSigner = account
 	return t
 }
 
@@ -59,8 +74,9 @@ func (t FlowTransactionBuilder) RawAccountArgument(key string) FlowTransactionBu
 //AccountArgument add an account as an argument
 func (t FlowTransactionBuilder) AccountArgument(key string) FlowTransactionBuilder {
 	f := t.GoWithTheFlow
-	address := cadence.BytesToAddress(f.State.Accounts().ByName(key).Address().Bytes())
-	return t.Argument(address)
+
+	account := f.Account(key)
+	return t.Argument(cadence.BytesToAddress(account.Address().Bytes()))
 }
 
 //StringArgument add a String Argument to the transaction
@@ -177,6 +193,29 @@ func (t FlowTransactionBuilder) Fix64Argument(value string) FlowTransactionBuild
 	return t.Argument(amount)
 }
 
+//DateStringAsUnixTimestamp sends a dateString parsed in the timezone as a unix timeszone ufix
+func (t FlowTransactionBuilder) DateStringAsUnixTimestamp(dateString string, timezone string) FlowTransactionBuilder {
+	return t.UFix64Argument(parseTime(dateString, timezone))
+}
+
+func parseTime(timeString string, location string) string {
+	loc, err := time.LoadLocation(location)
+	if err != nil {
+		panic(err)
+	}
+
+	time.Local = loc
+	t, err := dateparse.ParseLocal(timeString)
+	if err != nil {
+		panic(err)
+	}
+
+	unix := t.Unix()
+
+	time := fmt.Sprintf("%d.0", unix)
+	return time
+}
+
 //UFix64Argument add a UFix64 Argument to the transaction
 func (t FlowTransactionBuilder) UFix64Argument(value string) FlowTransactionBuilder {
 	amount, err := cadence.NewUFix64(value)
@@ -194,7 +233,7 @@ func (t FlowTransactionBuilder) Argument(value cadence.Value) FlowTransactionBui
 
 //PayloadSigner set a signer for the payload
 func (t FlowTransactionBuilder) PayloadSigner(value string) FlowTransactionBuilder {
-	signer := t.GoWithTheFlow.State.Accounts().ByName(value)
+	signer := t.GoWithTheFlow.Account(value)
 	t.PayloadSigners = append(t.PayloadSigners, signer)
 	return t
 }
@@ -237,8 +276,17 @@ func (t FlowTransactionBuilder) RunFormatEvents() ([]*FormatedEvent, error){
 
 //Run run the transaction
 func (t FlowTransactionBuilder) Run() ([]flow.Event, error) {
+	events, err := t.RunE()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return events
+}
+
+//RunE runs returns error
+func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 	if t.MainSigner == nil {
-		return nil, errors.New(fmt.Sprintf("%v You need to set the main signer", emoji.PileOfPoo))
+		return nil, fmt.Errorf("%v You need to set the main signer", emoji.PileOfPoo)
 	}
 	codeFileName := fmt.Sprintf("./transactions/%s.cdc", t.FileName)
 
@@ -246,7 +294,7 @@ func (t FlowTransactionBuilder) Run() ([]flow.Event, error) {
 	signers := append(t.PayloadSigners, t.MainSigner)
 	var code []byte
 	var err error
-	if  t.Content=="" {
+	if t.Content == "" {
 		code, err = t.GoWithTheFlow.State.ReaderWriter().ReadFile(codeFileName)
 		if err != nil {
 			return nil, err
@@ -259,7 +307,7 @@ func (t FlowTransactionBuilder) Run() ([]flow.Event, error) {
 
 	var authorizers []flow.Address
 	for _, signer := range signers {
-		authorizers=append(authorizers, signer.Address())
+		authorizers = append(authorizers, signer.Address())
 	}
 
 	tx, err := t.GoWithTheFlow.Services.Transactions.Build(
@@ -277,7 +325,7 @@ func (t FlowTransactionBuilder) Run() ([]flow.Event, error) {
 		return nil, err
 	}
 
-	for _, signer := range signers{
+	for _, signer := range signers {
 		err = tx.SetSigner(signer)
 		if err != nil {
 			return nil, err
@@ -293,11 +341,15 @@ func (t FlowTransactionBuilder) Run() ([]flow.Event, error) {
 	t.GoWithTheFlow.Logger.Info(fmt.Sprintf("Transaction ID: %s", tx.FlowTransaction().ID()))
 	t.GoWithTheFlow.Logger.StartProgress("Sending transaction...")
 	defer t.GoWithTheFlow.Logger.StopProgress()
-	txBytes :=[]byte(fmt.Sprintf("%x", tx.FlowTransaction().Encode()))
+	txBytes := []byte(fmt.Sprintf("%x", tx.FlowTransaction().Encode()))
 	_, res, err := t.GoWithTheFlow.Services.Transactions.SendSigned(txBytes)
 
 	if err != nil {
 		return nil, err
+	}
+
+	if res.Error != nil {
+		return nil, res.Error
 	}
 
 	t.GoWithTheFlow.Logger.Info(fmt.Sprintf("%v Transaction %s successfully applied\n", emoji.OkHand, t.FileName))
@@ -308,9 +360,9 @@ func (t FlowTransactionBuilder) Run() ([]flow.Event, error) {
 type FlowTransactionBuilder struct {
 	GoWithTheFlow  *GoWithTheFlow
 	FileName       string
-	Content 	   string
+	Content        string
 	Arguments      []cadence.Value
 	MainSigner     *flowkit.Account
 	PayloadSigners []*flowkit.Account
-	GasLimit		uint64
+	GasLimit       uint64
 }

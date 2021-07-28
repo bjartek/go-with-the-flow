@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/bwmarrin/discordgo"
 	"io/ioutil"
 	"os"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/bwmarrin/discordgo"
 
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/client"
@@ -25,12 +26,12 @@ type EventFetcherBuilder struct {
 	EndAtCurrentHeight    bool
 	EndIndex              uint64
 	ProgressFile          string
-	                   context.Context
-	NumberOfWorkers       int
-	EventBatchSize        uint64
+	context.Context
+	NumberOfWorkers int
+	EventBatchSize  uint64
 }
 
-// SendEventsTo starts a event hook builder
+//EventFetcher create an event fetcher builder
 func (f *GoWithTheFlow) EventFetcher() EventFetcherBuilder {
 	return EventFetcherBuilder{
 		GoWithTheFlow:         f,
@@ -42,17 +43,20 @@ func (f *GoWithTheFlow) EventFetcher() EventFetcherBuilder {
 		NumberOfWorkers:       20,
 	}
 }
+
+//Workers sets the number of workers
 func (e EventFetcherBuilder) Workers(workers int) EventFetcherBuilder {
 	e.NumberOfWorkers = workers
 	return e
 }
 
+//BatchSize sets the size of a batch
 func (e EventFetcherBuilder) BatchSize(batchSize uint64) EventFetcherBuilder {
 	e.EventBatchSize = batchSize
 	return e
 }
 
-// Event fetches and Events and all its fields
+//Event fetches and Events and all its fields
 func (e EventFetcherBuilder) Event(eventName string) EventFetcherBuilder {
 	e.EventsAndIgnoreFields[eventName] = []string{}
 	return e
@@ -144,8 +148,8 @@ func readProgressFromFile(fileName string) (int64, error) {
 
 }
 
-
-func (e EventFetcherBuilder) RunAndSendToWebhook(url string) (*discordgo.Message, error){
+//RunAndSendToWebhook runs the eventFetcher and sends the event to a webhook with the provided url
+func (e EventFetcherBuilder) RunAndSendToWebhook(url string) (*discordgo.Message, error) {
 
 	events, err := e.Run()
 	if err != nil {
@@ -155,6 +159,7 @@ func (e EventFetcherBuilder) RunAndSendToWebhook(url string) (*discordgo.Message
 	return NewDiscordWebhook(url).SendEventsToWebhook(events)
 }
 
+//Run runs the eventfetcher returning events or an error
 func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 
 	//if we have a progress file read the value from it and set it as oldHeight
@@ -223,11 +228,9 @@ func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 		return formatedEvents[i].BlockHeight < formatedEvents[j].BlockHeight
 	})
 
-
 	return formatedEvents, nil
 
 }
-
 
 //PrintEvents prints th events, ignoring fields specified for the given event typeID
 func PrintEvents(events []flow.Event, ignoreFields map[string][]string) {
@@ -300,6 +303,16 @@ type FormatedEvent struct {
 	Fields      map[string]interface{} `json:"fields"`
 }
 
+func NewTestEvent(name string, fields map[string]interface{}) *FormatedEvent {
+	return &FormatedEvent{
+		Name: name,
+		BlockHeight: 0,
+		Time: time.Unix(0,0),
+		Fields: fields,
+	}
+}
+
+//String pretty print an event as a String
 func (e FormatedEvent) String() string {
 	j, err := json.MarshalIndent(e, "", "  ")
 	if err != nil {
