@@ -15,7 +15,7 @@ type TransactionResult struct {
 }
 
 func (f FlowTransactionBuilder) Test(t *testing.T) TransactionResult {
-	locale, err :=time.LoadLocation("UTC")
+	locale,_ :=time.LoadLocation("UTC")
 	time.Local=locale
 	events, err := f.RunE()
 	var formattedEvents []*FormatedEvent
