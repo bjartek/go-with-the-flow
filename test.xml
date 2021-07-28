@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+	<testsuite tests="27" failures="0" time="3.630000" name="github.com/bjartek/go-with-the-flow/v2/examples" timestamp="2021-07-29T01:37:41+02:00">
+		<properties>
+			<property name="go.version" value="go1.16.6 darwin/arm64"></property>
+		</properties>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestEvents/Fetch_last_events" time="0.080000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestEvents/Fetch_last_write_progress_file" time="0.080000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestEvents/Fetch_last_write_progress_file_that_exists" time="0.070000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestEvents" time="0.220000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestSetupIntegration/Should_create_inmemory_emulator_client" time="0.590000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestSetupIntegration/Should_create_local_emulator_client" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestSetupIntegration/Should_create_testnet_client" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestSetupIntegration/Should_create_testnet_client_with_for_network_metdho" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestSetupIntegration/Should_create_mainnet_client" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestSetupIntegration" time="0.600000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestTransactionUpload/Upload_test_file" time="0.030000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestTransactionUpload/Upload_test_image" time="0.030000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestTransactionUpload/Download_and_upload_file" time="0.640000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestTransactionUpload/Download_image_and_upload" time="0.150000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestTransactionUpload" time="0.900000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestScript/Raw_account_argument" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestScript/Raw_account_argument#01" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestScript/Script_should_report_failure" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestScript" time="0.070000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestTransaction/Create_NFT_collection" time="0.010000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestTransaction/Mint_tokens_assert_events" time="0.010000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestTransaction/Inline_transaction_with_debug_log" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestTransaction/Raw_account_argument" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestTransaction/transaction_that_should_fail" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestTransaction/Assert_print_events" time="0.010000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestTransaction/Assert_print_events#01" time="0.010000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/examples" name="TestTransaction" time="0.130000"></testcase>
+	</testsuite>
+	<testsuite tests="0" failures="0" time="0.000000" name="github.com/bjartek/go-with-the-flow/v2/examples/demo" timestamp="2021-07-29T01:37:41+02:00">
+		<properties>
+			<property name="go.version" value="go1.16.6 darwin/arm64"></property>
+		</properties>
+	</testsuite>
+	<testsuite tests="0" failures="0" time="0.000000" name="github.com/bjartek/go-with-the-flow/v2/examples/event" timestamp="2021-07-29T01:37:41+02:00">
+		<properties>
+			<property name="go.version" value="go1.16.6 darwin/arm64"></property>
+		</properties>
+	</testsuite>
+	<testsuite tests="34" failures="0" time="0.140000" name="github.com/bjartek/go-with-the-flow/v2/gwtf" timestamp="2021-07-29T01:37:41+02:00">
+		<properties>
+			<property name="go.version" value="go1.16.6 darwin/arm64"></property>
+		</properties>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestErrorsInAccountCreation/Should_give_error_on_wrong_saAccount_name" time="0.030000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestErrorsInAccountCreation/Should_give_erro_on_wrong_account_name" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestErrorsInAccountCreation" time="0.030000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestDiscordHooks/Should_create_hook" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestDiscordHooks/Should_parse_message" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestDiscordHooks" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestEvent/Start_argument" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestEvent/From_argument" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestEvent/End_argument" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestEvent/Until_argument" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestEvent/Until_current_argument" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestEvent/workers_argument" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestEvent/batch_size_argument" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestEvent/event_ignoring_field_argument" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestEvent" time="0.020000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestSetupFails" time="0.020000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestCadenceValueToJsonString/Empty_value_should_be_empty_json_object" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestCadenceValueToJsonString/Empty_optional_should_be_empty_string" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestCadenceValueToJsonString/Unwrap_optional" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestCadenceValueToJsonString/Array" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestCadenceValueToJsonString/Dictionary" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestCadenceValueToJsonString/Struct" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestCadenceValueToJsonString" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestTransactionArguments/Gas_test" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestTransactionArguments/Argument_test" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestTransactionArguments/Word_argument_test" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestTransactionArguments/UInt_argument_test" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestTransactionArguments/Int_argument_test" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestTransactionArguments" time="0.020000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestScriptArguments/Argument_test" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestScriptArguments/Word_argument_test" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestScriptArguments/UInt_argument_test" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestScriptArguments/Int_argument_test" time="0.000000"></testcase>
+		<testcase classname="github.com/bjartek/go-with-the-flow/v2/gwtf" name="TestScriptArguments" time="0.020000"></testcase>
+	</testsuite>
+</testsuites>
