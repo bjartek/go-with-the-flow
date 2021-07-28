@@ -20,4 +20,12 @@ func TestScript(t *testing.T) {
 		assert.Equal(t, value, "0x1cf0e2f2f715450")
 	})
 
+	t.Run("Script should report failure", func(t *testing.T) {
+		value, err := g.Script("asdf").RunReturns()
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "Parsing failed")
+		assert.Nil(t, value)
+
+	})
+
 }

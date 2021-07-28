@@ -19,8 +19,8 @@ func NewDiscordWebhook(url string) DiscordWebhook {
 	parts := strings.Split(url, "/")
 	length := len(parts)
 	return DiscordWebhook{
-		ID:    parts[length-1],
-		Token: parts[length],
+		ID:    parts[length-2],
+		Token: parts[length-1],
 		Wait:  true,
 	}
 }

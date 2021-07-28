@@ -64,8 +64,9 @@ func NewGoWithTheFlow(filenames []string, network string, inMemory bool, logleve
 }
 
 //DoNotPrependNetworkToAccountNames disable the default behavior of prefixing account names with network-
-func (f *GoWithTheFlow) DoNotPrependNetworkToAccountNames() {
+func (f *GoWithTheFlow) DoNotPrependNetworkToAccountNames() *GoWithTheFlow {
 	f.PrependNetworkToAccountNames = false
+	return f
 }
 
 //Account fetch an account from flow.json, prefixing the name with network- as default (can be turned off)
