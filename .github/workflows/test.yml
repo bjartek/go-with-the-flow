@@ -39,7 +39,7 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - run:  go test -coverprofile=profile.cov -covermode=atomic -coverpkg=github.com/bjartek/go-with-the-flow/v2/gwtf ./...
+      - run:  go test -coverprofile=profile.cov -covermode=atomic -coverpkg=github.com/bjartek/go-with-the-flow/v2/gwtf -v ./...
       - uses: shogo82148/actions-goveralls@v1
         with:
          path-to-profile: profile.cov
