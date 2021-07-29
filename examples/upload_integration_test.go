@@ -79,7 +79,7 @@ transaction {
 
 		err := g.DownloadAndUploadFile("https://foo.bar", "first")
 		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "lookup foo.bar: no such host")
+		assert.Contains(t, err.Error(), "dial tcp: lookup foo.ba")
 
 	})
 
@@ -87,7 +87,7 @@ transaction {
 
 		err := g.DownloadImageAndUploadAsDataUrl("https://foo.bar", "first")
 		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "lookup foo.bar: no such host")
+		assert.Contains(t, err.Error(), "dial tcp: lookup foo.ba")
 
 	})
 
