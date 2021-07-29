@@ -3,6 +3,7 @@ package gwtf
 import (
 	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/stretchr/testify/assert"
+	"os"
 	"testing"
 )
 
@@ -51,5 +52,21 @@ func TestEvent(t *testing.T) {
 	t.Run("event ignoring field argument", func(t *testing.T) {
 		ef := g.EventFetcher().EventIgnoringFields("foo", []string{"bar", "baz"})
 		assert.Equal(t, ef.EventsAndIgnoreFields["foo"], []string{"bar", "baz"})
+	})
+
+	t.Run("failed reading invalid file", func(t *testing.T) {
+		_, err := readProgressFromFile("boing.boinb")
+		assert.Error(t, err)
+		assert.Contains(t,  err.Error(), "ProgressFile is not valid open boing.boinb")
+	})
+
+	t.Run("Cannot write to file that is dir", func(t *testing.T) {
+		os.Mkdir("foo", os.ModeDir)
+		defer os.RemoveAll("foo")
+
+		err := writeProgressToFile("foo", 1)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "foo: is a directory")
+
 	})
 }
