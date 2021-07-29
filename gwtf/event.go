@@ -119,10 +119,13 @@ func (e EventFetcherBuilder) TrackProgressIn(fileName string) EventFetcherBuilde
 
 func exists(path string) (bool, error) {
 	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
 	if os.IsNotExist(err) {
 		return false, nil
 	}
-	return err != nil, err
+	return true, err
 }
 
 func writeProgressToFile(fileName string, blockHeight uint64) error {
