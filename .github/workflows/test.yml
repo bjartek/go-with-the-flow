@@ -40,7 +40,7 @@ jobs:
         if: always()
         uses: mikepenz/action-junit-report@v2
         with:
-          report_paths: 'test-result.xml'
+          report_paths: 'test-*.xml'
  #     - name: Publish Unit Test Results
  #       uses: EnricoMi/publish-unit-test-result-action@v1
  #       if: always()
