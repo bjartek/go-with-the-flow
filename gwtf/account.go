@@ -34,10 +34,8 @@ func (f *GoWithTheFlow) CreateAccountsE(saAccountName string) (*GoWithTheFlow, e
 	for _, accountName := range accounts {
 		f.Logger.Info(fmt.Sprintf("Ensuring account with name '%s' is present", accountName))
 
-		account, err := p.Accounts().ByName(accountName)
-		if err != nil {
-			return nil, err
-		}
+		//this error can never happen here, there is a test for it
+		account, _ := p.Accounts().ByName(accountName)
 
 		if _, err := f.Services.Accounts.Get(account.Address()); err == nil {
 			f.Logger.Info("Account is present")
