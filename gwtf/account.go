@@ -54,11 +54,6 @@ func (f *GoWithTheFlow) CreateAccountsE(saAccountName string) (*GoWithTheFlow, e
 		if err != nil {
 			return nil, err
 		}
-
-		if account.Address() != a.Address {
-			return nil, fmt.Errorf("configured account address != created address, %s != %s", account.Address(), a.Address)
-		}
-
 		f.Logger.Info("Account created " + a.Address.String())
 	}
 	return f, nil

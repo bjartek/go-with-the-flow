@@ -21,6 +21,13 @@ func TestErrorsInAccountCreation(t *testing.T) {
 		assert.Contains(t, err.Error(), "deployment contains nonexisting account emulator-firs")
 	})
 
+	t.Run("Should fail when creating local accounts in the wrong order", func(t *testing.T) {
+		g := NewGoWithTheFlow([]string{"fixtures/wrong_account_order_emulator.json"}, "emulator", true, output.NoneLog)
+		_, err := g.CreateAccountsE("emulator-first")
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "could not find account with address 179b6b1cb6755e3")
+	})
+
 
 
 }
