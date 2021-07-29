@@ -3,6 +3,7 @@ package gwtf
 import (
 	"bufio"
 	"encoding/base64"
+	"fmt"
 	"io/ioutil"
 	"math"
 	"net/http"
@@ -34,7 +35,7 @@ func fileAsImageData(path string) (string, error) {
 	reader := bufio.NewReader(f)
 	content, err := ioutil.ReadAll(reader)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("could not read imageFile %s, %w", path, err)
 	}
 
 	return contentAsImageDataUrl(content), nil
@@ -58,7 +59,7 @@ func fileAsBase64(path string) (string, error) {
 	reader := bufio.NewReader(f)
 	content, err := ioutil.ReadAll(reader)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("could not read file %s, %w", path, err)
 	}
 
 	// Encode as base64.
