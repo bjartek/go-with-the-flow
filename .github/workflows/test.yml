@@ -37,6 +37,7 @@ jobs:
             ${{ runner.os }}-go-
       - run: gotestsum -f testname --no-color --hide-summary failed --junitfile test-result.xml
       - name: Publish Test Report
+        if: always()
         uses: mikepenz/action-junit-report@v2
         with:
           report_paths: 'test-result.xml'
