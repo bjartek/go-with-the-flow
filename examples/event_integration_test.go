@@ -82,6 +82,17 @@ func TestEvents(t *testing.T) {
 		assert.Equal(t, 1, len(ev))
 	})
 
+	t.Run("should fail reading invalid progress from file", func(t *testing.T) {
+		err := os.WriteFile("progress", []byte("invalid"), fs.ModePerm)
+		assert.NoError(t, err)
+
+		g := gwtf.NewTestingEmulator()
+		_, err = g.EventFetcher().Event("A.0ae53cb6e3f42a79.FlowToken.TokensMinted").TrackProgressIn("progress").Run()
+		defer os.Remove("progress")
+		assert.Error(t, err)
+		assert.Equal(t, "could not parse progress file as block height strconv.ParseInt: parsing \"invalid\": invalid syntax", err.Error())
+	})
+
 	t.Run("Fetch last write progress file that exists", func(t *testing.T) {
 
 		err := os.WriteFile("progress", []byte("1"), fs.ModePerm)
