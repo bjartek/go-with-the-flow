@@ -16,7 +16,6 @@ import (
 
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/client"
-	"github.com/pkg/errors"
 )
 
 //EventFetcherBuilder builder to hold info about eventhook context
@@ -132,7 +131,7 @@ func exists(path string) (bool, error) {
 func writeProgressToFile(fileName string, blockHeight uint64) error {
 	err := ioutil.WriteFile(fileName, []byte(fmt.Sprintf("%d", blockHeight)), 0644)
 	if err != nil {
-		return errors.Wrap(err, "Could not create initial progress file")
+		return fmt.Errorf("Could not create initial progress file %v", err)
 	}
 	return nil
 }
@@ -140,7 +139,7 @@ func writeProgressToFile(fileName string, blockHeight uint64) error {
 func readProgressFromFile(fileName string) (int64, error) {
 	dat, err := ioutil.ReadFile(fileName)
 	if err != nil {
-		return 0, errors.Wrap(err, "ProgressFile is not valid")
+		return 0, fmt.Errorf("ProgressFile is not valid %v", err)
 	}
 
 	stringValue := strings.TrimSpace(string(dat))
@@ -174,13 +173,13 @@ func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 		if !present {
 			err := writeProgressToFile(e.ProgressFile, 0)
 			if err != nil {
-				return nil, errors.Wrap(err, "Could not create initial progress file")
+				return nil, fmt.Errorf("could not create initial progress file %v", err)
 			}
 			e.FromIndex = 0
 		} else {
 			oldHeight, err := readProgressFromFile(e.ProgressFile)
 			if err != nil {
-				return nil, errors.Wrap(err, "Could not parse progress file as block height")
+				return nil, fmt.Errorf("could not parse progress file as block height %v", err)
 			}
 			e.FromIndex = oldHeight
 		}
@@ -202,7 +201,7 @@ func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 	}
 
 	if fromIndex < 0 {
-		return nil, errors.New("FromIndex is negative")
+		return nil, fmt.Errorf("FromIndex is negative")
 	}
 
 	e.GoWithTheFlow.Logger.Info(fmt.Sprintf("Fetching events from %d to %d", fromIndex, endIndex))
@@ -222,7 +221,7 @@ func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 	if e.ProgressFile != "" {
 		err := writeProgressToFile(e.ProgressFile, endIndex+1)
 		if err != nil {
-			return nil, errors.Wrap(err, "Could not write progress to file")
+			return nil, fmt.Errorf("could not write progress to file %v", err)
 		}
 	}
 	sort.Slice(formatedEvents, func(i, j int) bool {

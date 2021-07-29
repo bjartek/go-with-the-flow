@@ -10,6 +10,21 @@ import (
 
 func TestEvents(t *testing.T) {
 
+	t.Run("Test that from index cannot be negative", func(t *testing.T) {
+		g := gwtf.NewTestingEmulator()
+		g.TransactionFromFile("mint_tokens").
+			SignProposeAndPayAsService().
+			AccountArgument("first").
+			UFix64Argument("100.0").
+			Test(t).
+			AssertSuccess().
+			AssertEventCount(3)
+
+		_, err := g.EventFetcher().End(2).From(-10).Event("A.0ae53cb6e3f42a79.FlowToken.TokensMinted").Run()
+		assert.Error(t, err)
+		assert.Contains(t, "FromIndex is negative", err.Error())
+	})
+
 	t.Run("Fetch last events", func(t *testing.T) {
 		g := gwtf.NewTestingEmulator()
 		g.TransactionFromFile("mint_tokens").
