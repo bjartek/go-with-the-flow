@@ -17,6 +17,20 @@ func TestTransaction(t *testing.T) {
 	g := gwtf.NewTestingEmulator()
 	t.Parallel()
 
+
+	t.Run("fail on missing signer", func(t *testing.T) {
+		g.TransactionFromFile("create_nft_collection").
+			Test(t).         //This method will return a TransactionResult that we can assert upon
+			AssertFailure("You need to set the main signer") //we assert that there is a failure
+	})
+
+	t.Run("fail on wrong transaction name", func(t *testing.T) {
+		g.TransactionFromFile("create_nf_collection").
+			SignProposeAndPayAs("first").
+			Test(t).         //This method will return a TransactionResult that we can assert upon
+			AssertFailure("Could not read transaction file from path=./transactions/create_nf_collection.cdc") //we assert that there is a failure
+	})
+
 	t.Run("Create NFT collection", func(t *testing.T) {
 		g.TransactionFromFile("create_nft_collection").
 			SignProposeAndPayAs("first").
