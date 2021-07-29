@@ -34,7 +34,7 @@ func TestCadenceValueToJsonString(t *testing.T) {
 		dict := cadence.NewDictionary([]cadence.KeyValuePair{{Key: cadence.NewString("foo"), Value: cadence.NewString("bar")}})
 		value := CadenceValueToJsonString(dict)
 		assert.Equal(t, `{
-    "foo": "bar2"
+    "foo": "bar"
 }`, value)
 	})
 
