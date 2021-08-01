@@ -1,9 +1,10 @@
 package main
 
 import (
+	"testing"
+
 	"github.com/bjartek/go-with-the-flow/v2/gwtf"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestScript(t *testing.T) {
@@ -28,4 +29,11 @@ func TestScript(t *testing.T) {
 
 	})
 
+	t.Run("script error", func(t *testing.T) {
+		value, err := g.ScriptFromFile("error").AccountArgument("first").RunReturns()
+		assert.Error(t, err)
+		//		assert.Contains(t, err.Error(), "cannot find type in this scope")
+		assert.Nil(t, value)
+
+	})
 }
