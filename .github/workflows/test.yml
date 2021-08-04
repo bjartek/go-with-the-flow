@@ -15,7 +15,12 @@ jobs:
         uses: actions/checkout@v2
       - name: golangci-lint
         uses: reviewdog/action-golangci-lint@v2
-
+      - name: Run tests
+        shell: bash
+        run: |
+        go install golang.org/x/lint/golint
+        make golint
+        
   test:
     runs-on: ubuntu-latest
     steps:
