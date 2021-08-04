@@ -18,9 +18,9 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-        go install golang.org/x/lint/golint
-        make golint
-        
+          go install golang.org/x/lint/golint
+          make golint
+
   test:
     runs-on: ubuntu-latest
     steps:
