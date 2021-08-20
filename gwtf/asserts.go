@@ -48,7 +48,12 @@ func (t TransactionResult) AssertEventCount(number int) TransactionResult {
 
 }
 func (t TransactionResult) AssertNoEvents() TransactionResult {
-	assert.Empty(t.Testing, t.Err)
+	assert.Empty(t.Testing, t.Events)
+
+	for _, ev := range t.Events {
+		t.Testing.Log(ev.String())
+	}
+
 	return t
 }
 
@@ -61,6 +66,11 @@ func (t TransactionResult) AssertEmitEventName(event ...string) TransactionResul
 	for _, ev := range event {
 		assert.Contains(t.Testing, eventNames, ev)
 	}
+
+	for _, ev := range t.Events {
+		t.Testing.Log(ev.String())
+	}
+
 	return t
 }
 
@@ -74,6 +84,11 @@ func (t TransactionResult) AssertEmitEventJson(event ...string) TransactionResul
 	for _, ev := range event {
 		assert.Contains(t.Testing, jsonEvents, ev)
 	}
+
+	for _, ev := range t.Events {
+		t.Testing.Log(ev.String())
+	}
+
 	return t
 }
 
@@ -81,6 +96,11 @@ func (t TransactionResult) AssertEmitEvent(event ...*FormatedEvent) TransactionR
 	for _, ev := range event {
 		assert.Contains(t.Testing, t.Events, ev)
 	}
+
+	for _, ev := range t.Events {
+		t.Testing.Log(ev.String())
+	}
+
 	return t
 }
 
