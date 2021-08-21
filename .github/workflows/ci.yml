@@ -14,9 +14,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: golangci-lint
-        uses: reviewdog/action-golangci-lint@v2
-        with:
-          golangci_lint_flags: '--enable-all --exclude-use-default=false'
+        uses: golangci/golangci-lint-action@v2
+          args: '--enable-all --exclude-use-default=false'
 
   test:
     runs-on: ubuntu-latest
