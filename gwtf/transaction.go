@@ -2,14 +2,15 @@ package gwtf
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"time"
+
 	"github.com/araddon/dateparse"
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-cli/pkg/flowkit"
 	"github.com/onflow/flow-go-sdk"
-	"log"
-	"os"
-	"time"
 )
 
 // TransactionFromFile will start a flow transaction builder
@@ -263,7 +264,8 @@ func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 		return nil, err
 	}
 	// we append the mainSigners at the end here so that it signs last
-	signers := append(t.PayloadSigners, t.MainSigner)
+	signers := t.PayloadSigners
+	signers = append(signers, t.MainSigner)
 
 	signerKeyIndex := t.MainSigner.Key().Index()
 

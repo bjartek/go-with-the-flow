@@ -1,10 +1,11 @@
 package gwtf
 
 import (
-	"github.com/onflow/flow-cli/pkg/flowkit/output"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
+
+	"github.com/onflow/flow-cli/pkg/flowkit/output"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestEvent(t *testing.T) {
@@ -57,14 +58,15 @@ func TestEvent(t *testing.T) {
 	t.Run("failed reading invalid file", func(t *testing.T) {
 		_, err := readProgressFromFile("boing.boinb")
 		assert.Error(t, err)
-		assert.Contains(t,  err.Error(), "ProgressFile is not valid open boing.boinb")
+		assert.Contains(t, err.Error(), "ProgressFile is not valid open boing.boinb")
 	})
 
 	t.Run("Cannot write to file that is dir", func(t *testing.T) {
-		os.Mkdir("foo", os.ModeDir)
+		err := os.Mkdir("foo", os.ModeDir)
+		assert.NoError(t, err)
 		defer os.RemoveAll("foo")
 
-		err := writeProgressToFile("foo", 1)
+		err = writeProgressToFile("foo", 1)
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "foo: is a directory")
 

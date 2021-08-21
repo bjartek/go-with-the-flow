@@ -14,7 +14,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: golangci-lint
-        uses: reviewdog/action-golangci-lint@v2
+        uses: golangci/golangci-lint-action@v2
+
+  tidy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '1.16.*'
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - uses: zencargo/github-action-go-mod-tidy@v1
+        with:
+          go-version: 1.16 
 
   test:
     runs-on: ubuntu-latest
@@ -24,18 +44,15 @@ jobs:
       - uses: actions/setup-go@v2
         with:
           go-version: '1.16.*'
-      - run: go get gotest.tools/gotestsum
       - uses: actions/cache@v2
         with:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
-            ~/Library/Caches/go-build
-            %LocalAppData%\go-build
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - run: gotestsum -f testname --no-color --hide-summary failed --junitfile test-result.xml
+      - run: make test-report
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
         if: always()
@@ -55,12 +72,10 @@ jobs:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
-            ~/Library/Caches/go-build
-            %LocalAppData%\go-build
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - run:  go test -coverprofile=profile.cov -covermode=atomic -coverpkg=github.com/bjartek/go-with-the-flow/v2/gwtf -v ./...
+      - run:  make coveralls
       - uses: shogo82148/actions-goveralls@v1
         if: always()
         with:

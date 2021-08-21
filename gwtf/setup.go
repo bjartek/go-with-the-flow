@@ -6,7 +6,6 @@ import (
 
 	"github.com/enescakir/emoji"
 	"github.com/spf13/afero"
-
 	"github.com/onflow/flow-cli/pkg/flowkit"
 	"github.com/onflow/flow-cli/pkg/flowkit/config"
 	"github.com/onflow/flow-cli/pkg/flowkit/gateway"

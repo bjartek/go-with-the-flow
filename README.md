@@ -12,7 +12,7 @@ contributed by me into flow-cli like the goroutine based event fetcher.
 Breaking changes between v1 and v2:
  - v1 had a config section for discord webhooks. That has been removed since the flow-cli will remove extra config things in flow.json. Store the webhook url in an env variable and use it as argument when creating the DiscordWebhook struct.
 
-Special thanks to @sideninja for helping me get my changes into flow-cli.
+Special thanks to @sideninja for helping me get my changes into flow-cli. and for jayShan that helped with fixing some issues!
 
 ## Main features
  - Create a single go file that will start emulator, deploy contracts, create accounts and run scripts and transactions. see `examples/demo/main.go` 
