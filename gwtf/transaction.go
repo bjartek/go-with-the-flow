@@ -264,7 +264,8 @@ func (t FlowTransactionBuilder) RunE() ([]flow.Event, error) {
 		return nil, err
 	}
 	// we append the mainSigners at the end here so that it signs last
-	signers := append(t.PayloadSigners, t.MainSigner)
+	signers := t.PayloadSigners
+	signers = append(signers, t.MainSigner)
 
 	signerKeyIndex := t.MainSigner.Key().Index()
 

@@ -17,7 +17,7 @@ import (
 	"github.com/onflow/flow-go-sdk/client"
 )
 
-//EventFetcherBuilder builder to hold info about eventhook context
+// EventFetcherBuilder builder to hold info about eventhook context
 type EventFetcherBuilder struct {
 	GoWithTheFlow         *GoWithTheFlow
 	EventsAndIgnoreFields map[string][]string
@@ -30,7 +30,7 @@ type EventFetcherBuilder struct {
 	EventBatchSize  uint64
 }
 
-//EventFetcher create an event fetcher builder
+// EventFetcher create an event fetcher builder
 func (f *GoWithTheFlow) EventFetcher() EventFetcherBuilder {
 	return EventFetcherBuilder{
 		GoWithTheFlow:         f,
