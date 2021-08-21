@@ -1,9 +1,10 @@
 package gwtf
 
 import (
+	"testing"
+
 	"github.com/onflow/cadence"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestCadenceValueToJsonString(t *testing.T) {

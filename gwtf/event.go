@@ -17,7 +17,7 @@ import (
 	"github.com/onflow/flow-go-sdk/client"
 )
 
-// EventFetcherBuilder builder to hold info about eventhook context
+// EventFetcherBuilder builder to hold info about eventhook context.
 type EventFetcherBuilder struct {
 	GoWithTheFlow         *GoWithTheFlow
 	EventsAndIgnoreFields map[string][]string
@@ -30,7 +30,7 @@ type EventFetcherBuilder struct {
 	EventBatchSize  uint64
 }
 
-// EventFetcher create an event fetcher builder
+// EventFetcher create an event fetcher builder.
 func (f *GoWithTheFlow) EventFetcher() EventFetcherBuilder {
 	return EventFetcherBuilder{
 		GoWithTheFlow:         f,
@@ -43,19 +43,19 @@ func (f *GoWithTheFlow) EventFetcher() EventFetcherBuilder {
 	}
 }
 
-//Workers sets the number of workers
+// Workers sets the number of workers.
 func (e EventFetcherBuilder) Workers(workers int) EventFetcherBuilder {
 	e.NumberOfWorkers = workers
 	return e
 }
 
-//BatchSize sets the size of a batch
+// BatchSize sets the size of a batch
 func (e EventFetcherBuilder) BatchSize(batchSize uint64) EventFetcherBuilder {
 	e.EventBatchSize = batchSize
 	return e
 }
 
-//Event fetches and Events and all its fields
+// Event fetches and Events and all its fields
 func (e EventFetcherBuilder) Event(eventName string) EventFetcherBuilder {
 	e.EventsAndIgnoreFields[eventName] = []string{}
 	return e
@@ -118,19 +118,24 @@ func (e EventFetcherBuilder) TrackProgressIn(fileName string) EventFetcherBuilde
 
 func exists(path string) (bool, error) {
 	_, err := os.Stat(path)
+
 	if err == nil {
 		return true, nil
 	}
+
 	if os.IsNotExist(err) {
 		return false, nil
 	}
+
 	return true, err
 }
 
 func writeProgressToFile(fileName string, blockHeight uint64) error {
+
 	err := ioutil.WriteFile(fileName, []byte(fmt.Sprintf("%d", blockHeight)), 0644)
+
 	if err != nil {
-		return fmt.Errorf("Could not create initial progress file %v", err)
+		return fmt.Errorf("could not create initial progress file %v", err)
 	}
 	return nil
 }
@@ -144,7 +149,6 @@ func readProgressFromFile(fileName string) (int64, error) {
 	stringValue := strings.TrimSpace(string(dat))
 
 	return strconv.ParseInt(stringValue, 10, 64)
-
 }
 
 //RunAndSendToWebhook runs the eventFetcher and sends the event to a webhook with the provided url
@@ -163,17 +167,18 @@ func (e EventFetcherBuilder) Run() ([]*FormatedEvent, error) {
 
 	//if we have a progress file read the value from it and set it as oldHeight
 	if e.ProgressFile != "" {
-		//TODO if file does not exist that is OK
 
 		present, err := exists(e.ProgressFile)
 		if err != nil {
 			return nil, err
 		}
+
 		if !present {
 			err := writeProgressToFile(e.ProgressFile, 0)
 			if err != nil {
 				return nil, fmt.Errorf("could not create initial progress file %v", err)
 			}
+
 			e.FromIndex = 0
 		} else {
 			oldHeight, err := readProgressFromFile(e.ProgressFile)
@@ -237,14 +242,17 @@ func PrintEvents(events []flow.Event, ignoreFields map[string][]string) {
 		log.Println("EVENTS")
 		log.Println("======")
 	}
+
 	for _, event := range events {
 		//TODO: does this change work on mainnet/testnet?
 		ignoreFieldsForType := ignoreFields[event.Type]
 		ev := ParseEvent(event, uint64(0), time.Now(), ignoreFieldsForType)
 		prettyJSON, err := json.MarshalIndent(ev, "", "    ")
+
 		if err != nil {
 			panic(err)
 		}
+
 		log.Printf("%s\n", string(prettyJSON))
 	}
 	if len(events) > 0 {
@@ -255,6 +263,7 @@ func PrintEvents(events []flow.Event, ignoreFields map[string][]string) {
 //FormatEvents
 func FormatEvents(blockEvents []client.BlockEvents, ignoreFields map[string][]string) []*FormatedEvent {
 	var events []*FormatedEvent
+
 	for _, blockEvent := range blockEvents {
 		for _, event := range blockEvent.Events {
 			ev := ParseEvent(event, blockEvent.Height, blockEvent.BlockTimestamp, ignoreFields[event.Type])
@@ -266,14 +275,20 @@ func FormatEvents(blockEvents []client.BlockEvents, ignoreFields map[string][]st
 
 //ParseEvent parses a flow event into a more terse representation
 func ParseEvent(event flow.Event, blockHeight uint64, time time.Time, ignoreFields []string) *FormatedEvent {
+
 	var fieldNames []string
+
 	for _, eventTypeFields := range event.Value.EventType.Fields {
 		fieldNames = append(fieldNames, eventTypeFields.Identifier)
 	}
+
 	finalFields := map[string]interface{}{}
+
 	for id, field := range event.Value.Fields {
+
 		skip := false
 		name := fieldNames[id]
+
 		for _, ignoreField := range ignoreFields {
 			if ignoreField == name {
 				skip = true
@@ -293,7 +308,7 @@ func ParseEvent(event flow.Event, blockHeight uint64, time time.Time, ignoreFiel
 	}
 }
 
-//FormatedEvent event in a more condensed formated form
+// FormatedEvent event in a more condensed formated form
 type FormatedEvent struct {
 	Name        string                 `json:"name"`
 	BlockHeight uint64                 `json:"blockHeight,omitempty"`

@@ -9,12 +9,14 @@ import (
 )
 
 // CadenceValueToJsonString converts a cadence.Value into a json pretty printed string
-func CadenceValueToJsonString(value cadence.Value) string {
+func CadenceValueToJsonString(value cadence.Value) string { //nolint:revive:stylecheck //will break compatibility
 	if value == nil {
 		return "{}"
 	}
+
 	result := CadenceValueToInterface(value)
 	j, err := json.MarshalIndent(result, "", "    ")
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -33,17 +35,20 @@ func CadenceValueToInterface(field cadence.Value) interface{} {
 		return CadenceValueToInterface(field.Value)
 	case cadence.Dictionary:
 		result := map[string]interface{}{}
+
 		for _, item := range field.Pairs {
 			key, err := strconv.Unquote(item.Key.String())
 			if err != nil {
 				return item.Key.String()
 			}
+
 			result[key] = CadenceValueToInterface(item.Value)
 		}
 		return result
 	case cadence.Struct:
 		result := map[string]interface{}{}
 		subStructNames := field.StructType.Fields
+
 		for j, subField := range field.Fields {
 			result[subStructNames[j].Identifier] = CadenceValueToInterface(subField)
 		}
