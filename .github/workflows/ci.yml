@@ -16,7 +16,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
         with: 
-          args: '--enable-all --issues-exit-code=0'
+          args: '--enable-all --issues-exit-code=0 -D=funlen -D=dupl'
 
   tidy:
     runs-on: ubuntu-latest

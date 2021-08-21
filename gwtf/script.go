@@ -5,10 +5,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/onflow/flow-go-sdk"
-
 	"github.com/enescakir/emoji"
 	"github.com/onflow/cadence"
+	"github.com/onflow/flow-go-sdk"
 )
 
 //FlowScriptBuilder is a struct to hold information for running a script
