@@ -159,6 +159,10 @@ func (e EventFetcherBuilder) RunAndSendToWebhook(url string) (*discordgo.Message
 		return nil, err
 	}
 
+	if len(events) == 0 {
+		return nil, nil
+	}
+
 	return NewDiscordWebhook(url).SendEventsToWebhook(events)
 }
 
