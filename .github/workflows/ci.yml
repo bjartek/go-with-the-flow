@@ -15,7 +15,8 @@ jobs:
         uses: actions/checkout@v2
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
-          args: '--enable-all --exclude-use-default=false'
+        with: 
+          args: '--enable-all --issues-exit-code=0'
 
   test:
     runs-on: ubuntu-latest
