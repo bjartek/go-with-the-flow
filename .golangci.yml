@@ -59,4 +59,4 @@ linters:
     - wsl
 
 run:
-  issues-exit-code: 1
+  issues-exit-code: 0
