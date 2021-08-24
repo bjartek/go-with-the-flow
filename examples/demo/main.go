@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/bjartek/go-with-the-flow/v2/gwtf"
+	"github.com/onflow/cadence"
 )
 
 func main() {
@@ -14,6 +15,26 @@ func main() {
 	// - when referencing accounts in the "storyline" below note that the default option is to prepened the network to the account name, This is done so that it is easy to run a storyline against emulator, tesnet and mainnet. This can be disabled with the `DoNotPrependNetworkToAccountNames` method on the g object below.
 
 	g := gwtf.NewGoWithTheFlowInMemoryEmulator()
+
+	structValue := cadence.Struct{
+		Fields: []cadence.Value{cadence.String("baz")},
+		StructType: &cadence.StructType{
+			QualifiedIdentifier: "A.f8d6e0586b0a20c7.Debug.Foo",
+			Fields: []cadence.Field{{
+				Identifier: "bar",
+				Type:       cadence.StringType{},
+			}},
+		},
+	}
+
+	g.Transaction(`
+import Debug from "../contracts/Debug.cdc"
+
+transaction(value:Debug.Foo) {
+  prepare(acct: AuthAccount) {
+	Debug.log(value.bar)
+ }
+}`).SignProposeAndPayAs("first").Argument(structValue).RunPrintEventsFull()
 
 	//this first transaction will setup a NFTCollection for the user "emulator-first".
 	// transactions are looked up in the `transactions` folder.
