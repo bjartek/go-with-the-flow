@@ -5,12 +5,12 @@ import (
 	"log"
 
 	"github.com/enescakir/emoji"
-	"github.com/spf13/afero"
 	"github.com/onflow/flow-cli/pkg/flowkit"
 	"github.com/onflow/flow-cli/pkg/flowkit/config"
 	"github.com/onflow/flow-cli/pkg/flowkit/gateway"
 	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/onflow/flow-cli/pkg/flowkit/services"
+	"github.com/spf13/afero"
 )
 
 // GoWithTheFlow Entire configuration to work with Go With the Flow
@@ -100,7 +100,11 @@ func NewGoWithTheFlowError(paths []string, network string, inMemory bool, logLev
 		gw := gateway.NewEmulatorGateway(acc)
 		service = services.NewServices(gw, state, logger)
 	} else {
-		host := state.Networks().ByName(network).Host
+		network, err := state.Networks().ByName(network)
+		if err != nil {
+			return nil, err
+		}
+		host := network.Host
 		gw, err := gateway.NewGrpcGateway(host)
 		if err != nil {
 			return nil, err
