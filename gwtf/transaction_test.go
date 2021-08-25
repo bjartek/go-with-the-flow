@@ -1,10 +1,11 @@
 package gwtf
 
 import (
+	"testing"
+
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-cli/pkg/flowkit/output"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 /*

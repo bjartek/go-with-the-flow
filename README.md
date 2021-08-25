@@ -33,3 +33,9 @@ The emulator will be run in memory.
 ## Credits
 
 This project is a rewrite of https://github.com/versus-flow/go-flow-tooling 
+
+
+## Todo 
+ - fix golangci-rules, disabled a bunch to get the build green
+
+

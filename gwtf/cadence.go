@@ -9,7 +9,7 @@ import (
 )
 
 // CadenceValueToJsonString converts a cadence.Value into a json pretty printed string
-func CadenceValueToJsonString(value cadence.Value) string { //nolint:revive:stylecheck //will break compatibility
+func CadenceValueToJsonString(value cadence.Value) string {
 	if value == nil {
 		return "{}"
 	}
