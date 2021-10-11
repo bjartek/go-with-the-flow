@@ -35,11 +35,12 @@ func CadenceValueToInterface(field cadence.Value) interface{} {
 		return CadenceValueToInterface(field.Value)
 	case cadence.Dictionary:
 		result := map[string]interface{}{}
-
 		for _, item := range field.Pairs {
 			key, err := strconv.Unquote(item.Key.String())
 			if err != nil {
-				return item.Key.String()
+				result[item.Key.String()] = CadenceValueToInterface(item.Value)
+				log.Println(err)
+				continue
 			}
 
 			result[key] = CadenceValueToInterface(item.Value)
