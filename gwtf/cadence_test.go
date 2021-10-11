@@ -39,6 +39,18 @@ func TestCadenceValueToJsonString(t *testing.T) {
 }`, value)
 	})
 
+	t.Run("Dictionary nested", func(t *testing.T) {
+		subDict := cadence.NewDictionary([]cadence.KeyValuePair{{Key: cadence.NewString("foo"), Value: cadence.NewString("bar")}})
+		dict := cadence.NewDictionary([]cadence.KeyValuePair{{Key: cadence.NewString("foo"), Value: cadence.NewString("bar")}, {Key: cadence.NewString("subdict"), Value: subDict}})
+		value := CadenceValueToJsonString(dict)
+		assert.Equal(t, `{
+    "foo": "bar",
+    "subdict": {
+        "foo": "bar"
+    }
+}`, value)
+	})
+
 	t.Run("Dictionary", func(t *testing.T) {
 		dict := cadence.NewDictionary([]cadence.KeyValuePair{{Key: cadence.NewUInt64(1), Value: cadence.NewUInt64(1)}})
 		value := CadenceValueToJsonString(dict)
