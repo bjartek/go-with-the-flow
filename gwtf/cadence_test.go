@@ -39,6 +39,14 @@ func TestCadenceValueToJsonString(t *testing.T) {
 }`, value)
 	})
 
+	t.Run("Dictionary", func(t *testing.T) {
+		dict := cadence.NewDictionary([]cadence.KeyValuePair{{Key: cadence.NewUInt64(1), Value: cadence.NewUInt64(1)}})
+		value := CadenceValueToJsonString(dict)
+		assert.Equal(t, `{
+    "1": "1"
+}`, value)
+	})
+
 	t.Run("Struct", func(t *testing.T) {
 
 		s := cadence.Struct{
