@@ -39,7 +39,6 @@ func CadenceValueToInterface(field cadence.Value) interface{} {
 			key, err := strconv.Unquote(item.Key.String())
 			if err != nil {
 				result[item.Key.String()] = CadenceValueToInterface(item.Value)
-				log.Println(err)
 				continue
 			}
 
