@@ -804,10 +804,12 @@ github.com/onflow/cadence v0.18.1-0.20210621144040-64e6b6fb2337/go.mod h1:iR/tZp
 github.com/onflow/cadence/languageserver v0.15.2/go.mod h1:hQGE8dYH5CfQ1Oe0nXglchgURzZwR3JQhmuXtv4ROHs=
 github.com/onflow/cadence/languageserver v0.16.0/go.mod h1:UPV1so9LcMrhj27IegrTucoyS4TLRVjNr4DJqjqBhFA=
 github.com/onflow/cadence/languageserver v0.18.2/go.mod h1:ehuDCUevEEavUzgJqLevcZPjfmTzMBX7Sglbi5ur9uU=
+github.com/onflow/cadence/languageserver v0.18.3-0.20210922170423-869cc8faab9b/go.mod h1:6/eWErcmjSo1zxA8MKp6UDtTr3ntAv9qdh9ctMhzULU=
 github.com/onflow/flow-cli v0.20.3-0.20210512000809-474effb7e7db/go.mod h1:Yh4dgrNiZdXhbU+3UVUmo4gRM0TEBVvhW4ITKVo82dg=
 github.com/onflow/flow-cli v0.23.1-0.20210621124332-11c4cd22ffb4/go.mod h1:OD9UVPFIvktnO86dSLavf1tTVFIsKQ5By5KBBDLfC3Q=
-github.com/onflow/flow-cli v0.28.0 h1:Tks5pA98JKy2OzfWgSP6Vif6YeZzBOSP3xBZZkONVuc=
-github.com/onflow/flow-cli v0.28.0/go.mod h1:u3ywH3krvQh1y/suStSu0q2eptLh+ugXQGaG2KmvppU=
+github.com/onflow/flow-cli v0.28.2/go.mod h1:u3ywH3krvQh1y/suStSu0q2eptLh+ugXQGaG2KmvppU=
+github.com/onflow/flow-cli v0.28.3 h1:gC9KYvbKwWxTqxEbgg2KYyB6gtJjW9FLI4hH+bE9p9A=
+github.com/onflow/flow-cli v0.28.3/go.mod h1:U92Ng9z1l7u8G5ie1C8O7xsg9xr6P9FOP/tFquPPHAg=
 github.com/onflow/flow-core-contracts/lib/go/contracts v0.7.2/go.mod h1:IZ2e7UyLCYmpQ8Kd7k0A32uXqdqfiV1r2sKs5/riblo=
 github.com/onflow/flow-core-contracts/lib/go/contracts v0.7.3-0.20210527134022-58c25247091a/go.mod h1:IZ2e7UyLCYmpQ8Kd7k0A32uXqdqfiV1r2sKs5/riblo=
 github.com/onflow/flow-core-contracts/lib/go/contracts v0.7.3 h1:Rxu1KvTPlSfR0pneog/r1HkS4fszJL2AS28QK4qHOTQ=
