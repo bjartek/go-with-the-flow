@@ -2,10 +2,11 @@ package main
 
 import (
 	"bytes"
-	"github.com/stretchr/testify/assert"
 	"log"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 
 	"github.com/bjartek/go-with-the-flow/v2/gwtf"
 )
@@ -17,17 +18,16 @@ func TestTransaction(t *testing.T) {
 	g := gwtf.NewTestingEmulator()
 	t.Parallel()
 
-
 	t.Run("fail on missing signer", func(t *testing.T) {
 		g.TransactionFromFile("create_nft_collection").
-			Test(t).         //This method will return a TransactionResult that we can assert upon
+			Test(t).                                         //This method will return a TransactionResult that we can assert upon
 			AssertFailure("You need to set the main signer") //we assert that there is a failure
 	})
 
 	t.Run("fail on wrong transaction name", func(t *testing.T) {
 		g.TransactionFromFile("create_nf_collection").
 			SignProposeAndPayAs("first").
-			Test(t).         //This method will return a TransactionResult that we can assert upon
+			Test(t).                                                                                           //This method will return a TransactionResult that we can assert upon
 			AssertFailure("Could not read transaction file from path=./transactions/create_nf_collection.cdc") //we assert that there is a failure
 	})
 
@@ -47,6 +47,7 @@ func TestTransaction(t *testing.T) {
 			Test(t).
 			AssertSuccess().
 			AssertEventCount(3).                                                                                                                                                                           //assert the number of events returned
+			AssertPartialEvent(gwtf.NewTestEvent("A.0ae53cb6e3f42a79.FlowToken.TokensDeposited", map[string]interface{}{"amount": "100.00000000"})).                                                       //assert a given event, can also take multiple events if you like
 			AssertEmitEventName("A.0ae53cb6e3f42a79.FlowToken.TokensMinted").                                                                                                                              //assert the name of a single event
 			AssertEmitEventName("A.0ae53cb6e3f42a79.FlowToken.TokensMinted", "A.0ae53cb6e3f42a79.FlowToken.TokensDeposited", "A.0ae53cb6e3f42a79.FlowToken.MinterCreated").                                //or assert more then one eventname in a go
 			AssertEmitEvent(gwtf.NewTestEvent("A.0ae53cb6e3f42a79.FlowToken.TokensMinted", map[string]interface{}{"amount": "100.00000000"})).                                                             //assert a given event, can also take multiple events if you like
