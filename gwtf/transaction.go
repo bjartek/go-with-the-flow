@@ -225,6 +225,16 @@ func (t FlowTransactionBuilder) Argument(value cadence.Value) FlowTransactionBui
 	return t
 }
 
+// Argument add an argument to the transaction
+func (t FlowTransactionBuilder) StringArrayArgument(value ...string) FlowTransactionBuilder {
+	array := []cadence.Value{}
+	for _, val := range value {
+		array = append(array, cadence.NewString(val))
+	}
+	t.Arguments = append(t.Arguments, cadence.NewArray(array))
+	return t
+}
+
 // PayloadSigner set a signer for the payload
 func (t FlowTransactionBuilder) PayloadSigner(value string) FlowTransactionBuilder {
 	signer := t.GoWithTheFlow.Account(value)
