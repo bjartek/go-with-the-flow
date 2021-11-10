@@ -39,3 +39,4 @@ This project is a rewrite of https://github.com/versus-flow/go-flow-tooling
  - fix golangci-rules, disabled a bunch to get the build green
 
 
+

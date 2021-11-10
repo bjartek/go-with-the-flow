@@ -2,7 +2,6 @@ package gwtf
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/enescakir/emoji"
@@ -191,7 +190,7 @@ func (t FlowScriptBuilder) UFix64Argument(value string) FlowScriptBuilder {
 // Run executes a read only script
 func (t FlowScriptBuilder) Run() {
 	result := t.RunFailOnError()
-	log.Printf("%v Script run from result: %v\n", emoji.Star, CadenceValueToJsonString(result))
+	t.GoWithTheFlow.Logger.Info(fmt.Sprintf("%v Script run from result: %v\n", emoji.Star, CadenceValueToJsonString(result)))
 }
 
 // RunReturns executes a read only script
