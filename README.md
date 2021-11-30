@@ -22,6 +22,9 @@ These go scripts also make writing integration tests of your smart contracts muc
 
 - When specifying extra accounts that are created on emulator they are created in alphabetical order, the addresses the emulator assign is always fixed.
 - tldr; Name your stakeholder accounts in alphabetical order
+- When writing integration tests, tests must be in the same folder as flow.json
+with contracts and transactions/scripts in subdirectories in order for the path resolver
+to work correctly
 
 ### Note on v2
 
@@ -39,6 +42,48 @@ Special thanks to @sideninja for helping me get my changes into flow-cli. and fo
 - Run the demo example in this project with `cd example && make`. The emulator will be run in memory.
 - Check [other codebases](https://github.com/bjartek/go-with-the-flow/network/dependents?package_id=UGFja2FnZS0yMjc1NjE0OTAz) that use this project
 - Feel free to ask questions to @bjartek in the Flow Discord.
+
+## Usage
+
+First create a project directory, initialize the go module and install `go-with-the-flow`:
+
+```sh
+mkdir test-gwtf && cd test-gtwf
+flow init
+go mod init example.com/test-gwtf
+go get github.com/bjartek/go-with-the-flow/v2/gwtf
+```
+
+Then create a task file:
+
+```sh
+touch tasks/main.go
+```
+
+In that task file, you can then import `go-with-the-flow` and use it to your convenience, for example:
+
+```go
+package main
+
+import (
+    "fmt"
+
+    "github.com/bjartek/go-with-the-flow/v2/gwtf"
+)
+
+func main() {
+    g := gwtf.NewGoWithTheFlowInMemoryEmulator()
+    fmt.Printf("%v", g.State.Accounts())
+}
+```
+
+Then you can run
+
+```sh
+go run ./tasks/main.go
+```
+
+This is a minimal example that only prints accounts, but from there you can branch out.
 
 ## Credits
 
