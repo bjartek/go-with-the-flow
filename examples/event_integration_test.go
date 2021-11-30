@@ -22,7 +22,7 @@ func TestEvents(t *testing.T) {
 
 		_, err := g.EventFetcher().End(2).From(-10).Event("A.0ae53cb6e3f42a79.FlowToken.TokensMinted").Run()
 		assert.Error(t, err)
-		assert.Contains(t, "FromIndex is negative", err.Error())
+		assert.Contains(t, err.Error(), "FromIndex is negative")
 	})
 
 	t.Run("Fetch last events", func(t *testing.T) {
