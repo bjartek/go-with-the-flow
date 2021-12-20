@@ -229,7 +229,11 @@ func (t FlowTransactionBuilder) Argument(value cadence.Value) FlowTransactionBui
 func (t FlowTransactionBuilder) StringArrayArgument(value ...string) FlowTransactionBuilder {
 	array := []cadence.Value{}
 	for _, val := range value {
-		array = append(array, cadence.NewString(val))
+		value, err := cadence.NewString(val)
+		if err != nil {
+			panic(err)
+		}
+		array = append(array, value)
 	}
 	t.Arguments = append(t.Arguments, cadence.NewArray(array))
 	return t

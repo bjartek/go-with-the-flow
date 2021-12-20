@@ -20,11 +20,11 @@ func TestCadenceValueToJsonString(t *testing.T) {
 		assert.Equal(t, `""`, value)
 	})
 	t.Run("Unwrap optional", func(t *testing.T) {
-		value := CadenceValueToJsonString(cadence.NewOptional(cadence.NewString("foo")))
+		value := CadenceValueToJsonString(cadence.NewOptional(NewCadenceString("foo")))
 		assert.Equal(t, `"foo"`, value)
 	})
 	t.Run("Array", func(t *testing.T) {
-		value := CadenceValueToJsonString(cadence.NewArray([]cadence.Value{cadence.NewString("foo"), cadence.NewString("bar")}))
+		value := CadenceValueToJsonString(cadence.NewArray([]cadence.Value{NewCadenceString("foo"), NewCadenceString("bar")}))
 		assert.Equal(t, `[
     "foo",
     "bar"
@@ -32,7 +32,7 @@ func TestCadenceValueToJsonString(t *testing.T) {
 	})
 
 	t.Run("Dictionary", func(t *testing.T) {
-		dict := cadence.NewDictionary([]cadence.KeyValuePair{{Key: cadence.NewString("foo"), Value: cadence.NewString("bar")}})
+		dict := cadence.NewDictionary([]cadence.KeyValuePair{{Key: NewCadenceString("foo"), Value: NewCadenceString("bar")}})
 		value := CadenceValueToJsonString(dict)
 		assert.Equal(t, `{
     "foo": "bar"
@@ -40,8 +40,8 @@ func TestCadenceValueToJsonString(t *testing.T) {
 	})
 
 	t.Run("Dictionary nested", func(t *testing.T) {
-		subDict := cadence.NewDictionary([]cadence.KeyValuePair{{Key: cadence.NewString("foo"), Value: cadence.NewString("bar")}})
-		dict := cadence.NewDictionary([]cadence.KeyValuePair{{Key: cadence.NewString("foo"), Value: cadence.NewString("bar")}, {Key: cadence.NewString("subdict"), Value: subDict}})
+		subDict := cadence.NewDictionary([]cadence.KeyValuePair{{Key: NewCadenceString("foo"), Value: NewCadenceString("bar")}})
+		dict := cadence.NewDictionary([]cadence.KeyValuePair{{Key: NewCadenceString("foo"), Value: NewCadenceString("bar")}, {Key: NewCadenceString("subdict"), Value: subDict}})
 		value := CadenceValueToJsonString(dict)
 		assert.Equal(t, `{
     "foo": "bar",
@@ -62,7 +62,7 @@ func TestCadenceValueToJsonString(t *testing.T) {
 	t.Run("Struct", func(t *testing.T) {
 
 		s := cadence.Struct{
-			Fields: []cadence.Value{cadence.NewString("bar")},
+			Fields: []cadence.Value{NewCadenceString("bar")},
 			StructType: &cadence.StructType{
 				Fields: []cadence.Field{{
 					Identifier: "foo",
@@ -76,4 +76,12 @@ func TestCadenceValueToJsonString(t *testing.T) {
 }`, value)
 	})
 
+}
+
+func NewCadenceString(value string) cadence.String {
+	cadenceValue, err := cadence.NewString(value)
+	if err != nil {
+		panic(err)
+	}
+	return cadenceValue
 }
